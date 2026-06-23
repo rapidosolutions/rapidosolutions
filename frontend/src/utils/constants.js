@@ -5,8 +5,8 @@ export const mainUSP =
   "We do not just build websites. We build digital systems that help businesses look professional, attract customers, convert visitors, and grow with confidence.";
 
 export const contactDetails = {
-  email: "hello@rapidosolutions.co",
-  phone: "+1 (555) 217-9018",
+  email: "rapidosolutionsco@outlook.com",
+  phone: "+92 331 3339840",
   location: "Serving businesses remotely",
   social: "@rapidosolutionsco"
 };

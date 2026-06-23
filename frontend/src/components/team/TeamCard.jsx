@@ -6,11 +6,16 @@ export default function TeamCard({ member, index = 0 }) {
     <ScrollReveal
       delay={index * 0.04}
       data-team-card="true"
-      className="group overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-premium"
+      className="group flex h-full flex-col overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-premium"
     >
       <div className="relative h-72 overflow-hidden bg-rapido-mist">
         {member.image ? (
-          <img src={member.image} alt={`${member.name}, ${member.role}`} className="h-full w-full object-cover object-center" />
+          <img
+            src={member.image}
+            alt={`${member.name}, ${member.role}`}
+            style={{ objectPosition: member.imagePosition || "center" }}
+            className={`h-full w-full ${member.imageFit === "contain" ? "object-contain" : "object-cover"} ${member.imageClass || ""}`}
+          />
         ) : (
           <div className="grid h-full place-items-center bg-gradient-to-br from-rapido-mist to-blue-100">
             <div className="grid h-24 w-24 place-items-center rounded-lg bg-white text-3xl font-extrabold text-rapido-blue shadow-sm">
@@ -22,11 +27,11 @@ export default function TeamCard({ member, index = 0 }) {
           <Icon name={member.icon} className="h-5 w-5" />
         </div>
       </div>
-      <div className="p-6">
+      <div className="flex flex-1 flex-col p-6">
         <h3 data-team-name className="text-xl font-extrabold text-rapido-navy">{member.name}</h3>
         <p data-team-role className="mt-2 text-sm font-extrabold uppercase tracking-[0.12em] text-rapido-blue">{member.role}</p>
         <p className="mt-4 leading-7 text-rapido-slate">{member.summary}</p>
-        <div className="mt-5 flex flex-wrap gap-2">
+        <div className="mt-auto flex flex-wrap gap-2 pt-5">
           {member.expertise.map((item) => (
             <span key={item} className="rounded-full bg-rapido-mist px-3 py-1 text-xs font-extrabold text-rapido-blue">
               {item}

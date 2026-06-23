@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import Hero from "../components/home/Hero";
 import ServicesBento from "../components/home/ServicesBento";
+import FinancialServicesPreview from "../components/home/FinancialServicesPreview";
 import WhyChooseRapido from "../components/home/WhyChooseRapido";
 import WorkShowcase from "../components/home/WorkShowcase";
 import ProcessSection from "../components/home/ProcessSection";
@@ -21,6 +22,7 @@ export default function Home() {
     <motion.main {...pageTransition}>
       <Hero />
       <ServicesBento />
+      <FinancialServicesPreview />
       <WhyChooseRapido />
       <WorkShowcase />
       <ProcessSection />

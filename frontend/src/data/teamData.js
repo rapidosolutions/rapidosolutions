@@ -1,23 +1,31 @@
 import samarKhanImage from "../assets/team/samar-khan.jpg";
+import sabaNadeemImage from "../assets/team/saba-nadeem.jpg";
+import zunairAhmedKhanImage from "../assets/team/zunair-ahmed-khan.png";
+import imranBashirImage from "../assets/team/m-imran-bashir.png";
 
 export const teamMembers = [
   {
-    name: "Zain Ahmed",
-    role: "Founder",
-    initials: "ZA",
-    icon: "FiTarget",
-    summary:
-      "Shapes Rapido's vision around reliable digital systems, clear communication, and long-term business support.",
-    expertise: ["Vision", "Partnerships", "Growth"]
-  },
-  {
-    name: "Ayesha Rahman",
-    role: "CEO",
-    initials: "AR",
+    name: "M. Imran Bashir",
+    role: "Manager Operational Analyst",
+    image: imranBashirImage,
+    imagePosition: "center 20%",
+    initials: "MIB",
     icon: "FiBriefcase",
     summary:
-      "Leads company direction, client relationships, service quality, and growth planning across web and financial service operations.",
-    expertise: ["Business Strategy", "Client Success", "Operations"]
+      "Manages company operations, client bookkeeping and financial records, contracts, documentation, databases, and confidential information.",
+    expertise: ["Operations", "Bookkeeping", "Contracts", "Database Management", "Confidentiality"]
+  },
+  {
+    name: "Saba Nadeem",
+    role: "Business Development Officer",
+    image: sabaNadeemImage,
+    imagePosition: "center 72%",
+    imageClass: "scale-[1.45]",
+    initials: "SN",
+    icon: "FiTrendingUp",
+    summary:
+      "Builds client relationships, identifies growth opportunities, coordinates outreach, and supports business development initiatives.",
+    expertise: ["Business Development", "Client Relations", "Growth Strategy"]
   },
   {
     name: "Samar Khan",
@@ -30,12 +38,15 @@ export const teamMembers = [
     expertise: ["Full Stack Development", "React", "Web Performance"]
   },
   {
-    name: "Hamza Malik",
-    role: "Finance Expert",
-    initials: "HM",
-    icon: "FiPieChart",
+    name: "Zunair Ahmed Khan",
+    role: "Graphics Designer",
+    image: zunairAhmedKhanImage,
+    imageFit: "contain",
+    imageClass: "p-8 sm:p-10",
+    initials: "ZAK",
+    icon: "FiPenTool",
     summary:
-      "Supports bookkeeping, reconciliations, reporting, and financial workflow organization for businesses and property teams.",
-    expertise: ["Bookkeeping", "Reporting", "Reconciliations"]
+      "Creates graphic design, UX/UI, web design, branding, logo, and social media work that keeps visual communication clear and consistent.",
+    expertise: ["Graphic Design", "UX/UI Design", "Web Design", "Branding & Logos", "Social Media"]
   }
 ];

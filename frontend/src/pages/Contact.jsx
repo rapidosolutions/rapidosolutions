@@ -17,7 +17,7 @@ export default function Contact() {
       <PageHero
         eyebrow="Contact"
         title="Tell Us What You Want to Build, Fix, Improve, or Organize"
-        description="Use the form to share your project, service interest, company details, and budget range. This version uses a polished mock submission state and is ready for EmailJS or backend integration later."
+        description="Share your project, service interest, company details, and budget range. Your request is securely saved and sent directly to the Rapido team."
       />
 
       <section className="section-padding bg-white">

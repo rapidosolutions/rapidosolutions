@@ -94,7 +94,7 @@ export default function Footer() {
             <div className="mt-5 grid gap-4 text-sm font-semibold text-blue-100">
               <a
                 href={`mailto:${contactDetails.email}`}
-                className="flex items-center gap-3 transition hover:text-white"
+                className="flex items-center gap-3 transition hover:text-white break-all"
               >
                 <Icon name="FiMail" className="h-4 w-4 shrink-0 text-white" />
                 {contactDetails.email}

@@ -25,8 +25,8 @@ export default function HomeCTA() {
               <Button to="/contact" variant="primary" size="lg">
                 Book a Free Consultation
               </Button>
-              <Button to="/financial-services" variant="light" size="lg" icon="FiPieChart">
-                Explore Financial Services
+              <Button to="/contact" variant="light" size="lg" icon="FiPieChart">
+                Request Financial Support
               </Button>
               <Button to="/contact" variant="light" size="lg" icon="FiSearch">
                 Request a Website Review

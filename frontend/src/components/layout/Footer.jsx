@@ -96,18 +96,18 @@ export default function Footer() {
                 href={`mailto:${contactDetails.email}`}
                 className="flex items-center gap-3 transition hover:text-white"
               >
-                <Icon name="FiMail" className="h-4 w-4 text-white" />
+                <Icon name="FiMail" className="h-4 w-4 shrink-0 text-white" />
                 {contactDetails.email}
               </a>
               <a
                 href={`tel:${contactDetails.phone}`}
                 className="flex items-center gap-3 transition hover:text-white"
               >
-                <Icon name="FiPhone" className="h-4 w-4 text-white" />
+                <Icon name="FiPhone" className="h-4 w-4 shrink-0 text-white" />
                 {contactDetails.phone}
               </a>
               <span className="flex items-center gap-3">
-                <Icon name="FiMapPin" className="h-4 w-4 text-white" />
+                <Icon name="FiMapPin" className="h-4 w-4 shrink-0 text-white" />
                 {contactDetails.location}
               </span>
             </div>

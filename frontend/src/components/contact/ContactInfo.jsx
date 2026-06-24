@@ -4,8 +4,8 @@ import Button from "../common/Button";
 import Icon from "../ui/Icon";
 
 const items = [
-  { label: "Email", value: contactDetails.email, icon: "FiMail" },
-  { label: "Phone / WhatsApp", value: contactDetails.phone, icon: "FiPhone" },
+  { label: "Email", value: contactDetails.email, icon: "FiMail", href: `mailto:${contactDetails.email}` },
+  { label: "Phone / WhatsApp", value: contactDetails.phone, icon: "FiPhone", href: `tel:${contactDetails.phone}` },
   { label: "Location", value: contactDetails.location, icon: "FiMapPin" },
   { label: "Social", value: contactDetails.social, icon: "FiMessageCircle" }
 ];
@@ -27,7 +27,13 @@ export default function ContactInfo() {
             <Icon name={item.icon} className="mt-1 h-5 w-5 shrink-0 text-rapido-cyan" />
             <div>
               <p className="text-sm font-extrabold uppercase tracking-[0.14em] text-blue-100">{item.label}</p>
-              <p className="mt-1 font-bold">{item.value}</p>
+              {item.href ? (
+                <a className="mt-1 inline-block font-bold transition hover:text-rapido-cyan" href={item.href}>
+                  {item.value}
+                </a>
+              ) : (
+                <p className="mt-1 font-bold">{item.value}</p>
+              )}
             </div>
           </div>
         ))}

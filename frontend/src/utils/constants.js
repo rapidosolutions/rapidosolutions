@@ -7,7 +7,7 @@ export const mainUSP =
 export const contactDetails = {
   email: "rapidosolutionsco@outlook.com",
   phone: "+17542158222",
-  location: "United States, TX · 31.463848, -99.333298",
+  location: "United States, TX",
   social: "@rapidosolutionsco"
 };
 

@@ -92,14 +92,20 @@ export default function Footer() {
           <div>
             <h3 className="text-sm font-extrabold uppercase tracking-[0.16em] text-rapido-cyan">Contact</h3>
             <div className="mt-5 grid gap-4 text-sm font-semibold text-blue-100">
-              <span className="flex items-center gap-3">
+              <a
+                href={`mailto:${contactDetails.email}`}
+                className="flex items-center gap-3 transition hover:text-white"
+              >
                 <Icon name="FiMail" className="h-4 w-4 text-white" />
                 {contactDetails.email}
-              </span>
-              <span className="flex items-center gap-3">
+              </a>
+              <a
+                href={`tel:${contactDetails.phone}`}
+                className="flex items-center gap-3 transition hover:text-white"
+              >
                 <Icon name="FiPhone" className="h-4 w-4 text-white" />
                 {contactDetails.phone}
-              </span>
+              </a>
               <span className="flex items-center gap-3">
                 <Icon name="FiMapPin" className="h-4 w-4 text-white" />
                 {contactDetails.location}

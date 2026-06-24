@@ -4,7 +4,7 @@ import { useInView } from "framer-motion";
 export default function AnimatedCounter({ value, suffix = "", duration = 900 }) {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-80px" });
-  const [count, setCount] = useState(0);
+  const [count, setCount] = useState(Number(value));
 
   useEffect(() => {
     if (!inView) return;

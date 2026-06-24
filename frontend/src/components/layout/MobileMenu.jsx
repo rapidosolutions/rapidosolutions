@@ -9,7 +9,7 @@ import rapidoIcon from "../../assets/logo/rapido-icon-cropped.png";
 export default function MobileMenu({ open, onClose }) {
   return (
     <motion.aside
-      className="fixed inset-y-0 right-0 z-50 flex w-full max-w-sm flex-col bg-white p-6 shadow-premium lg:hidden"
+      className="mobile-menu-scroll fixed inset-y-0 right-0 z-50 flex w-full max-w-sm flex-col overflow-y-auto overscroll-contain bg-white p-6 shadow-premium lg:hidden"
       variants={drawerVariants}
       initial="closed"
       animate={open ? "open" : "closed"}
@@ -32,7 +32,7 @@ export default function MobileMenu({ open, onClose }) {
         </button>
       </div>
 
-      <nav className="mt-10 grid gap-2">
+      <nav className="mt-8 grid gap-2 pb-6">
         {navLinks.map((link) =>
           link.children ? (
             <div key={link.path} className="rounded-lg border border-slate-200 p-2">
@@ -77,7 +77,7 @@ export default function MobileMenu({ open, onClose }) {
         )}
       </nav>
 
-      <div className="mt-auto grid gap-3">
+      <div className="mt-auto grid gap-3 pb-2">
         <Button to="/contact" size="lg" onClick={onClose}>
           Book a Free Consultation
         </Button>

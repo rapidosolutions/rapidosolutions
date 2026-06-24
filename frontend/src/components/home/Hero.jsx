@@ -8,18 +8,18 @@ import rapidoIcon from "../../assets/logo/rapido-icon-cropped.png";
 
 const metrics = [
   { value: 100, suffix: "%", label: "Responsive Builds" },
-  { value: 7, suffix: "+", label: "Web Service Areas" },
-  { value: 10, suffix: "+", label: "Industries Served" }
+  { value: 6, suffix: "+", label: "Web Services" },
+  { value: 4, suffix: "+", label: "Financial Services" }
 ];
 
 export default function Hero() {
   return (
-    <section className="relative min-h-screen overflow-hidden bg-hero-surface pt-32 text-white">
+    <section className="relative overflow-hidden bg-hero-surface pb-14 pt-24 text-white sm:pt-28 lg:min-h-screen lg:pt-32">
       <div className="absolute inset-0 bg-grid-dark blueprint opacity-35" aria-hidden="true" />
       <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-white to-transparent" aria-hidden="true" />
 
-      <div className="container-shell relative z-10 grid min-h-[calc(100vh-8rem)] items-center gap-14 pb-24 lg:grid-cols-[1fr_0.9fr]">
-        <div>
+      <div className="container-shell relative z-10 grid min-w-0 items-start gap-9 lg:min-h-[calc(100vh-8rem)] lg:grid-cols-[1fr_0.9fr] lg:items-center lg:gap-14">
+        <div className="min-w-0">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -30,7 +30,7 @@ export default function Hero() {
             </Badge>
           </motion.div>
           <motion.h1
-            className="mt-6 max-w-3xl font-display text-4xl font-extrabold leading-[1.08] text-balance sm:text-5xl md:text-6xl"
+            className="mt-6 max-w-3xl font-display text-4xl font-extrabold leading-[1.08] text-balance sm:text-5xl lg:text-6xl"
             initial={{ opacity: 0, y: 26 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.08 }}
@@ -51,13 +51,13 @@ export default function Hero() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.3 }}
           >
-            <Button to="/contact" size="lg">
+            <Button to="/contact" size="lg" className="w-full sm:w-auto">
               Start Your Project
             </Button>
-            <Button to="/web-services" variant="light" size="lg">
+            <Button to="/web-services" variant="light" size="lg" className="w-full sm:w-auto">
               Explore Web Services
             </Button>
-            <Button to="/financial-services" variant="secondary" size="lg" className="bg-white text-rapido-navy">
+            <Button to="/financial-services" variant="secondary" size="lg" className="w-full bg-white text-rapido-navy sm:w-auto">
               Explore Financial Services
             </Button>
           </motion.div>
@@ -69,7 +69,7 @@ export default function Hero() {
             transition={{ duration: 0.7, delay: 0.38 }}
           >
             {metrics.map((metric) => (
-              <div key={metric.label} className="rounded-lg border border-white/[0.14] bg-white/10 p-4 backdrop-blur-xl">
+              <div key={metric.label} className="min-w-0 rounded-lg border border-white/[0.14] bg-white/10 p-4 backdrop-blur-xl">
                 <p className="font-display text-2xl font-extrabold">
                   <AnimatedCounter value={metric.value} suffix={metric.suffix} />
                 </p>
@@ -79,7 +79,7 @@ export default function Hero() {
           </motion.div>
         </div>
 
-        <div className="relative pb-8 lg:pb-0">
+        <div className="relative min-w-0">
           <div className="mb-5 flex items-center gap-3 rounded-lg border border-white/[0.16] bg-white/10 p-3 backdrop-blur-xl lg:absolute lg:-left-8 lg:top-2 lg:z-20">
             <img src={rapidoIcon} alt="Rapido Solutions Co. icon" className="h-11 w-11 rounded-lg object-contain" />
             <div>

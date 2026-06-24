@@ -18,6 +18,8 @@
 }
 
 html {
+  max-width: 100%;
+  overflow-x: hidden;
   scroll-behavior: smooth;
 }
 
@@ -30,8 +32,21 @@ body {
     #f8fbff;
 }
 
+#root {
+  min-height: 100vh;
+  max-width: 100%;
+  overflow-x: clip;
+}
+
 body.menu-open {
   overflow: hidden;
+}
+
+img,
+svg,
+video,
+canvas {
+  max-width: 100%;
 }
 
 button,
@@ -52,12 +67,12 @@ a {
 }
 
 .container-shell {
-  width: min(1180px, calc(100% - 32px));
+  width: min(1180px, calc(100% - 24px));
   margin-inline: auto;
 }
 
 .section-padding {
-  padding-block: clamp(56px, 8vw, 96px);
+  padding-block: clamp(42px, 6vw, 76px);
 }
 
 .text-balance {
@@ -81,4 +96,22 @@ a {
 .hide-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+.mobile-menu-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #94a3b8 #f8fafc;
+}
+
+.mobile-menu-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+
+.mobile-menu-scroll::-webkit-scrollbar-track {
+  background: #f8fafc;
+}
+
+.mobile-menu-scroll::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: #94a3b8;
 }

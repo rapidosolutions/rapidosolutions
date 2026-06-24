@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { navLinks } from "../../data/navLinks";
@@ -11,12 +11,33 @@ export default function Navbar() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [projectMenuOpen, setProjectMenuOpen] = useState(false);
+  const projectMenuTimer = useRef(null);
   const location = useLocation();
+
+  const clearProjectMenuTimer = () => {
+    if (projectMenuTimer.current) {
+      window.clearTimeout(projectMenuTimer.current);
+      projectMenuTimer.current = null;
+    }
+  };
+
+  const openProjectMenu = () => {
+    clearProjectMenuTimer();
+    setProjectMenuOpen(true);
+  };
+
+  const scheduleProjectMenuClose = () => {
+    clearProjectMenuTimer();
+    projectMenuTimer.current = window.setTimeout(() => setProjectMenuOpen(false), 2500);
+  };
 
   useEffect(() => {
     setOpen(false);
     setProjectMenuOpen(false);
+    clearProjectMenuTimer();
   }, [location.pathname, location.search]);
+
+  useEffect(() => () => clearProjectMenuTimer(), []);
 
   useEffect(() => {
     document.body.classList.toggle("menu-open", open);
@@ -56,8 +77,8 @@ export default function Navbar() {
                 <div
                   key={link.path}
                   className="relative"
-                  onMouseEnter={() => setProjectMenuOpen(true)}
-                  onMouseLeave={() => setProjectMenuOpen(false)}
+                  onMouseEnter={openProjectMenu}
+                  onMouseLeave={scheduleProjectMenuClose}
                 >
                   <button
                     aria-expanded={projectMenuOpen}
@@ -67,12 +88,17 @@ export default function Navbar() {
                         : "text-slate-700 hover:bg-slate-50 hover:text-rapido-blue"
                     }`}
                     type="button"
-                    onClick={() => setProjectMenuOpen((current) => !current)}
+                    onClick={() => {
+                      clearProjectMenuTimer();
+                      setProjectMenuOpen(true);
+                    }}
                   >
                     {link.label}
                     <Icon name="FiChevronDown" className="h-4 w-4" />
                   </button>
                   <div
+                    onMouseEnter={openProjectMenu}
+                    onMouseLeave={scheduleProjectMenuClose}
                     className={`absolute left-0 top-full z-50 mt-2 w-56 rounded-lg border border-slate-200 bg-white p-2 shadow-premium transition duration-200 ${
                       projectMenuOpen ? "visible translate-y-0 opacity-100" : "invisible translate-y-2 opacity-0"
                     }`}

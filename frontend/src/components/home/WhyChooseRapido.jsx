@@ -6,7 +6,7 @@ import Icon from "../ui/Icon";
 
 export default function WhyChooseRapido() {
   return (
-    <section className="section-padding bg-rapido-mist">
+    <section className="bg-rapido-mist py-12 md:py-16">
       <div className="container-shell grid items-center gap-12 lg:grid-cols-[0.95fr_1.05fr]">
         <ScrollReveal>
           <Badge icon="FiTarget">Why choose Rapido</Badge>
@@ -19,8 +19,8 @@ export default function WhyChooseRapido() {
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <Button to="/about">Learn About Rapido</Button>
-            <Button to="/projects" variant="secondary">
-              View Projects
+            <Button to="/web-services" variant="secondary">
+              Explore Services
             </Button>
           </div>
         </ScrollReveal>

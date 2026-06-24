@@ -14,7 +14,7 @@ export default function FinancialServicesPreview() {
   const featuredServices = financialServices.filter((service) => featuredServiceTitles.includes(service.title));
 
   return (
-    <section className="section-padding bg-rapido-mist">
+    <section className="bg-rapido-mist py-12 md:py-16">
       <div className="container-shell">
         <SectionHeader
           eyebrow="Financial Services"

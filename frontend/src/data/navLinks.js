@@ -10,7 +10,6 @@ export const navLinks = [
       { label: "Financial Projects", path: "/projects?type=financial" }
     ]
   },
-  { label: "Blogs", path: "/blogs" },
   { label: "About", path: "/about" },
   { label: "Contact", path: "/contact" }
 ];

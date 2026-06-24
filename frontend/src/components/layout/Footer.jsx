@@ -59,7 +59,7 @@ export default function Footer() {
             </div>
           </div>
 
-          <div>
+          <div className="hidden md:block">
             <h3 className="text-sm font-extrabold uppercase tracking-[0.16em] text-rapido-cyan">Web Services</h3>
             <div className="mt-5 grid gap-3">
               {services.slice(0, 8).map((service) => (
@@ -74,7 +74,7 @@ export default function Footer() {
             </div>
           </div>
 
-          <div>
+          <div className="hidden md:block">
             <h3 className="text-sm font-extrabold uppercase tracking-[0.16em] text-rapido-cyan">Financial Services</h3>
             <div className="mt-5 grid gap-3">
               {financialServices.map((service) => (

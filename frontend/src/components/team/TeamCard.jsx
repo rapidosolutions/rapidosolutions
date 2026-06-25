@@ -8,13 +8,15 @@ export default function TeamCard({ member, index = 0 }) {
       data-team-card="true"
       className="group flex h-full flex-col overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-premium"
     >
-      <div className="relative h-72 overflow-hidden bg-rapido-mist">
+      <div className="relative aspect-[4/3] overflow-hidden bg-rapido-mist sm:h-72 sm:aspect-auto">
         {member.image ? (
           <img
             src={member.image}
             alt={`${member.name}, ${member.role}`}
             style={{ objectPosition: member.imagePosition || "center" }}
-            className={`h-full w-full ${member.imageFit === "contain" ? "object-contain" : "object-cover"} ${member.imageClass || ""}`}
+            className={`h-full w-full ${
+              member.imageFit === "contain" ? "object-contain" : "object-contain sm:object-cover"
+            } ${member.imageClass || ""}`}
           />
         ) : (
           <div className="grid h-full place-items-center bg-gradient-to-br from-rapido-mist to-blue-100">

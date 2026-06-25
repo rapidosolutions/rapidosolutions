@@ -115,3 +115,29 @@ a {
   border-radius: 999px;
   background: #94a3b8;
 }
+
+@keyframes software-logo-marquee {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.software-logo-track {
+  animation: software-logo-marquee 30s linear infinite;
+  will-change: transform;
+}
+
+.software-logo-track:hover {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .software-logo-track {
+    animation: none;
+    transform: none;
+  }
+}

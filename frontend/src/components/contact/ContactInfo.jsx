@@ -23,16 +23,19 @@ export default function ContactInfo() {
       </p>
       <div className="mt-8 grid gap-4">
         {items.map((item) => (
-          <div key={item.label} className="flex items-start gap-4 rounded-lg bg-white/[0.08] p-4">
+          <div key={item.label} className="flex min-w-0 items-start gap-3 rounded-lg bg-white/[0.08] p-4 sm:gap-4">
             <Icon name={item.icon} className="mt-1 h-5 w-5 shrink-0 text-rapido-cyan" />
             <div className="min-w-0">
               <p className="text-sm font-extrabold uppercase tracking-[0.14em] text-blue-100">{item.label}</p>
               {item.href ? (
-                <a className="mt-1 inline-block font-bold transition hover:text-rapido-cyan break-all" href={item.href}>
+                <a
+                  className="mt-1 inline-block max-w-full break-all text-[clamp(0.9rem,3.9vw,1rem)] font-bold leading-6 transition hover:text-rapido-cyan"
+                  href={item.href}
+                >
                   {item.value}
                 </a>
               ) : (
-                <p className="mt-1 font-bold break-all">{item.value}</p>
+                <p className="mt-1 break-words font-bold leading-6">{item.value}</p>
               )}
             </div>
           </div>

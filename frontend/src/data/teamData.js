@@ -19,8 +19,7 @@ export const teamMembers = [
     name: "Saba Nadeem",
     role: "Business Development Officer",
     image: sabaNadeemImage,
-    imagePosition: "center 72%",
-    imageClass: "scale-[1.45]",
+    imagePosition: "center center",
     initials: "SN",
     icon: "FiTrendingUp",
     summary:

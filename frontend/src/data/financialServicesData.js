@@ -1,3 +1,5 @@
+import doorLoopLogo from "../assets/software/doorloop-blue-logo-transparent.svg";
+
 export const financialServices = [
   {
     title: "Bookkeeping",
@@ -42,9 +44,31 @@ export const financialServices = [
 ];
 
 export const softwareSupport = [
-  "QuickBooks",
-  "Xero",
-  "Buildium",
-  "AppFolio",
-  "Oracle Fusion ERP"
+  {
+    name: "QuickBooks",
+    icon: "quickbooks",
+    brandColor: "#2ca01c"
+  },
+  {
+    name: "Xero",
+    icon: "xero",
+    brandColor: "#13b5ea"
+  },
+  {
+    name: "Buildium",
+    logoUrl: "https://www.vectorlogo.zone/logos/buildium/buildium-ar21.svg"
+  },
+  {
+    name: "AppFolio",
+    logoUrl: "https://upload.wikimedia.org/wikipedia/commons/f/fd/AppFolio%2C_Inc._Wordmark%2C_2021.svg"
+  },
+  {
+    name: "Oracle Fusion ERP",
+    logoUrl: "https://upload.wikimedia.org/wikipedia/commons/5/50/Oracle_logo.svg",
+    logoClassName: "max-h-8"
+  },
+  {
+    name: "DoorLoop",
+    logoUrl: doorLoopLogo
+  }
 ];

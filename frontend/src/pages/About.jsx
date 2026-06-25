@@ -35,6 +35,9 @@ export default function About() {
       >
         <div className="flex flex-col gap-3 sm:flex-row">
           <Button to="/web-services">Explore Web Services</Button>
+          <Button to="/financial-services" variant="secondary">
+            Explore Financial Services
+          </Button>
           <Button to="/contact" variant="light">
             Book a Free Consultation
           </Button>

@@ -5,15 +5,39 @@ import imranBashirImage from "../assets/team/m-imran-bashir.png";
 
 export const teamMembers = [
   {
+    name: "Muhammad Huzaifa",
+    role: "Founder",
+    initials: "MH",
+    icon: "FiTarget",
+    summary: "Leads company direction, client trust, service standards, and long-term growth planning.",
+    expertise: ["Strategy", "Growth", "Leadership"]
+  },
+  {
+    name: "Hamza Tufail",
+    role: "Chief Operating Officer",
+    initials: "HT",
+    icon: "FiActivity",
+    summary: "Supports operations, delivery coordination, internal systems, and service quality across projects.",
+    expertise: ["Operations", "Delivery", "Systems"]
+  },
+  {
     name: "M. Imran Bashir",
     role: "Manager Operational Analyst",
     image: imranBashirImage,
     imagePosition: "center 20%",
     initials: "MIB",
     icon: "FiBriefcase",
-    summary:
-      "Manages company operations, client bookkeeping and financial records, contracts, documentation, databases, and confidential information.",
-    expertise: ["Operations", "Bookkeeping", "Contracts", "Database Management", "Confidentiality"]
+    summary: "Manages operations, bookkeeping records, documentation, contracts, databases, and confidentiality.",
+    expertise: ["Operations", "Bookkeeping", "Contracts"]
+  },
+  {
+    name: "Samar Khan",
+    role: "Software Engineer",
+    image: samarKhanImage,
+    initials: "SK",
+    icon: "FiCode",
+    summary: "Builds responsive web experiences, service pages, and digital growth systems.",
+    expertise: ["Full Stack Development", "React", "Web Performance"]
   },
   {
     name: "Saba Nadeem",
@@ -22,19 +46,8 @@ export const teamMembers = [
     imagePosition: "center center",
     initials: "SN",
     icon: "FiTrendingUp",
-    summary:
-      "Builds client relationships, identifies growth opportunities, coordinates outreach, and supports business development initiatives.",
+    summary: "Builds client relationships, coordinates outreach, and supports business development.",
     expertise: ["Business Development", "Client Relations", "Growth Strategy"]
-  },
-  {
-    name: "Samar Khan",
-    role: "Software Engineer",
-    image: samarKhanImage,
-    initials: "SK",
-    icon: "FiCode",
-    summary:
-      "Builds clean, responsive, and performance-focused web experiences for business websites, service pages, and digital growth systems.",
-    expertise: ["Full Stack Development", "React", "Web Performance"]
   },
   {
     name: "Zunair Ahmed Khan",
@@ -44,8 +57,7 @@ export const teamMembers = [
     imageClass: "p-8 sm:p-10",
     initials: "ZAK",
     icon: "FiPenTool",
-    summary:
-      "Creates graphic design, UX/UI, web design, branding, logo, and social media work that keeps visual communication clear and consistent.",
-    expertise: ["Graphic Design", "UX/UI Design", "Web Design", "Branding & Logos", "Social Media"]
+    summary: "Creates visual design, UX/UI, web design, branding, logos, and social media assets.",
+    expertise: ["Graphic Design", "UX/UI Design", "Branding"]
   }
 ];

@@ -1,19 +1,22 @@
 import { testimonials } from "../../data/testimonialsData";
+import Button from "../common/Button";
 import SectionHeader from "../common/SectionHeader";
 import ScrollReveal from "../common/ScrollReveal";
 import Icon from "../ui/Icon";
 
 export default function ReviewsSection() {
+  const featuredReviews = testimonials.slice(0, 3);
+
   return (
     <section className="section-padding bg-white">
       <div className="container-shell">
         <SectionHeader
           eyebrow="Reviews"
-          title="Client-Ready Feedback"
-          description="A simple review area built for social proof without overwhelming the page."
+          title="What Clients Say About Working With Rapido"
+          description="Realistic feedback themes from website, SEO, financial support, and HR service work."
         />
         <div className="grid gap-4 md:grid-cols-3">
-          {testimonials.map((review, index) => (
+          {featuredReviews.map((review, index) => (
             <ScrollReveal
               key={review.author}
               delay={index * 0.05}
@@ -29,6 +32,14 @@ export default function ReviewsSection() {
               <p className="text-sm font-semibold text-rapido-blue">{review.role}</p>
             </ScrollReveal>
           ))}
+        </div>
+        <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+          <Button to="/reviews" variant="secondary">
+            See More Reviews
+          </Button>
+          <Button to="/contact" icon="FiMessageCircle">
+            Add Your Review
+          </Button>
         </div>
       </div>
     </section>

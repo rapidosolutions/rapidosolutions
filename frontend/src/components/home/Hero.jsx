@@ -14,11 +14,11 @@ const metrics = [
 
 export default function Hero() {
   return (
-    <section className="relative overflow-hidden bg-hero-surface pb-14 pt-24 text-white sm:pt-28 lg:min-h-screen lg:pt-32">
+    <section className="relative overflow-hidden bg-hero-surface pb-10 pt-20 text-white sm:pb-12 sm:pt-24 lg:min-h-screen lg:pb-14 lg:pt-32">
       <div className="absolute inset-0 bg-grid-dark blueprint opacity-35" aria-hidden="true" />
       <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-white to-transparent" aria-hidden="true" />
 
-      <div className="container-shell relative z-10 grid min-w-0 items-start gap-9 lg:min-h-[calc(100vh-8rem)] lg:grid-cols-[1fr_0.9fr] lg:items-center lg:gap-14">
+      <div className="container-shell relative z-10 grid min-w-0 items-start gap-6 lg:min-h-[calc(100vh-8rem)] lg:grid-cols-[1fr_0.9fr] lg:items-center lg:gap-14">
         <div className="min-w-0">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -30,15 +30,15 @@ export default function Hero() {
             </Badge>
           </motion.div>
           <motion.h1
-            className="mt-6 max-w-3xl font-display text-4xl font-extrabold leading-[1.08] text-balance sm:text-5xl lg:text-6xl"
+            className="mt-5 max-w-3xl font-display text-4xl font-extrabold leading-[1.02] text-balance sm:text-5xl sm:leading-[1.05] lg:mt-6 lg:text-6xl lg:leading-[1.08]"
             initial={{ opacity: 0, y: 26 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.08 }}
           >
-            Web Services & Financial Support for Growing Businesses.
+            Web, SEO & Finance Solutions for Growth
           </motion.h1>
           <motion.p
-            className="mt-6 max-w-2xl text-lg leading-8 text-blue-100 md:text-xl"
+            className="mt-4 max-w-2xl text-base leading-7 text-blue-100 sm:text-lg md:text-xl md:leading-8 lg:mt-6"
             initial={{ opacity: 0, y: 26 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.16 }}
@@ -46,24 +46,29 @@ export default function Hero() {
             {brandStatement}
           </motion.p>
           <motion.div
-            className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap"
+            className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap lg:mt-8"
             initial={{ opacity: 0, y: 26 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.3 }}
           >
-            <Button to="/contact" size="lg" className="w-full sm:w-auto">
+            <Button to="/contact" size="lg" className="min-h-12 w-full px-5 sm:w-auto lg:min-h-14 lg:px-6">
               Start Your Project
             </Button>
-            <Button to="/web-services" variant="light" size="lg" className="w-full sm:w-auto">
+            <Button to="/web-services" variant="light" size="lg" className="min-h-12 w-full px-5 sm:w-auto lg:min-h-14 lg:px-6">
               Explore Web Services
             </Button>
-            <Button to="/financial-services" variant="secondary" size="lg" className="w-full bg-white text-rapido-navy sm:w-auto">
+            <Button
+              to="/financial-services"
+              variant="secondary"
+              size="lg"
+              className="min-h-12 w-full bg-white px-5 text-rapido-navy sm:w-auto lg:min-h-14 lg:px-6"
+            >
               Explore Financial Services
             </Button>
           </motion.div>
 
           <motion.div
-            className="mt-10 grid grid-cols-1 gap-3 sm:grid-cols-3"
+            className="mt-8 hidden grid-cols-1 gap-3 sm:grid sm:grid-cols-3 lg:mt-10"
             initial={{ opacity: 0, y: 26 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.38 }}
@@ -79,7 +84,7 @@ export default function Hero() {
           </motion.div>
         </div>
 
-        <div className="relative min-w-0">
+        <div className="relative hidden min-w-0 lg:block">
           <div className="mb-5 flex items-center gap-3 rounded-lg border border-white/[0.16] bg-white/10 p-3 backdrop-blur-xl lg:absolute lg:-left-8 lg:top-2 lg:z-20">
             <img src={rapidoIcon} alt="Rapido Solutions Co. icon" className="h-11 w-11 rounded-lg object-contain" />
             <div>

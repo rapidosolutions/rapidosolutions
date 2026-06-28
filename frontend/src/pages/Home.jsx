@@ -12,7 +12,7 @@ import { usePageMeta } from "../utils/usePageMeta";
 export default function Home() {
   usePageMeta(
     "Digital Solutions Built for Business Growth",
-    "Rapido Solutions Co. helps businesses design, develop, optimize, and maintain modern websites, eCommerce stores, SEO systems, and financial operations."
+    "Rapido Solutions Co. builds responsive websites, SEO-ready digital systems, and financial support solutions for growing businesses."
   );
 
   return (

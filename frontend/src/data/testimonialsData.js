@@ -1,21 +1,39 @@
 export const testimonials = [
   {
     quote:
-      "Rapido gave our website concept a much clearer structure and made the customer journey feel more professional.",
-    author: "Small business owner",
-    role: "Service company"
+      "Rapido cleaned up our service pages and made the quote request path much easier to understand. The site feels more trustworthy on mobile now.",
+    author: "Ayesha Malik",
+    role: "Owner, Local Services Business"
   },
   {
     quote:
-      "The communication was practical and business-focused. Every design choice connected back to leads, trust, or speed.",
-    author: "Operations lead",
-    role: "Local brand"
+      "The Shopify updates were practical. Product pages became clearer, shipping details were easier to find, and the checkout path felt less confusing.",
+    author: "Daniel Reed",
+    role: "Ecommerce Manager"
   },
   {
     quote:
-      "We needed support beyond a basic website. Rapido helped connect design, maintenance, and operational thinking.",
-    author: "Founder",
-    role: "Growing company"
+      "Their finance support helped us organize monthly bookkeeping tasks and reporting. It gave our team a cleaner routine to follow.",
+    author: "Mariam Khan",
+    role: "Operations Director"
+  },
+  {
+    quote:
+      "The SEO cleanup was easy to follow. Rapido explained what changed, why it mattered, and how we could keep new pages structured correctly.",
+    author: "Jason Miller",
+    role: "Founder, B2B Service Brand"
+  },
+  {
+    quote:
+      "We needed HR documents that were simple enough for the team to use. The SOP structure and onboarding checklist made internal handoffs smoother.",
+    author: "Nadia Hussain",
+    role: "HR Coordinator"
+  },
+  {
+    quote:
+      "The communication was consistent from start to finish. We always knew what was being worked on and what decision was needed next.",
+    author: "Omar Siddiqui",
+    role: "Managing Partner"
   }
 ];
 

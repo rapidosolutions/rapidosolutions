@@ -38,6 +38,9 @@ export default function About() {
           <Button to="/financial-services" variant="secondary">
             Explore Financial Services
           </Button>
+          <Button to="/human-resource-services" variant="secondary">
+            Explore HR Services
+          </Button>
           <Button to="/contact" variant="light">
             Book a Free Consultation
           </Button>

@@ -10,9 +10,11 @@ import About from "./pages/About";
 import Services from "./pages/Services";
 import Projects from "./pages/Projects";
 import FinancialServices from "./pages/FinancialServices";
+import HumanResourceServices from "./pages/HumanResourceServices";
 import Blogs from "./pages/Blogs";
 import BlogDetail from "./pages/BlogDetail";
 import BlogAdmin from "./pages/BlogAdmin";
+import Reviews from "./pages/Reviews";
 import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
 
@@ -77,7 +79,9 @@ export default function App() {
           <Route path="/projects" element={<Projects />} />
           <Route path="/portfolio" element={<Navigate to="/projects" replace />} />
           <Route path="/financial-services" element={<FinancialServices />} />
+          <Route path="/human-resource-services" element={<HumanResourceServices />} />
           <Route path="/team" element={<Navigate to="/about#team" replace />} />
+          <Route path="/reviews" element={<Reviews />} />
           <Route path="/blogs" element={<Blogs />} />
           <Route path="/blogs/:slug" element={<BlogDetail />} />
           <Route path="/blog-admin" element={<BlogAdmin />} />

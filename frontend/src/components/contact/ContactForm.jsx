@@ -65,7 +65,7 @@ export default function ContactForm() {
   const [serverError, setServerError] = useState("");
 
   const serviceOptions = useMemo(
-    () => [...services.map((service) => service.title), "Financial Services", "Not Sure Yet"],
+    () => [...services.map((service) => service.title), "Financial Services", "Human Resource Services", "Not Sure Yet"],
     []
   );
 
@@ -180,7 +180,7 @@ export default function ContactForm() {
             value={form.message}
             onChange={updateField}
             onBlur={markTouched}
-            placeholder="Tell us about the website, store, SEO, maintenance, or financial support you need."
+            placeholder="Tell us about the website, store, SEO, maintenance, financial support, or HR support you need."
             aria-invalid={Boolean(fieldError("message"))}
           />
           {fieldError("message") ? <span className="text-sm font-bold text-rose-600">{fieldError("message")}</span> : null}

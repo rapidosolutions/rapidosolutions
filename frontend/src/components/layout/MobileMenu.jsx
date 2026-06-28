@@ -82,7 +82,7 @@ export default function MobileMenu({ open, onClose }) {
           Book a Free Consultation
         </Button>
         <p className="text-sm leading-6 text-rapido-slate">
-          Focused web services and financial support for clearer business growth.
+          Focused web, financial, and human resource support for clearer business growth.
         </p>
       </div>
     </motion.aside>

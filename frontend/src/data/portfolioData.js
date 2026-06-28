@@ -12,6 +12,7 @@ import wordpressCover from "../assets/projects/wordpress-business-website.jpg";
 export const projectCategories = [
   "All",
   "Financial Projects",
+  "Human Resource Projects",
   "Shopify Stores",
   "WordPress Websites",
   "Business Websites",
@@ -142,5 +143,38 @@ export const projects = [
     coverImage: bookkeepingWorkflowCover,
     coverAlt: "A bookkeeping desk with calculator, reports, and laptop",
     accent: "from-slate-100 to-emerald-200"
+  },
+  {
+    title: "Talent Acquisition Workflow",
+    type: "human",
+    category: "Human Resource Projects",
+    description:
+      "A hiring process structure for screening, shortlisting, interview stages, and clearer candidate communication.",
+    services: ["Talent Acquisition", "Hiring Flow", "Screening"],
+    metric: "Clearer hiring pipeline",
+    coverAlt: "Human resource hiring workflow concept",
+    accent: "from-blue-100 to-indigo-300"
+  },
+  {
+    title: "HR Policy and SOP Setup",
+    type: "human",
+    category: "Human Resource Projects",
+    description:
+      "A documentation project for core workplace policies, role responsibilities, approvals, and repeatable operating procedures.",
+    services: ["Policies", "SOPs", "Documentation"],
+    metric: "Consistent team process",
+    coverAlt: "Human resource policy documentation concept",
+    accent: "from-slate-100 to-sky-300"
+  },
+  {
+    title: "Training and Development Plan",
+    type: "human",
+    category: "Human Resource Projects",
+    description:
+      "An employee development direction for onboarding, skills training, manager check-ins, and team learning routines.",
+    services: ["Training", "Onboarding", "Development"],
+    metric: "Stronger team readiness",
+    coverAlt: "Employee training and development planning concept",
+    accent: "from-emerald-100 to-blue-300"
   }
 ];

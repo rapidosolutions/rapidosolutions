@@ -3,6 +3,12 @@ import Badge from "../common/Badge";
 import Button from "../common/Button";
 import Icon from "../ui/Icon";
 
+const typeLabels = {
+  financial: "Financial",
+  human: "Human Resource",
+  web: "Web"
+};
+
 export default function PortfolioCard({ project, index = 0 }) {
   return (
     <motion.article
@@ -26,7 +32,7 @@ export default function PortfolioCard({ project, index = 0 }) {
         <div className="absolute inset-0 bg-gradient-to-t from-rapido-navy/72 via-rapido-navy/18 to-transparent" />
         <div className="absolute inset-x-4 bottom-4 flex items-end justify-between gap-3">
           <span className="rounded-full bg-white/90 px-3 py-1 text-xs font-extrabold uppercase tracking-[0.12em] text-rapido-blue shadow-sm">
-            {project.type === "financial" ? "Financial" : "Web"}
+            {typeLabels[project.type] || "Project"}
           </span>
           <span className="rounded-full border border-white/30 bg-white/15 px-3 py-1 text-xs font-extrabold text-white backdrop-blur">
             Concept
@@ -53,9 +59,14 @@ export default function PortfolioCard({ project, index = 0 }) {
             {project.metric}
           </span>
         </div>
-        <Button to="/projects" variant="ghost" className="mt-4 px-0" icon="FiExternalLink">
-          View Project
-        </Button>
+        <div className="mt-4 flex flex-wrap gap-3">
+          <Button to="/contact" variant="ghost" className="px-0" icon="FiExternalLink">
+            Start Similar Project
+          </Button>
+          <Button to="/reviews" variant="ghost" className="px-0" icon="FiStar">
+            View Reviews
+          </Button>
+        </div>
       </div>
     </motion.article>
   );

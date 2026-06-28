@@ -10,34 +10,34 @@ import rapidoIcon from "../../assets/logo/rapido-icon-cropped.png";
 export default function Navbar() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [projectMenuOpen, setProjectMenuOpen] = useState(false);
-  const projectMenuTimer = useRef(null);
+  const [openDropdownPath, setOpenDropdownPath] = useState("");
+  const dropdownTimer = useRef(null);
   const location = useLocation();
 
-  const clearProjectMenuTimer = () => {
-    if (projectMenuTimer.current) {
-      window.clearTimeout(projectMenuTimer.current);
-      projectMenuTimer.current = null;
+  const clearDropdownTimer = () => {
+    if (dropdownTimer.current) {
+      window.clearTimeout(dropdownTimer.current);
+      dropdownTimer.current = null;
     }
   };
 
-  const openProjectMenu = () => {
-    clearProjectMenuTimer();
-    setProjectMenuOpen(true);
+  const openDropdown = (path) => {
+    clearDropdownTimer();
+    setOpenDropdownPath(path);
   };
 
-  const scheduleProjectMenuClose = () => {
-    clearProjectMenuTimer();
-    projectMenuTimer.current = window.setTimeout(() => setProjectMenuOpen(false), 2500);
+  const scheduleDropdownClose = () => {
+    clearDropdownTimer();
+    dropdownTimer.current = window.setTimeout(() => setOpenDropdownPath(""), 2500);
   };
 
   useEffect(() => {
     setOpen(false);
-    setProjectMenuOpen(false);
-    clearProjectMenuTimer();
+    setOpenDropdownPath("");
+    clearDropdownTimer();
   }, [location.pathname, location.search]);
 
-  useEffect(() => () => clearProjectMenuTimer(), []);
+  useEffect(() => () => clearDropdownTimer(), []);
 
   useEffect(() => {
     document.body.classList.toggle("menu-open", open);
@@ -77,37 +77,38 @@ export default function Navbar() {
                 <div
                   key={link.path}
                   className="relative"
-                  onMouseEnter={openProjectMenu}
-                  onMouseLeave={scheduleProjectMenuClose}
+                  onMouseEnter={() => openDropdown(link.path)}
+                  onMouseLeave={scheduleDropdownClose}
                 >
                   <button
-                    aria-expanded={projectMenuOpen}
+                    aria-expanded={openDropdownPath === link.path}
                     className={`inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-bold transition ${
-                      location.pathname === link.path
+                      location.pathname === link.path ||
+                      link.children.some((child) => child.path.split("?")[0] === location.pathname)
                         ? "bg-rapido-mist text-rapido-blue"
                         : "text-slate-700 hover:bg-slate-50 hover:text-rapido-blue"
                     }`}
                     type="button"
                     onClick={() => {
-                      clearProjectMenuTimer();
-                      setProjectMenuOpen(true);
+                      clearDropdownTimer();
+                      setOpenDropdownPath((current) => (current === link.path ? "" : link.path));
                     }}
                   >
                     {link.label}
                     <Icon name="FiChevronDown" className="h-4 w-4" />
                   </button>
                   <div
-                    onMouseEnter={openProjectMenu}
-                    onMouseLeave={scheduleProjectMenuClose}
+                    onMouseEnter={() => openDropdown(link.path)}
+                    onMouseLeave={scheduleDropdownClose}
                     className={`absolute left-0 top-full z-50 mt-2 w-56 rounded-lg border border-slate-200 bg-white p-2 shadow-premium transition duration-200 ${
-                      projectMenuOpen ? "visible translate-y-0 opacity-100" : "invisible translate-y-2 opacity-0"
+                      openDropdownPath === link.path ? "visible translate-y-0 opacity-100" : "invisible translate-y-2 opacity-0"
                     }`}
                   >
                     {link.children.map((child) => (
                       <Link
                         key={child.path}
                         to={child.path}
-                        onClick={() => setProjectMenuOpen(false)}
+                        onClick={() => setOpenDropdownPath("")}
                         className="block rounded-lg px-4 py-3 text-sm font-bold text-slate-700 transition hover:bg-rapido-mist hover:text-rapido-blue"
                       >
                         {child.label}

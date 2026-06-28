@@ -15,7 +15,8 @@ export default function Projects() {
   const [active, setActive] = useState("All");
   const [searchParams] = useSearchParams();
   const projectType = searchParams.get("type");
-  const normalizedType = projectType === "financial" ? "financial" : projectType === "web" ? "web" : "all";
+  const normalizedType =
+    projectType === "financial" ? "financial" : projectType === "human" ? "human" : projectType === "web" ? "web" : "all";
 
   useEffect(() => {
     setActive("All");
@@ -23,7 +24,7 @@ export default function Projects() {
 
   usePageMeta(
     "Projects",
-    "Explore Rapido Solutions Co. project directions for Shopify stores, WordPress websites, business websites, restaurant websites, real estate websites, SaaS landing pages, UI/UX improvements, and SEO projects."
+    "Explore Rapido Solutions Co. project directions for web services, financial support, human resource services, Shopify stores, WordPress websites, SEO, and business operations."
   );
 
   const visibleProjects = useMemo(
@@ -39,6 +40,8 @@ export default function Projects() {
   const filterDescription =
     normalizedType === "financial"
       ? "Financial project examples for bookkeeping, property accounting, reconciliations, and reporting support."
+      : normalizedType === "human"
+        ? "Human resource project examples for talent acquisition, HR policies, SOPs, training, and development support."
       : normalizedType === "web"
         ? "Web project examples for websites, Shopify, WordPress, SEO, UX, and performance work."
         : "Use the filters to explore sample directions by business type and service focus.";
@@ -47,8 +50,8 @@ export default function Projects() {
     <motion.main {...pageTransition}>
       <PageHero
         eyebrow="Projects"
-        title="Project Showcase and Website Directions"
-        description="A clean project-ready structure for showing business websites, Shopify stores, WordPress builds, restaurant sites, real estate showcases, SaaS pages, UX upgrades, and SEO projects."
+        title="Project Showcase and Service Directions"
+        description="A clean project-ready structure for showing web builds, financial support workflows, HR service projects, SEO improvements, and business operations support."
       >
         <Button to="/contact">Start a Similar Project</Button>
       </PageHero>
@@ -64,8 +67,10 @@ export default function Projects() {
             categories={
               normalizedType === "financial"
                 ? ["All", "Financial Projects"]
+                : normalizedType === "human"
+                  ? ["All", "Human Resource Projects"]
                 : normalizedType === "web"
-                  ? projectCategories.filter((category) => category !== "Financial Projects")
+                  ? projectCategories.filter((category) => !["Financial Projects", "Human Resource Projects"].includes(category))
                   : projectCategories
             }
             active={active}

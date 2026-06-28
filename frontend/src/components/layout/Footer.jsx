@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { navLinks } from "../../data/navLinks";
 import { services } from "../../data/servicesData";
 import { financialServices } from "../../data/financialServicesData";
+import { humanResourceServices } from "../../data/humanResourceServicesData";
 import { contactDetails } from "../../utils/constants";
 import Button from "../common/Button";
 import Icon from "../ui/Icon";
@@ -81,6 +82,18 @@ export default function Footer() {
                 <Link
                   key={service.title}
                   to="/financial-services"
+                  className="text-sm font-semibold text-blue-100 transition hover:text-white"
+                >
+                  {service.title}
+                </Link>
+              ))}
+            </div>
+            <h3 className="mt-7 text-sm font-extrabold uppercase tracking-[0.16em] text-rapido-cyan">HR Services</h3>
+            <div className="mt-5 grid gap-3">
+              {humanResourceServices.map((service) => (
+                <Link
+                  key={service.title}
+                  to="/human-resource-services"
                   className="text-sm font-semibold text-blue-100 transition hover:text-white"
                 >
                   {service.title}

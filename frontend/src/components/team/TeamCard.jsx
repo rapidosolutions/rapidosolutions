@@ -9,7 +9,7 @@ export default function TeamCard({ member, index = 0 }) {
       data-team-card="true"
       className="group flex h-full flex-col overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-premium"
     >
-      <div className="relative aspect-[4/3] overflow-hidden bg-rapido-mist">
+      <div className="relative aspect-[4/3] overflow-hidden bg-rapido-mist sm:h-72 sm:aspect-auto">
         {member.image ? (
           <img
             src={member.image}

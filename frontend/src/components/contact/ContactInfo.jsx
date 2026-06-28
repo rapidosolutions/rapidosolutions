@@ -1,6 +1,6 @@
 import { contactDetails } from "../../utils/constants";
 import Badge from "../common/Badge";
-import Button from "../common/Button";
+import ServicePickerButton from "../common/ServicePickerButton";
 import Icon from "../ui/Icon";
 
 const items = [
@@ -41,9 +41,9 @@ export default function ContactInfo() {
           </div>
         ))}
       </div>
-      <Button to="/web-services" variant="light" className="mt-8" icon="FiCompass">
-        Explore Web Services First
-      </Button>
+      <ServicePickerButton variant="light" className="mt-8" icon="FiCompass">
+        Explore Services First
+      </ServicePickerButton>
     </aside>
   );
 }

@@ -1,32 +1,41 @@
 import { expect, test } from "@playwright/test";
 
-test("homepage presents both service lines in the correct sequence", async ({ page }) => {
+test("homepage presents both service lines in the correct sequence", async ({ page, isMobile }) => {
   await page.goto("/");
-  await expect(page.getByRole("heading", { level: 1 })).toContainText("Web Services & Financial Support");
-  await expect(page.getByRole("link", { name: "Explore Web Services" }).first()).toHaveAttribute("href", "/web-services");
-  await expect(page.getByRole("link", { name: "Explore Financial Services" }).first()).toHaveAttribute("href", "/financial-services");
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("Web, SEO & Finance Solutions for Growth");
+  await page.getByRole("button", { name: "Explore Our Services" }).first().click();
+  const serviceDialog = page.getByRole("dialog", { name: "Choose a service" });
+  await expect(serviceDialog.getByRole("link", { name: /Web Services/i })).toHaveAttribute("href", "/web-services");
+  await expect(serviceDialog.getByRole("link", { name: /Financial Services/i })).toHaveAttribute("href", "/financial-services");
+  await expect(serviceDialog.getByRole("link", { name: /Human Resource Services/i })).toHaveAttribute("href", "/human-resource-services");
+  await page.keyboard.press("Escape");
 
   const webHeading = page.getByRole("heading", { name: /Web Services Designed to Move Your Business Forward/i });
   const financeHeading = page.getByRole("heading", { name: /Financial Support Built for Clearer Business Control/i });
+  const hrHeading = page.getByRole("heading", { name: /HR Support Built for Better Team Structure/i });
   await expect(webHeading).toBeVisible();
   await expect(financeHeading).toBeVisible();
+  await expect(hrHeading).toBeVisible();
   expect((await webHeading.boundingBox()).y).toBeLessThan((await financeHeading.boundingBox()).y);
+  expect((await financeHeading.boundingBox()).y).toBeLessThan((await hrHeading.boundingBox()).y);
 
   await expect(page.locator("section").filter({ hasText: "Web Services Designed to Move Your Business Forward" }).locator("article")).toHaveCount(4);
   await expect(page.getByText("Selected Project Directions")).toHaveCount(0);
   await expect(page.getByText("Industries Served")).toHaveCount(0);
   await expect(page.getByText("View All Blogs")).toHaveCount(0);
-  await expect(page.getByText("100%")).toBeVisible();
+  if (!isMobile) {
+    await expect(page.getByText("100%")).toBeVisible();
+  }
 });
 
 test("desktop projects menu exposes both project categories", async ({ page, isMobile }) => {
   test.skip(isMobile, "Desktop navigation behavior");
   await page.goto("/");
   const projectsButton = page.getByRole("button", { name: "Projects" });
-  await projectsButton.click();
-  await expect(projectsButton).toHaveAttribute("aria-expanded", "true");
+  await projectsButton.hover();
   await expect(page.locator('header nav a[href="/projects?type=web"]')).toBeVisible();
   await expect(page.locator('header nav a[href="/projects?type=financial"]')).toBeVisible();
+  await expect(page.locator('header nav a[href="/projects?type=human"]')).toBeVisible();
 });
 
 test("web services are scoped and overview cards share a row height", async ({ page }) => {

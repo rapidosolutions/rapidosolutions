@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { services } from "../../data/servicesData";
 import { staggerContainer, fadeUp } from "../../utils/animations";
 import SectionHeader from "../common/SectionHeader";
-import Button from "../common/Button";
+import ServicePickerButton from "../common/ServicePickerButton";
 import Icon from "../ui/Icon";
 
 export default function ServicesBento() {
@@ -48,9 +48,9 @@ export default function ServicesBento() {
         </motion.div>
 
         <div className="mt-8 text-center">
-          <Button to="/web-services" icon="FiArrowRight">
+          <ServicePickerButton>
             Explore Web Services
-          </Button>
+          </ServicePickerButton>
         </div>
       </div>
     </section>

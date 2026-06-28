@@ -1,6 +1,7 @@
 import { serviceBenefits } from "../../data/servicesData";
 import Badge from "../common/Badge";
 import Button from "../common/Button";
+import ServicePickerButton from "../common/ServicePickerButton";
 import ScrollReveal from "../common/ScrollReveal";
 import Icon from "../ui/Icon";
 
@@ -19,9 +20,9 @@ export default function WhyChooseRapido() {
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <Button to="/about">Learn About Rapido</Button>
-            <Button to="/web-services" variant="secondary">
+            <ServicePickerButton variant="secondary" size="md">
               Explore Services
-            </Button>
+            </ServicePickerButton>
           </div>
         </ScrollReveal>
 

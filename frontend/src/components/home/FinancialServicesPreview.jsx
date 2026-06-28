@@ -1,6 +1,6 @@
 import { financialServices } from "../../data/financialServicesData";
 import SectionHeader from "../common/SectionHeader";
-import Button from "../common/Button";
+import ServicePickerButton from "../common/ServicePickerButton";
 import FinancialServiceCard from "../financial/FinancialServiceCard";
 
 const featuredServiceTitles = [
@@ -29,9 +29,9 @@ export default function FinancialServicesPreview() {
         </div>
 
         <div className="mt-8 text-center">
-          <Button to="/financial-services" icon="FiArrowRight">
+          <ServicePickerButton>
             Explore Financial Services
-          </Button>
+          </ServicePickerButton>
         </div>
       </div>
     </section>

@@ -1,6 +1,6 @@
 import { humanResourceServices } from "../../data/humanResourceServicesData";
 import SectionHeader from "../common/SectionHeader";
-import Button from "../common/Button";
+import ServicePickerButton from "../common/ServicePickerButton";
 import Icon from "../ui/Icon";
 
 export default function HumanResourceServicesPreview() {
@@ -29,9 +29,9 @@ export default function HumanResourceServicesPreview() {
         </div>
 
         <div className="mt-8 text-center">
-          <Button to="/human-resource-services" icon="FiArrowRight">
+          <ServicePickerButton>
             Explore Human Resource Services
-          </Button>
+          </ServicePickerButton>
         </div>
       </div>
     </section>

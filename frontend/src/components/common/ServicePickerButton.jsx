@@ -55,7 +55,7 @@ export default function ServicePickerButton({
     <AnimatePresence>
       {open ? (
         <motion.div
-          className="fixed inset-0 z-[80] flex items-start justify-center overflow-y-auto bg-rapido-navy/60 px-3 py-4 backdrop-blur-sm sm:p-6"
+          className="fixed inset-0 z-[120] flex items-start justify-center overflow-y-auto bg-rapido-navy/60 px-3 pb-4 pt-[7.5rem] backdrop-blur-sm sm:p-6"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -67,7 +67,7 @@ export default function ServicePickerButton({
           }}
         >
           <motion.div
-            className="my-auto max-h-[calc(100dvh-2rem)] w-full max-w-2xl overflow-y-auto rounded-lg border border-slate-200 bg-white p-4 text-rapido-navy shadow-premium sm:max-h-[calc(100dvh-3rem)] sm:p-6"
+            className="w-full max-w-2xl overflow-y-auto rounded-lg border border-slate-200 bg-white p-4 text-rapido-navy shadow-premium max-sm:max-h-[calc(100dvh-8.5rem)] sm:my-auto sm:max-h-[calc(100dvh-3rem)] sm:p-6"
             initial={{ opacity: 0, y: 16, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 16, scale: 0.98 }}
@@ -76,7 +76,7 @@ export default function ServicePickerButton({
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <p className="text-xs font-extrabold uppercase tracking-[0.16em] text-rapido-blue sm:text-sm">Services</p>
-                <h2 className="mt-2 text-xl font-extrabold leading-tight text-rapido-navy sm:text-2xl">Choose the support you need</h2>
+                <h2 className="mt-1 text-lg font-extrabold leading-tight text-rapido-navy sm:mt-2 sm:text-2xl">Choose the support you need</h2>
               </div>
               <button
                 type="button"
@@ -88,7 +88,7 @@ export default function ServicePickerButton({
               </button>
             </div>
 
-            <div className="mt-4 grid gap-3 sm:mt-5">
+            <div className="mt-3 grid gap-2 sm:mt-5 sm:gap-3">
               {serviceLinks.map((service) => (
                 <Link
                   key={service.path}
@@ -96,12 +96,12 @@ export default function ServicePickerButton({
                   className="group flex min-w-0 items-start gap-3 rounded-lg border border-slate-200 bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:border-rapido-blue hover:shadow-blue-soft sm:gap-4 sm:p-4"
                   onClick={() => setOpen(false)}
                 >
-                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-rapido-mist text-rapido-blue sm:h-11 sm:w-11">
+                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-rapido-mist text-rapido-blue sm:h-11 sm:w-11">
                     <Icon name={service.icon} className="h-5 w-5" />
                   </span>
                   <span className="min-w-0 flex-1">
                     <span className="block text-base font-extrabold leading-snug text-rapido-navy group-hover:text-rapido-blue sm:text-lg">{service.label}</span>
-                    <span className="mt-1 block text-sm leading-6 text-rapido-slate sm:text-base">{service.description}</span>
+                    <span className="mt-1 block text-sm leading-5 text-rapido-slate sm:text-base sm:leading-6">{service.description}</span>
                   </span>
                   <Icon name="FiArrowRight" className="mt-1 h-4 w-4 shrink-0 text-rapido-blue" />
                 </Link>

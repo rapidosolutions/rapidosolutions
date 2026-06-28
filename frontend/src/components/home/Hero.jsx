@@ -15,9 +15,9 @@ const metrics = [
 
 export default function Hero() {
   return (
-    <section className="relative overflow-hidden bg-hero-surface pb-6 pt-28 text-white sm:pb-10 sm:pt-28 lg:min-h-screen lg:pb-14 lg:pt-32">
+    <section className="relative min-h-0 overflow-hidden bg-hero-surface pb-2 pt-36 text-white sm:pb-10 sm:pt-28 lg:min-h-screen lg:pb-14 lg:pt-32">
       <div className="absolute inset-0 bg-grid-dark blueprint opacity-35" aria-hidden="true" />
-      <div className="absolute inset-x-0 bottom-0 h-6 bg-gradient-to-t from-white to-transparent sm:h-12 lg:h-24" aria-hidden="true" />
+      <div className="absolute inset-x-0 bottom-0 h-2 bg-gradient-to-t from-white to-transparent sm:h-12 lg:h-24" aria-hidden="true" />
 
       <div className="container-shell relative z-10 grid min-w-0 items-start gap-6 lg:min-h-[calc(100vh-8rem)] lg:grid-cols-[1fr_0.9fr] lg:items-center lg:gap-14">
         <div className="min-w-0">

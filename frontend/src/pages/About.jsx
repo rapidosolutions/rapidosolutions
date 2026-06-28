@@ -3,6 +3,7 @@ import PageHero from "../components/common/PageHero";
 import SectionHeader from "../components/common/SectionHeader";
 import ScrollReveal from "../components/common/ScrollReveal";
 import Button from "../components/common/Button";
+import ServicePickerButton from "../components/common/ServicePickerButton";
 import LogoCloud from "../components/ui/LogoCloud";
 import Icon from "../components/ui/Icon";
 import HomeCTA from "../components/home/HomeCTA";
@@ -34,14 +35,8 @@ export default function About() {
         description="Rapido Solutions Co. combines technology, design, SEO, eCommerce, maintenance, and financial expertise to help businesses build stronger digital systems and manage growth more professionally."
       >
         <div className="flex flex-col gap-3 sm:flex-row">
-          <Button to="/web-services">Explore Web Services</Button>
-          <Button to="/financial-services" variant="secondary">
-            Explore Financial Services
-          </Button>
-          <Button to="/human-resource-services" variant="secondary">
-            Explore HR Services
-          </Button>
-          <Button to="/contact" variant="light">
+          <ServicePickerButton size="md" className="w-full sm:w-auto">Explore Our Services</ServicePickerButton>
+          <Button to="/contact" variant="light" className="w-full sm:w-auto">
             Book a Free Consultation
           </Button>
         </div>

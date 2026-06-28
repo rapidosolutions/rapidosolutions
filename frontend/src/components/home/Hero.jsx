@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import Button from "../common/Button";
 import Badge from "../common/Badge";
+import ServicePickerButton from "../common/ServicePickerButton";
 import FloatingMockup from "../ui/FloatingMockup";
 import AnimatedCounter from "../ui/AnimatedCounter";
 import { brandStatement } from "../../utils/constants";
@@ -9,7 +10,7 @@ import rapidoIcon from "../../assets/logo/rapido-icon-cropped.png";
 const metrics = [
   { value: 100, suffix: "%", label: "Responsive Builds" },
   { value: 6, suffix: "+", label: "Web Services" },
-  { value: 4, suffix: "+", label: "Financial Services" }
+  { value: 3, suffix: "+", label: "Service Areas" }
 ];
 
 export default function Hero() {
@@ -51,19 +52,19 @@ export default function Hero() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.3 }}
           >
-            <Button to="/contact" size="lg" className="min-h-12 w-full px-5 sm:w-auto lg:min-h-14 lg:px-6">
-              Start Your Project
-            </Button>
-            <Button to="/web-services" variant="light" size="lg" className="min-h-12 w-full px-5 sm:w-auto lg:min-h-14 lg:px-6">
-              Explore Web Services
-            </Button>
-            <Button
-              to="/financial-services"
-              variant="secondary"
+            <ServicePickerButton
               size="lg"
-              className="min-h-12 w-full bg-white px-5 text-rapido-navy sm:w-auto lg:min-h-14 lg:px-6"
+              className="min-h-12 w-full px-5 sm:w-auto lg:min-h-14 lg:px-6"
             >
-              Explore Financial Services
+              Explore Our Services
+            </ServicePickerButton>
+            <Button
+              to="/contact"
+              variant="light"
+              size="lg"
+              className="min-h-12 w-full px-5 sm:w-auto lg:min-h-14 lg:px-6"
+            >
+              Book a Free Consultation
             </Button>
           </motion.div>
 

@@ -1,6 +1,7 @@
 import Button from "../common/Button";
 import Badge from "../common/Badge";
 import ScrollReveal from "../common/ScrollReveal";
+import ServicePickerButton from "../common/ServicePickerButton";
 
 export default function HomeCTA() {
   return (
@@ -17,22 +18,16 @@ export default function HomeCTA() {
                 Ready to Build a Better Digital Presence?
               </h2>
               <p className="mt-5 max-w-3xl text-lg leading-8 text-blue-100">
-                Whether you need a new website, Shopify store, SEO support, UI/UX improvement, maintenance, or
-                financial support, Rapido Solutions Co. is ready to help.
+                Whether you need web, SEO, financial, or human resource support, Rapido Solutions Co. is ready to help
+                you choose the right next step.
               </p>
             </div>
             <div className="grid gap-3 sm:grid-cols-2 lg:w-72 lg:grid-cols-1">
-              <Button to="/contact" variant="primary" size="lg">
+              <ServicePickerButton variant="primary" size="lg" className="w-full">
+                Explore Our Services
+              </ServicePickerButton>
+              <Button to="/contact" variant="light" size="lg" className="w-full">
                 Book a Free Consultation
-              </Button>
-              <Button to="/contact" variant="light" size="lg" icon="FiPieChart">
-                Request Financial Support
-              </Button>
-              <Button to="/contact" variant="light" size="lg" icon="FiSearch">
-                Request a Website Review
-              </Button>
-              <Button to="/contact" variant="secondary" size="lg" className="bg-white text-rapido-navy">
-                Start Your Project
               </Button>
             </div>
           </div>

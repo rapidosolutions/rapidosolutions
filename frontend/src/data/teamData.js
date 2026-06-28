@@ -2,11 +2,15 @@ import samarKhanImage from "../assets/team/samar-khan.jpg";
 import sabaNadeemImage from "../assets/team/saba-nadeem.jpg";
 import zunairAhmedKhanImage from "../assets/team/zunair-ahmed-khan.png";
 import imranBashirImage from "../assets/team/m-imran-bashir.png";
+import hamzaTufailImage from "../assets/team/hamza-tufail.jpeg";
+import muhammadHuzaifaImage from "../assets/team/muhammad-huzaifa.png";
 
 export const teamMembers = [
   {
     name: "Muhammad Huzaifa",
     role: "Founder",
+    image: muhammadHuzaifaImage,
+    imagePosition: "center 18%",
     initials: "MH",
     icon: "FiTarget",
     summary: "Leads company direction, client trust, service standards, and long-term growth planning.",
@@ -15,6 +19,8 @@ export const teamMembers = [
   {
     name: "Hamza Tufail",
     role: "Chief Operating Officer",
+    image: hamzaTufailImage,
+    imagePosition: "center 18%",
     initials: "HT",
     icon: "FiActivity",
     summary: "Supports operations, delivery coordination, internal systems, and service quality across projects.",

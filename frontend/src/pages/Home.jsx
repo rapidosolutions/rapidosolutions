@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import Hero from "../components/home/Hero";
 import ServicesBento from "../components/home/ServicesBento";
 import FinancialServicesPreview from "../components/home/FinancialServicesPreview";
+import HumanResourceServicesPreview from "../components/home/HumanResourceServicesPreview";
 import WhyChooseRapido from "../components/home/WhyChooseRapido";
 import ProcessSection from "../components/home/ProcessSection";
 import ReviewsSection from "../components/home/ReviewsSection";
@@ -20,6 +21,7 @@ export default function Home() {
       <Hero />
       <ServicesBento />
       <FinancialServicesPreview />
+      <HumanResourceServicesPreview />
       <WhyChooseRapido />
       <ProcessSection />
       <ReviewsSection />

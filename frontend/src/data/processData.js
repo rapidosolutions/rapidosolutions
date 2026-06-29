@@ -2,36 +2,36 @@ export const processSteps = [
   {
     number: "01",
     icon: "FiSearch",
-    title: "Discover your business needs",
+    title: "Understand your goals",
     description:
-      "We clarify goals, audience, current friction points, services, systems, and the best path for measurable improvement."
+      "We clarify your business priorities, current gaps, service needs, timelines, and the outcomes that matter most."
   },
   {
     number: "02",
     icon: "FiMap",
-    title: "Plan the website or solution",
+    title: "Map the right solution",
     description:
-      "We map pages, service structure, conversion paths, SEO priorities, technical requirements, and launch scope."
+      "We define the scope, workflow, responsibilities, tools, content, reporting needs, and success path for the project."
   },
   {
     number: "03",
     icon: "FiPenTool",
-    title: "Design a modern interface",
+    title: "Prepare the work plan",
     description:
-      "We shape a premium interface around trust, readability, speed, mobile behavior, and customer decision-making."
+      "We organize the deliverables, approvals, documentation, and communication flow so every service moves forward clearly."
   },
   {
     number: "04",
     icon: "FiCode",
-    title: "Develop and optimize",
+    title: "Execute and refine",
     description:
-      "We build responsive pages, refine interactions, organize content, improve performance, and prepare for launch."
+      "We complete the agreed work, test quality, improve details, and keep progress visible across web, finance, or HR support."
   },
   {
     number: "05",
     icon: "FiLifeBuoy",
-    title: "Launch and support",
+    title: "Deliver and support",
     description:
-      "We help you go live cleanly and stay available for updates, maintenance, optimization, and future growth."
+      "We hand over the final work, review results, and stay available for updates, reporting, maintenance, and future growth."
   }
 ];

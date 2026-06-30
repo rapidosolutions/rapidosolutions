@@ -97,7 +97,23 @@ test("mobile navigation reaches financial services", async ({ page, isMobile }) 
   await page.goto("/");
   await page.getByRole("button", { name: "Open menu" }).click();
   const menu = page.locator("aside");
-  await expect(menu.getByRole("link", { name: "Financial Services", exact: true })).toBeVisible();
+  await expect(menu.getByRole("link", { name: "Financial Services", exact: true })).toHaveCount(0);
+  await menu.getByRole("button", { name: "Services" }).click();
   await menu.getByRole("link", { name: "Financial Services", exact: true }).click();
   await expect(page).toHaveURL(/financial-services/);
+});
+
+test("mobile services and projects navigation use dropdowns", async ({ page, isMobile }) => {
+  test.skip(!isMobile, "Mobile navigation behavior");
+  await page.goto("/");
+  await page.getByRole("button", { name: "Open menu" }).click();
+  const menu = page.locator("aside");
+
+  await expect(menu.getByRole("link", { name: "Web Services", exact: true })).toHaveCount(0);
+  await menu.getByRole("button", { name: "Services" }).click();
+  await expect(menu.getByRole("link", { name: "Web Services", exact: true })).toBeVisible();
+
+  await expect(menu.getByRole("link", { name: "Human Resource Projects", exact: true })).toHaveCount(0);
+  await menu.getByRole("button", { name: "Projects" }).click();
+  await expect(menu.getByRole("link", { name: "Human Resource Projects", exact: true })).toBeVisible();
 });

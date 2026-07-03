@@ -7,7 +7,6 @@ import BlogCard from "../components/blog/BlogCard";
 import HomeCTA from "../components/home/HomeCTA";
 import { blogPosts } from "../data/blogsData";
 import { listBlogs } from "../utils/blogApi";
-import { sanityStudioUrl } from "../utils/sanityBlogApi";
 import { pageTransition } from "../utils/animations";
 import { usePageMeta } from "../utils/usePageMeta";
 
@@ -48,9 +47,6 @@ export default function Blogs() {
       >
         <div className="flex flex-col gap-3 sm:flex-row">
           <Button to="/contact">Ask About a Topic</Button>
-          <Button href={sanityStudioUrl} variant="light" icon="FiEdit3">
-            Manage in Sanity
-          </Button>
         </div>
       </PageHero>
 

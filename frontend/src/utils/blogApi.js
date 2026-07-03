@@ -1,3 +1,5 @@
+import { getSanityBlog, listSanityBlogs } from "./sanityBlogApi";
+
 const apiBase = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
 let csrfToken = "";
 
@@ -54,11 +56,11 @@ export async function changeAdminPassword(currentPassword, newPassword) {
 }
 
 export function listBlogs({ includeDrafts = false } = {}) {
-  return request(includeDrafts ? "/api/admin/blogs" : "/api/blogs");
+  return includeDrafts ? request("/api/admin/blogs") : listSanityBlogs();
 }
 
 export function getBlog(slug) {
-  return request(`/api/blogs/${encodeURIComponent(slug)}`);
+  return getSanityBlog(slug);
 }
 
 export function createBlog(blog) {

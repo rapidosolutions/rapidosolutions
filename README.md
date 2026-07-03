@@ -1,12 +1,13 @@
 # Rapido Solutions Co.
 
-Production-oriented website and content system for Rapido Solutions Co. The React frontend presents web and financial services, projects, team members, reviews, and blogs. The Express API provides secure single-administrator blog management, cover-image uploads, contact-message storage, and email notifications.
+Production-oriented website and content system for Rapido Solutions Co. The React frontend presents web, financial, and human resource services, projects, team members, reviews, and blogs. Published blog posts are read from Sanity, while the Express API provides contact-message storage, email notifications, and the existing private operations dashboard.
 
 ## Technology
 
 - Frontend: React 19, React Router, Tailwind CSS, Framer Motion, Vite
 - Backend: Node.js, Express, Mongoose, Zod
-- Production services: MongoDB Atlas, Cloudinary, Resend
+- Content: Sanity Studio for private blog management
+- Production services: MongoDB Atlas, Cloudinary, Resend, Sanity
 - Hosting: Vercel for the frontend and Render for the API
 - Tests: Vitest, Testing Library, Supertest, Playwright
 
@@ -15,9 +16,10 @@ Production-oriented website and content system for Rapido Solutions Co. The Reac
 1. Install Node.js 22 or newer and make sure the local MongoDB service is running.
 2. Run `npm install` in the project root.
 3. Copy `backend/.env.example` to `backend/.env`.
-4. Set a strong `ADMIN_PASSWORD` with at least 12 characters. The initial administrator email is `rapidosolutionsco@outlook.com`.
-5. Run `npm run dev:full`.
-6. Open `http://localhost:5173`.
+4. Copy `frontend/.env.example` to `frontend/.env` if you need to override Sanity settings.
+5. Set a strong `ADMIN_PASSWORD` with at least 12 characters. The initial administrator email is `rapidosolutionsco@outlook.com`.
+6. Run `npm run dev:full`.
+7. Open `http://localhost:5173`.
 
 The local API uses MongoDB at `mongodb://127.0.0.1:27017/rapido`. Cloudinary and Resend are optional locally. Without Cloudinary, images are stored in `backend/uploads`. Without Resend, contact messages are saved and clearly reported as awaiting email delivery.
 
@@ -31,12 +33,29 @@ The local API uses MongoDB at `mongodb://127.0.0.1:27017/rapido`. Cloudinary and
 - `npm run build`: create the production frontend bundle
 - `npm run check`: run tests and production build
 
-## Administrator Workflow
+## Blog Workflow
+
+Blog posts are managed privately in Sanity Studio. The frontend reads only published posts from the public `production` dataset for project `7vlwxcu7`.
+
+Run the Studio locally:
+
+```bash
+cd sanity
+npm install
+npm run dev
+```
+
+In Vercel, set:
+
+- `VITE_SANITY_PROJECT_ID=7vlwxcu7`
+- `VITE_SANITY_DATASET=production`
+- `VITE_SANITY_API_VERSION=2025-01-01`
+- `VITE_SANITY_STUDIO_URL` with the final Sanity Studio or manage URL
+
+## Operations Dashboard
 
 Visit `/blog-admin` and sign in with the configured administrator email and password. The dashboard supports:
 
-- Creating, editing, publishing, drafting, and deleting posts
-- Uploading JPG, PNG, or WebP cover images up to 5 MB
 - Reviewing saved contact enquiries
 - Tracking messages as new, read, replied, or archived
 - Changing the administrator password without database access
@@ -63,7 +82,7 @@ Create a Render Blueprint from `render.yaml`. Add all values marked `sync: false
 
 ### Vercel Frontend
 
-Import the repository in Vercel and use the repository root. Add `VITE_API_URL` with the public Render API URL, then deploy. Add the final Vercel URL to Render's `FRONTEND_URLS` and redeploy the API.
+Import the repository in Vercel and use the repository root. Add `VITE_API_URL` with the public Render API URL and the Sanity variables listed above, then deploy. Add the final Vercel URL to Render's `FRONTEND_URLS` and redeploy the API.
 
 When a custom domain is purchased, connect it to Vercel, verify the same domain with Resend, update `EMAIL_FROM`, and include the custom origin in `FRONTEND_URLS`.
 

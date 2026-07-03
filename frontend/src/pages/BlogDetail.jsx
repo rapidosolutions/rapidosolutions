@@ -70,7 +70,7 @@ export default function BlogDetail() {
           {post.coverImage?.url ? <img src={post.coverImage.url} alt={post.coverImage.alt || post.title} className="mb-10 aspect-video w-full rounded-lg object-cover shadow-premium" /> : null}
           {status === "offline" ? (
             <div className="mb-6 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm font-semibold text-amber-900">
-              Showing seed content while the blog API is unavailable.
+              Showing seed content while Sanity is unavailable.
             </div>
           ) : null}
           <div className="space-y-6 text-lg leading-9 text-rapido-slate">

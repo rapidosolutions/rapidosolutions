@@ -7,6 +7,7 @@ import BlogCard from "../components/blog/BlogCard";
 import HomeCTA from "../components/home/HomeCTA";
 import { blogPosts } from "../data/blogsData";
 import { listBlogs } from "../utils/blogApi";
+import { sanityStudioUrl } from "../utils/sanityBlogApi";
 import { pageTransition } from "../utils/animations";
 import { usePageMeta } from "../utils/usePageMeta";
 
@@ -47,8 +48,8 @@ export default function Blogs() {
       >
         <div className="flex flex-col gap-3 sm:flex-row">
           <Button to="/contact">Ask About a Topic</Button>
-          <Button to="/blog-admin" variant="light" icon="FiEdit3">
-            Blog Admin
+          <Button href={sanityStudioUrl} variant="light" icon="FiEdit3">
+            Manage in Sanity
           </Button>
         </div>
       </PageHero>
@@ -62,7 +63,7 @@ export default function Blogs() {
           />
           {status === "offline" ? (
             <div className="mb-6 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm font-semibold text-amber-900">
-              Showing seed posts while the blog API is unavailable.
+              Showing seed posts while Sanity is unavailable or has no published posts yet.
             </div>
           ) : null}
           <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">

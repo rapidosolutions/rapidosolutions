@@ -9,7 +9,6 @@ import Button from "../common/Button";
 import Icon from "../ui/Icon";
 import rapidoWordmark from "../../assets/logo/rapido-wordmark-cropped.png";
 
-const whatsappNumber = "+923313339840";
 const whatsappHref = "https://wa.me/923313339840";
 
 function MobileFooterAccordion({ title, items }) {
@@ -160,15 +159,17 @@ export default function Footer() {
                 <Icon name="FiPhone" className="h-4 w-4 shrink-0 text-white" />
                 {contactDetails.phone}
               </a>
-              <a
-                href={whatsappHref}
-                target="_blank"
-                rel="noreferrer"
-                className="flex items-center gap-3 transition hover:text-white"
-              >
-                <Icon name="FaWhatsapp" className="h-4 w-4 shrink-0 text-white" />
-                WhatsApp {whatsappNumber}
-              </a>
+              <div className="flex items-center gap-3">
+                <a
+                  href={whatsappHref}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label="Chat with Rapido Solutions Co. on WhatsApp"
+                  className="grid h-11 w-11 place-items-center rounded-full bg-[#25D366] text-white shadow-blue-soft transition hover:-translate-y-0.5 hover:bg-[#1ebe5d] focus:outline-none focus:ring-2 focus:ring-[#25D366] focus:ring-offset-2 focus:ring-offset-rapido-navy"
+                >
+                  <Icon name="FaWhatsapp" className="h-5 w-5" />
+                </a>
+              </div>
               <span className="flex items-center gap-3">
                 <Icon name="FiMapPin" className="h-4 w-4 shrink-0 text-white" />
                 {contactDetails.location}

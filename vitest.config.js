@@ -6,7 +6,7 @@ export default defineConfig({
   test: {
     environment: "jsdom",
     setupFiles: ["./frontend/src/test/setup.js"],
-    include: ["backend/**/*.test.js", "frontend/src/**/*.test.{js,jsx}"],
+    include: ["frontend/src/**/*.test.{js,jsx}"],
     coverage: { reporter: ["text", "html"] }
   }
 });

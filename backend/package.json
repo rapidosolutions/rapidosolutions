@@ -1,0 +1,35 @@
+{
+  "name": "rapido-backend",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "node index.js",
+    "start": "node index.js",
+    "studio:dev": "npm --prefix sanity/studio run dev",
+    "studio:build": "npm --prefix sanity/studio run build",
+    "studio:deploy": "npm --prefix sanity/studio run deploy",
+    "test": "vitest run --config vitest.config.js",
+    "check": "npm test"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cloudinary": "^2.10.0",
+    "compression": "^1.8.1",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.5.2",
+    "helmet": "^8.2.0",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.7.0",
+    "multer": "^2.2.0",
+    "resend": "^6.14.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "supertest": "^7.2.2",
+    "vitest": "^4.1.9"
+  }
+}

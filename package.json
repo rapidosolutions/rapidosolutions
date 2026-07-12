@@ -6,37 +6,26 @@
   "scripts": {
     "dev": "npm run dev:web",
     "dev:web": "vite --config frontend/vite.config.js",
-    "dev:api": "node backend/index.js",
+    "dev:api": "npm --prefix backend run dev",
+    "dev:studio": "npm --prefix backend/sanity/studio run dev",
     "dev:full": "concurrently \"npm run dev:api\" \"npm run dev:web\"",
     "build": "vite build --config frontend/vite.config.js",
+    "build:studio": "npm --prefix backend/sanity/studio run build",
     "preview": "vite preview --config frontend/vite.config.js",
-    "start:api": "node backend/index.js",
+    "start:api": "npm --prefix backend run start",
+    "deploy:studio": "npm --prefix backend/sanity/studio run deploy",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
-    "check": "npm run test && npm run build"
+    "check": "npm run test && npm --prefix backend test && npm run build"
   },
   "dependencies": {
-    "bcryptjs": "^3.0.3",
-    "cloudinary": "^2.10.0",
-    "compression": "^1.8.1",
     "concurrently": "^10.0.3",
-    "cookie-parser": "^1.4.7",
-    "cors": "^2.8.6",
-    "dotenv": "^17.4.2",
-    "express": "^5.2.1",
-    "express-rate-limit": "^8.5.2",
     "framer-motion": "^12.0.0",
-    "helmet": "^8.2.0",
-    "jsonwebtoken": "^9.0.3",
-    "mongoose": "^9.7.0",
-    "multer": "^2.2.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-icons": "^5.4.0",
-    "react-router-dom": "^7.0.0",
-    "resend": "^6.14.0",
-    "zod": "^4.4.3"
+    "react-router-dom": "^7.0.0"
   },
   "devDependencies": {
     "@playwright/test": "^1.61.0",
@@ -46,7 +35,6 @@
     "autoprefixer": "^10.4.20",
     "jsdom": "^29.1.1",
     "postcss": "^8.4.49",
-    "supertest": "^7.2.2",
     "tailwindcss": "^3.4.17",
     "vite": "^6.0.0",
     "vitest": "^4.1.9"

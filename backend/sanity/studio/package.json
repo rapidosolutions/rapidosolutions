@@ -1,0 +1,17 @@
+{
+  "name": "rapido-branded-sanity-studio",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "sanity dev",
+    "start": "sanity start",
+    "build": "sanity build",
+    "deploy": "sanity deploy rapido-blog-studio"
+  },
+  "dependencies": {
+    "@sanity/vision": "^6.4.0",
+    "sanity": "^6.4.0",
+    "styled-components": "^6.1.19"
+  }
+}

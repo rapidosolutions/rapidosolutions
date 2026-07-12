@@ -1,5 +1,10 @@
 node_modules/
+backend/node_modules/
 sanity/.sanity/
+backend/sanity/studio/.sanity/
+backend/sanity/studio/node_modules/
+backend/sanity/studio/dist/
+backend/sanity/studio/rapido-blog-studio/
 dist/
 frontend/dist/
 .env
@@ -8,6 +13,7 @@ backend/.env
 frontend/.env
 backend/uploads/
 coverage/
+backend/coverage/
 playwright-report/
 test-results/
 *.log

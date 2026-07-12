@@ -166,7 +166,7 @@ export default function Footer() {
                 className="flex items-center gap-3 transition hover:text-white"
               >
                 <Icon name="FaWhatsapp" className="h-4 w-4 shrink-0 text-white" />
-                WhatsApp +923313339840
+                +923313339840
               </a>
               <span className="flex items-center gap-3">
                 <Icon name="FiMapPin" className="h-4 w-4 shrink-0 text-white" />

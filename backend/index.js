@@ -2,9 +2,6 @@ import http from "node:http";
 import { createApp } from "./app.js";
 import { config } from "./config.js";
 import { connectDatabase, databaseStatus, disconnectDatabase } from "./db.js";
-import { Admin } from "./models/Admin.js";
-import { Blog } from "./models/Blog.js";
-import { ContactMessage } from "./models/ContactMessage.js";
 import { createAuthService } from "./services/authService.js";
 import { createBlogService } from "./services/blogService.js";
 import { createContactService } from "./services/contactService.js";
@@ -12,12 +9,12 @@ import { createEmailService } from "./services/emailService.js";
 import { createUploadService } from "./services/uploadService.js";
 
 async function start() {
-  await connectDatabase(config.mongoUri);
+  const supabase = await connectDatabase(config);
 
   const uploadService = createUploadService(config);
-  const authService = createAuthService({ Admin, config });
-  const blogService = createBlogService({ Blog, uploadService });
-  const contactService = createContactService({ ContactMessage, emailService: createEmailService(config) });
+  const authService = createAuthService({ supabase, config });
+  const blogService = createBlogService({ supabase, uploadService });
+  const contactService = createContactService({ supabase, emailService: createEmailService(config) });
 
   await authService.bootstrapAdmin();
   await blogService.seed();

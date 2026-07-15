@@ -20,7 +20,9 @@ services:
         value: rapidosolutionsco@outlook.com
       - key: CONTACT_RECIPIENT_EMAIL
         value: rapidosolutionsco@outlook.com
-      - key: MONGODB_URI
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
         sync: false
       - key: JWT_SECRET
         generateValue: true

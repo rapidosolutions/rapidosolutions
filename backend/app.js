@@ -71,7 +71,7 @@ export function createApp({
   app.use("/uploads", express.static(config.uploadDir, { maxAge: "7d", immutable: true }));
 
   app.get("/api/health", (req, res) => {
-    const dbReady = databaseStatus() === 1;
+    const dbReady = databaseStatus();
     res.status(dbReady ? 200 : 503).json({
       status: dbReady ? "ok" : "degraded",
       database: dbReady ? "connected" : "disconnected",
@@ -168,15 +168,7 @@ export function createApp({
     let code = error.code || "INTERNAL_ERROR";
     let message = error.message || "Something went wrong.";
 
-    if (error.name === "CastError") {
-      status = 400;
-      code = "INVALID_ID";
-      message = "Invalid record identifier.";
-    } else if (error.code === 11000) {
-      status = 409;
-      code = "DUPLICATE_RECORD";
-      message = "A record with that value already exists.";
-    } else if (error instanceof multer.MulterError) {
+    if (error instanceof multer.MulterError) {
       status = 400;
       code = error.code;
       message = error.code === "LIMIT_FILE_SIZE" ? "The image must be 5 MB or smaller." : error.message;

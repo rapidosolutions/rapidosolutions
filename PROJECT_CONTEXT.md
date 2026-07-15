@@ -17,10 +17,10 @@ Rapido Solutions Co. is a company website for web services, SEO, financial suppo
 ## Tech Stack
 
 - Frontend: React 19, React Router, Vite, Tailwind CSS, Framer Motion
-- Backend: Node.js, Express, Mongoose, Zod, self-contained in `backend/`
+- Backend: Node.js, Express, Supabase PostgreSQL, Zod, self-contained in `backend/`
 - Content: Custom-branded Sanity Studio for blogs
 - Testing: Vitest, Testing Library, Supertest, Playwright
-- Planned production services: Vercel, Render or Belmo, MongoDB Atlas, Resend, Cloudinary, Sanity
+- Production services: Vercel, Belmo or Render, Supabase, Resend, Cloudinary, Sanity
 
 ## Important Commands
 
@@ -90,7 +90,7 @@ Required services:
 
 - Render for the Express API
 - Belmo can also deploy the API directly from `backend/`
-- MongoDB Atlas for saved messages
+- Supabase PostgreSQL for saved messages and private administrator data
 - Resend for email notifications
 - Optional Cloudinary for persistent uploaded media
 
@@ -104,7 +104,8 @@ npm test
 
 Important environment variables for Render include:
 
-- `MONGODB_URI`
+- `SUPABASE_URL`
+- `SUPABASE_SERVICE_ROLE_KEY`
 - `JWT_SECRET`
 - `ADMIN_EMAIL`
 - `ADMIN_PASSWORD`
@@ -133,7 +134,7 @@ Despite the route name, blogs are now managed in Sanity. The dashboard is still 
 
 ## Security Decisions
 
-- Do not commit `.env`, API keys, tokens, MongoDB URLs with passwords, Resend keys, Cloudinary secrets, JWT secrets, or Sanity tokens.
+- Do not commit `.env`, API keys, tokens, Supabase service-role keys, Resend keys, Cloudinary secrets, JWT secrets, or Sanity tokens.
 - Sanity public read values like project ID and dataset are safe to commit.
 - Sanity Studio login controls blog management.
 - Contact form emails must go through backend/Resend, not directly from browser code.

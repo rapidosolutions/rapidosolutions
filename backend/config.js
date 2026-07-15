@@ -28,7 +28,8 @@ export function loadConfig(env = process.env) {
     nodeEnv,
     isProduction,
     port: Number(env.PORT || 4174),
-    mongoUri: env.MONGODB_URI || "mongodb://127.0.0.1:27017/rapido",
+    supabaseUrl: env.SUPABASE_URL || "",
+    supabaseServiceRoleKey: env.SUPABASE_SERVICE_ROLE_KEY || "",
     jwtSecret: env.JWT_SECRET || "development-only-secret-change-before-deploying",
     jwtExpiresIn: env.JWT_EXPIRES_IN || "8h",
     cookieName: env.COOKIE_NAME || "rapido_admin_session",
@@ -55,7 +56,8 @@ export function loadConfig(env = process.env) {
 
   if (isProduction) {
     const missing = [];
-    if (!env.MONGODB_URI) missing.push("MONGODB_URI");
+    if (!env.SUPABASE_URL) missing.push("SUPABASE_URL");
+    if (!env.SUPABASE_SERVICE_ROLE_KEY) missing.push("SUPABASE_SERVICE_ROLE_KEY");
     if (!env.JWT_SECRET || env.JWT_SECRET.length < 32) missing.push("JWT_SECRET (at least 32 characters)");
     if (!env.FRONTEND_URLS && !env.FRONTEND_URL) missing.push("FRONTEND_URLS");
     if (!env.RESEND_API_KEY) missing.push("RESEND_API_KEY");

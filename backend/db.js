@@ -1,18 +1,40 @@
-import mongoose from "mongoose";
+import { createClient } from "@supabase/supabase-js";
 
-export async function connectDatabase(uri) {
-  mongoose.set("strictQuery", true);
-  await mongoose.connect(uri, {
-    serverSelectionTimeoutMS: 10000,
-    maxPoolSize: 10
+let client = null;
+let ready = false;
+
+export async function connectDatabase({ supabaseUrl, supabaseServiceRoleKey }) {
+  if (!supabaseUrl || !supabaseServiceRoleKey) {
+    throw new Error("SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required.");
+  }
+
+  client = createClient(supabaseUrl, supabaseServiceRoleKey, {
+    auth: {
+      autoRefreshToken: false,
+      detectSessionInUrl: false,
+      persistSession: false
+    }
   });
-  return mongoose.connection;
+
+  const { error } = await client.from("admins").select("id").limit(1);
+  if (error) {
+    throw new Error(`Supabase connection check failed. Run the database migration first. ${error.message}`);
+  }
+
+  ready = true;
+  return client;
+}
+
+export function getDatabase() {
+  if (!client) throw new Error("Supabase has not been initialized.");
+  return client;
 }
 
 export async function disconnectDatabase() {
-  if (mongoose.connection.readyState !== 0) await mongoose.disconnect();
+  client = null;
+  ready = false;
 }
 
 export function databaseStatus() {
-  return mongoose.connection.readyState;
+  return ready;
 }

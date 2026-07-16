@@ -5,7 +5,7 @@ import { navLinks } from "../../data/navLinks";
 import Button from "../common/Button";
 import Icon from "../ui/Icon";
 import MobileMenu from "./MobileMenu";
-import rapidoIcon from "../../assets/logo/rapido-icon-cropped.png";
+import rapidoWordmark from "../../assets/logo/rapido-wordmark-cropped.png";
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
@@ -61,14 +61,12 @@ export default function Navbar() {
               : "border-white/[0.16] bg-white/[0.92] shadow-sm backdrop-blur-xl"
           }`}
         >
-          <Link to="/" className="flex min-w-0 items-center gap-3" aria-label="Rapido Solutions Co. home">
-            <img src={rapidoIcon} alt="Rapido Solutions Co." className="h-11 w-11 rounded-lg object-contain" />
-            <div className="min-w-0">
-              <p className="truncate font-display text-lg font-extrabold leading-5 text-rapido-navy">Rapido</p>
-              <p className="truncate text-[11px] font-extrabold uppercase tracking-[0.16em] text-rapido-slate">
-                Solutions Co.
-              </p>
-            </div>
+          <Link to="/" className="flex min-w-0 items-center" aria-label="Rapido Solutions Co. home">
+            <img
+              src={rapidoWordmark}
+              alt="Rapido Solutions Co."
+              className="h-11 w-auto max-w-[170px] object-contain sm:max-w-[190px]"
+            />
           </Link>
 
           <nav className="hidden items-center gap-1 lg:flex">

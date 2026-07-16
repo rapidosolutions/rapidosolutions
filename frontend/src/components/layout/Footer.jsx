@@ -49,8 +49,8 @@ export default function Footer() {
       <div className="container-shell py-14">
         <div className="mx-auto grid max-w-6xl gap-10 md:grid-cols-2 xl:grid-cols-[1.05fr_0.6fr_0.78fr_0.9fr_1.08fr]">
           <div>
-            <div className="inline-flex w-full max-w-md rounded-lg bg-white p-6 shadow-blue-soft">
-              <img src={rapidoWordmark} alt="Rapido Solutions Co." className="h-32 w-full object-contain" />
+            <div className="inline-flex w-full max-w-md rounded-lg bg-white p-5 shadow-blue-soft">
+              <img src={rapidoWordmark} alt="Rapido Solutions Co." className="h-20 w-full object-contain sm:h-24" />
             </div>
             <p className="mt-6 max-w-md leading-8 text-blue-100">
               Rapido Solutions Co. helps businesses build better websites, improve digital performance, and manage

@@ -5,7 +5,7 @@ import { navLinks } from "../../data/navLinks";
 import { drawerVariants } from "../../utils/animations";
 import Button from "../common/Button";
 import Icon from "../ui/Icon";
-import rapidoIcon from "../../assets/logo/rapido-icon-cropped.png";
+import rapidoWordmark from "../../assets/logo/rapido-wordmark-cropped.png";
 
 export default function MobileMenu({ open, onClose }) {
   const location = useLocation();
@@ -33,13 +33,11 @@ export default function MobileMenu({ open, onClose }) {
       animate={open ? "open" : "closed"}
     >
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <img src={rapidoIcon} alt="Rapido Solutions Co." className="h-11 w-11 rounded-lg object-contain" />
-          <div>
-            <p className="font-display text-lg font-extrabold text-rapido-navy">Rapido</p>
-            <p className="text-xs font-bold uppercase tracking-[0.16em] text-rapido-slate">Solutions Co.</p>
-          </div>
-        </div>
+        <img
+          src={rapidoWordmark}
+          alt="Rapido Solutions Co."
+          className="h-12 w-auto max-w-[190px] object-contain"
+        />
         <button
           aria-label="Close menu"
           className="grid h-10 w-10 place-items-center rounded-lg border border-slate-200 text-rapido-navy"

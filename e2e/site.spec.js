@@ -67,11 +67,78 @@ test("mobile homepage avoids horizontal overflow", async ({ page, isMobile }) =>
   test.skip(!isMobile, "Mobile layout check");
   await page.goto("/");
   await expect(page.getByRole("button", { name: "Open menu" })).toBeVisible();
+  const consultation = await page.getByRole("link", { name: "Book a Free Consultation" }).first().boundingBox();
+  const scrollCue = await page.getByRole("link", { name: "Scroll to more content" }).boundingBox();
+  expect(scrollCue.y).toBeGreaterThanOrEqual(consultation.y + consultation.height + 8);
   const dimensions = await page.evaluate(() => ({
     clientWidth: document.documentElement.clientWidth,
     scrollWidth: document.documentElement.scrollWidth
   }));
   expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.clientWidth + 1);
+});
+
+test("team portrait media uses square mobile frames and horizontal desktop cards", async ({ page, isMobile }) => {
+  await page.goto("/about");
+  const firstCard = page.locator('[data-team-card="true"]').first();
+  const media = firstCard.locator('[data-team-media="true"]');
+  const content = firstCard.locator('[data-team-content="true"]');
+  const image = firstCard.locator('[data-team-image="true"]');
+  await expect(media).toBeVisible();
+
+  const mediaBox = await media.boundingBox();
+  const contentBox = await content.boundingBox();
+  if (isMobile) {
+    expect(Math.abs(mediaBox.width - mediaBox.height)).toBeLessThanOrEqual(1);
+    expect(contentBox.y).toBeGreaterThanOrEqual(mediaBox.y + mediaBox.height - 1);
+  } else {
+    expect(contentBox.x).toBeGreaterThanOrEqual(mediaBox.x + mediaBox.width - 1);
+    expect(Math.abs(mediaBox.height - contentBox.height)).toBeLessThanOrEqual(1);
+  }
+  await expect(image).toHaveCSS("object-fit", "cover");
+});
+
+test("about team groups preserve department order and secure LinkedIn actions", async ({ page }) => {
+  await page.goto("/about#team");
+  const groups = page.locator("[data-team-group]");
+  await expect(groups).toHaveCount(6);
+
+  await expect(page.locator('[data-team-group-heading="true"]')).toHaveText([
+    "Finance",
+    "Technology",
+    "Human Resources",
+    "Operations",
+    "Design – UI/UX",
+    "Business Development"
+  ]);
+
+  const expectedMembers = [
+    ["Hashim Raza", "Muhammad Huzaifa"],
+    ["Shehzad Amir", "Samar Khan"],
+    ["Jawad Sadat Ali", "M. Imran Bashir"],
+    ["Hamza Tufail", "Munim Sohail"],
+    ["Zunair Ahmed Khan"],
+    ["Saba Nadeem"]
+  ];
+
+  for (let index = 0; index < expectedMembers.length; index += 1) {
+    await expect(groups.nth(index).locator("[data-team-name]")).toHaveText(expectedMembers[index]);
+  }
+
+  await expect(page.locator("[data-team-card]")).toHaveCount(10);
+  await expect(page.locator("[data-team-role]")).toHaveCount(0);
+  await expect(page.getByText("More Details", { exact: true })).toHaveCount(0);
+
+  const hashimLinkedIn = page.getByRole("link", { name: "Open Hashim Raza's LinkedIn profile" });
+  await expect(hashimLinkedIn).toHaveAttribute("href", "https://www.linkedin.com/in/hashim-raza-900115114/");
+  await expect(hashimLinkedIn).toHaveAttribute("target", "_blank");
+  await expect(hashimLinkedIn).toHaveAttribute("rel", "noopener noreferrer");
+  await expect(hashimLinkedIn).toHaveAttribute("referrerpolicy", "no-referrer");
+
+  await expect(page.locator('[data-linkedin="true"]')).toHaveCount(7);
+  await expect(page.getByRole("link", { name: "Open Hamza Tufail's LinkedIn profile" })).toHaveCount(0);
+  await expect(page.getByRole("link", { name: "Open Munim Sohail's LinkedIn profile" })).toHaveCount(0);
+  await expect(page.getByRole("link", { name: "Open Zunair Ahmed Khan's LinkedIn profile" })).toHaveCount(0);
+  await expect(groups.first().locator('img[alt="The Meraki Partnership LLP"]')).toBeVisible();
 });
 
 test("main pages avoid horizontal overflow on mobile", async ({ page, isMobile }) => {

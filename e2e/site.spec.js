@@ -97,7 +97,7 @@ test("team portrait media uses square mobile frames and horizontal desktop cards
   await expect(image).toHaveCSS("object-fit", "cover");
 });
 
-test("about team groups preserve department order and secure LinkedIn actions", async ({ page }) => {
+test("about team groups preserve department order and secure LinkedIn actions", async ({ page, isMobile }) => {
   await page.goto("/about#team");
   const groups = page.locator("[data-team-group]");
   await expect(groups).toHaveCount(6);
@@ -139,6 +139,15 @@ test("about team groups preserve department order and secure LinkedIn actions", 
   await expect(page.getByRole("link", { name: "Open Munim Sohail's LinkedIn profile" })).toHaveCount(0);
   await expect(page.getByRole("link", { name: "Open Zunair Ahmed Khan's LinkedIn profile" })).toHaveCount(0);
   await expect(groups.first().locator('img[alt="The Meraki Partnership LLP"]')).toBeVisible();
+
+  if (!isMobile) {
+    const designGroupBox = await groups.nth(4).boundingBox();
+    const designCardBox = await groups.nth(4).locator("[data-team-card]").boundingBox();
+    const businessCardBox = await groups.nth(5).locator("[data-team-card]").boundingBox();
+    expect(designCardBox.width).toBeGreaterThan(700);
+    expect(designCardBox.width).toBeLessThan(designGroupBox.width);
+    expect(Math.abs(designCardBox.width - businessCardBox.width)).toBeLessThanOrEqual(1);
+  }
 });
 
 test("main pages avoid horizontal overflow on mobile", async ({ page, isMobile }) => {

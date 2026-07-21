@@ -18,6 +18,9 @@ export default function TeamCard({ member, index = 0 }) {
             alt={member.name}
             data-team-image="true"
             loading="lazy"
+            decoding="async"
+            width="800"
+            height="800"
             style={{ objectPosition: member.imagePosition || "center" }}
             className={`h-full w-full ${
               member.imageFit === "contain" ? "object-contain" : "object-cover"
@@ -68,6 +71,9 @@ export default function TeamCard({ member, index = 0 }) {
                   src={workplace.logo}
                   alt={workplace.name}
                   loading="lazy"
+                  decoding="async"
+                  width="120"
+                  height="48"
                   className="max-h-9 max-w-full object-contain"
                 />
               </div>

@@ -32,9 +32,11 @@ export default function TeamSection() {
                 <span className="h-px flex-1 bg-blue-100" aria-hidden="true" />
               </div>
               <div
-                className={`grid gap-5 lg:grid-cols-2 ${
-                  group.members.length === 1 ? "max-w-3xl lg:grid-cols-1" : ""
-                }`}
+                className={
+                  group.members.length === 1
+                    ? "grid max-w-4xl gap-5"
+                    : "grid gap-5 lg:grid-cols-2"
+                }
               >
                 {group.members.map((member, memberIndex) => (
                   <TeamCard

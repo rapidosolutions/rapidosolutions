@@ -141,12 +141,12 @@ test("about team groups preserve department order and secure LinkedIn actions", 
   await expect(groups.first().locator('img[alt="The Meraki Partnership LLP"]')).toBeVisible();
 
   if (!isMobile) {
-    const designGroupBox = await groups.nth(4).boundingBox();
+    const operationsCardBox = await groups.nth(3).locator("[data-team-card]").first().boundingBox();
     const designCardBox = await groups.nth(4).locator("[data-team-card]").boundingBox();
     const businessCardBox = await groups.nth(5).locator("[data-team-card]").boundingBox();
-    expect(designCardBox.width).toBeGreaterThan(700);
-    expect(designCardBox.width).toBeLessThan(designGroupBox.width);
+    expect(Math.abs(designCardBox.width - operationsCardBox.width)).toBeLessThanOrEqual(1);
     expect(Math.abs(designCardBox.width - businessCardBox.width)).toBeLessThanOrEqual(1);
+    expect(Math.abs(designCardBox.x - operationsCardBox.x)).toBeLessThanOrEqual(1);
   }
 });
 

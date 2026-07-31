@@ -24,7 +24,8 @@ function MobileScrollCue() {
 
   return (
     <div
-      className={`relative z-20 flex justify-center bg-white pb-2 pt-5 md:hidden transition duration-300 ${
+<<<<<<< HEAD
+      className={`relative z-20 flex justify-center bg-white pb-2 pt-4 md:hidden transition duration-300 ${
         visible ? "opacity-100" : "pointer-events-none opacity-0"
       }`}
     >

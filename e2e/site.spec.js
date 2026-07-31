@@ -1,8 +1,11 @@
 import { expect, test } from "@playwright/test";
 
-test("homepage presents both service lines in the correct sequence", async ({ page, isMobile }) => {
+test("homepage presents all service lines in the correct sequence", async ({ page, isMobile }) => {
   await page.goto("/");
-  await expect(page.getByRole("heading", { level: 1 })).toContainText("Web, SEO & Finance Solutions for Growth");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText(
+    "Bookkeeping, Web & HR Services for Growing Businesses"
+  );
+  await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
   await page.getByRole("button", { name: "Explore Our Services" }).first().click();
   const serviceDialog = page.getByRole("dialog", { name: "Choose a service" });
   await expect(serviceDialog.getByRole("link", { name: /Web Services/i })).toHaveAttribute("href", "/web-services");
@@ -10,21 +13,147 @@ test("homepage presents both service lines in the correct sequence", async ({ pa
   await expect(serviceDialog.getByRole("link", { name: /Human Resource Services/i })).toHaveAttribute("href", "/human-resource-services");
   await page.keyboard.press("Escape");
 
-  const webHeading = page.getByRole("heading", { name: /Web Services Designed to Move Your Business Forward/i });
-  const financeHeading = page.getByRole("heading", { name: /Financial Support Built for Clearer Business Control/i });
-  const hrHeading = page.getByRole("heading", { name: /HR Support Built for Better Team Structure/i });
+  const webHeading = page.getByRole("heading", { name: /Web Development and SEO Services for Business Growth/i });
+  const financeHeading = page.getByRole("heading", { name: /Bookkeeping Support for Clearer Financial Control/i });
+  const hrHeading = page.getByRole("heading", { name: /HR Support for Stronger People Operations/i });
   await expect(webHeading).toBeVisible();
   await expect(financeHeading).toBeVisible();
   await expect(hrHeading).toBeVisible();
   expect((await webHeading.boundingBox()).y).toBeLessThan((await financeHeading.boundingBox()).y);
   expect((await financeHeading.boundingBox()).y).toBeLessThan((await hrHeading.boundingBox()).y);
 
-  await expect(page.locator("section").filter({ hasText: "Web Services Designed to Move Your Business Forward" }).locator("article")).toHaveCount(4);
+  await expect(page.locator("section").filter({ hasText: "Web Development and SEO Services for Business Growth" }).locator("article")).toHaveCount(4);
   await expect(page.getByText("Selected Project Directions")).toHaveCount(0);
   await expect(page.getByText("Industries Served")).toHaveCount(0);
   await expect(page.getByText("View All Blogs")).toHaveCount(0);
+  await expect(page.getByText("Daniel Brooks", { exact: true })).toHaveCount(0);
   if (!isMobile) {
     await expect(page.getByText("100%")).toBeVisible();
+  }
+});
+
+test("homepage exposes unique SEO metadata and verified structured data", async ({ page }) => {
+  await page.goto("/");
+
+  await expect(page).toHaveTitle("Web, Bookkeeping & HR Services | Rapido Solutions");
+  await expect(page.locator('meta[name="description"]')).toHaveAttribute(
+    "content",
+    "Rapido Solutions Co. provides web development, Shopify, WordPress, SEO, bookkeeping, property accounting, and HR support for growing businesses."
+  );
+  await expect(page.locator('meta[property="og:title"]')).toHaveAttribute(
+    "content",
+    "Web, Bookkeeping & HR Services | Rapido Solutions"
+  );
+  await expect(page.locator('meta[name="twitter:title"]')).toHaveAttribute(
+    "content",
+    "Web, Bookkeeping & HR Services | Rapido Solutions"
+  );
+  await expect(page.locator('link[rel="canonical"]')).toHaveCount(1);
+  await expect(page.locator('script[type="application/ld+json"]')).toHaveCount(1);
+});
+
+test("public routes expose unique crawlable metadata", async ({ page }) => {
+  const routes = [
+    "/",
+    "/about",
+    "/web-services",
+    "/financial-services",
+    "/human-resource-services",
+    "/projects",
+    "/blogs",
+    "/contact"
+  ];
+
+  for (const route of routes) {
+    await page.goto(route);
+    await expect(page.locator("h1")).toHaveCount(1);
+    await expect(page.locator('link[rel="canonical"]')).toHaveCount(1);
+    const description = await page.locator('meta[name="description"]').getAttribute("content");
+    expect(description.trim().length, `${route} should have a useful meta description`).toBeGreaterThanOrEqual(80);
+    await expect(page.locator('meta[name="robots"]')).not.toHaveAttribute("content", /noindex/i);
+  }
+
+  await page.goto("/reviews");
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", "noindex, follow");
+  await page.goto("/blog-admin");
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", "noindex, nofollow");
+});
+
+test("crawler files include public routes and exclude private routes", async ({ request }) => {
+  const robots = await request.get("/robots.txt");
+  expect(robots.ok()).toBeTruthy();
+  expect(await robots.text()).toContain("Disallow: /blog-admin");
+
+  const sitemap = await request.get("/sitemap.xml");
+  expect(sitemap.ok()).toBeTruthy();
+  const xml = await sitemap.text();
+  expect(xml).toContain("/web-services");
+  expect(xml).toContain("/human-resource-services");
+  expect(xml).not.toContain("/blog-admin");
+  expect(xml).not.toContain("/reviews");
+});
+
+test("homepage remains readable across required responsive widths", async ({ browser }, testInfo) => {
+  test.skip(testInfo.project.name !== "desktop-chromium", "Run the viewport matrix once");
+
+  const viewports = [
+    { width: 320, height: 760 },
+    { width: 375, height: 812 },
+    { width: 390, height: 844 },
+    { width: 430, height: 932 },
+    { width: 768, height: 1024 },
+    { width: 1024, height: 900 },
+    { width: 1440, height: 1000 }
+  ];
+
+  for (const viewport of viewports) {
+    const context = await browser.newContext({ viewport });
+    const page = await context.newPage();
+    await page.goto("/");
+
+    const layout = await page.evaluate(() => {
+      const labels = [
+        "WEB • FINANCE • HUMAN RESOURCES",
+        "Explore Our Services",
+        "Book a Free Consultation"
+      ];
+      const elements = labels.map((label) =>
+        [...document.querySelectorAll("a, button, span")].find((element) => element.textContent.trim() === label)
+      );
+
+      return {
+        clientWidth: document.documentElement.clientWidth,
+        scrollWidth: document.documentElement.scrollWidth,
+        clippedLabels: elements.filter(Boolean).filter((element) => {
+          const rect = element.getBoundingClientRect();
+          return rect.left < -1 || rect.right > window.innerWidth + 1 || element.scrollWidth > element.clientWidth + 1;
+        }).length
+      };
+    });
+
+    expect(layout.scrollWidth, `${viewport.width}px should not overflow horizontally`).toBeLessThanOrEqual(
+      layout.clientWidth + 1
+    );
+    expect(layout.clippedLabels, `${viewport.width}px should not clip key labels`).toBe(0);
+    await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
+
+    await page.locator("#home-services").evaluate((element) => element.scrollIntoView({ block: "start" }));
+    await page.waitForTimeout(150);
+    const clearance = await page.evaluate(() => {
+      const header = document.querySelector("header").getBoundingClientRect();
+      const section = document.querySelector("#home-services").getBoundingClientRect();
+      return { headerBottom: header.bottom, sectionTop: section.top };
+    });
+    expect(clearance.sectionTop, `${viewport.width}px anchor should clear the sticky header`).toBeGreaterThanOrEqual(
+      clearance.headerBottom - 1
+    );
+
+    if (viewport.width === 390 || viewport.width === 1440) {
+      await page.evaluate(() => window.scrollTo(0, 0));
+      await page.screenshot({ path: `test-results/homepage-${viewport.width}.png`, fullPage: false });
+    }
+
+    await context.close();
   }
 });
 
@@ -63,15 +192,133 @@ test("contact form submits through the API and reports success", async ({ page }
   await expect(page.getByText(/saved and sent to our team/i)).toBeVisible();
 });
 
+test("approved reviews render on the homepage and the review form submits for moderation", async ({ page }) => {
+  await page.route("**/api/reviews**", async (route) => {
+    if (route.request().method() === "POST") {
+      await route.fulfill({
+        status: 201,
+        contentType: "application/json",
+        body: JSON.stringify({ message: "Thank you. Your review was submitted and will appear after approval.", reference: "review-e2e" })
+      });
+      return;
+    }
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        reviews: [{
+          id: "approved-review",
+          name: "Verified Client",
+          company: "Example Co.",
+          role: "Owner",
+          service: "Web Services",
+          rating: 5,
+          review: "Rapido delivered the agreed work clearly and professionally."
+        }]
+      })
+    });
+  });
+
+  await page.goto("/");
+  await expect(page.getByText("Verified Client", { exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Add Your Review" })).toHaveAttribute("href", "/reviews#submit-review");
+
+  await page.goto("/reviews#submit-review");
+  await page.getByLabel(/^Name/).fill("Review Test Client");
+  await page.getByLabel(/^Email/).fill("reviewer@example.com");
+  await page.getByLabel(/^Service/).selectOption("Web Services");
+  await page.getByRole("button", { name: "5 stars" }).click();
+  await page.getByLabel(/^Your Review/).fill("The service was clear, professional, and delivered as agreed.");
+  await page.getByRole("checkbox").check();
+  await page.getByRole("button", { name: "Submit Review" }).click();
+  await expect(page.getByText(/submitted and will appear after approval/i)).toBeVisible();
+});
+
 test("mobile homepage avoids horizontal overflow", async ({ page, isMobile }) => {
   test.skip(!isMobile, "Mobile layout check");
   await page.goto("/");
   await expect(page.getByRole("button", { name: "Open menu" })).toBeVisible();
+  const consultation = await page.getByRole("link", { name: "Book a Free Consultation" }).first().boundingBox();
+  const scrollCue = await page.getByRole("link", { name: "Scroll to more content" }).boundingBox();
+  expect(scrollCue.y).toBeGreaterThanOrEqual(consultation.y + consultation.height + 8);
   const dimensions = await page.evaluate(() => ({
     clientWidth: document.documentElement.clientWidth,
     scrollWidth: document.documentElement.scrollWidth
   }));
   expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.clientWidth + 1);
+});
+
+test("team portrait media uses square mobile frames and horizontal desktop cards", async ({ page, isMobile }) => {
+  await page.goto("/about");
+  const firstCard = page.locator('[data-team-card="true"]').first();
+  const media = firstCard.locator('[data-team-media="true"]');
+  const content = firstCard.locator('[data-team-content="true"]');
+  const image = firstCard.locator('[data-team-image="true"]');
+  await expect(media).toBeVisible();
+
+  const mediaBox = await media.boundingBox();
+  const contentBox = await content.boundingBox();
+  if (isMobile) {
+    expect(Math.abs(mediaBox.width - mediaBox.height)).toBeLessThanOrEqual(1);
+    expect(contentBox.y).toBeGreaterThanOrEqual(mediaBox.y + mediaBox.height - 1);
+  } else {
+    expect(contentBox.x).toBeGreaterThanOrEqual(mediaBox.x + mediaBox.width - 1);
+    expect(Math.abs(mediaBox.height - contentBox.height)).toBeLessThanOrEqual(1);
+  }
+  await expect(image).toHaveCSS("object-fit", "cover");
+});
+
+test("about team groups preserve department order and secure LinkedIn actions", async ({ page, isMobile }) => {
+  await page.goto("/about#team");
+  const groups = page.locator("[data-team-group]");
+  await expect(groups).toHaveCount(6);
+
+  await expect(page.locator('[data-team-group-heading="true"]')).toHaveText([
+    "Finance",
+    "Technology",
+    "Human Resources",
+    "Operations",
+    "Design – UI/UX",
+    "Business Development"
+  ]);
+
+  const expectedMembers = [
+    ["Hashim Raza", "Muhammad Huzaifa"],
+    ["Shehzad Amir", "Samar Khan"],
+    ["Jawad Sadat Ali", "M. Imran Bashir"],
+    ["Hamza Tufail", "Munim Sohail"],
+    ["Zunair Ahmed Khan"],
+    ["Saba Nadeem"]
+  ];
+
+  for (let index = 0; index < expectedMembers.length; index += 1) {
+    await expect(groups.nth(index).locator("[data-team-name]")).toHaveText(expectedMembers[index]);
+  }
+
+  await expect(page.locator("[data-team-card]")).toHaveCount(10);
+  await expect(page.locator("[data-team-role]")).toHaveCount(0);
+  await expect(page.getByText("More Details", { exact: true })).toHaveCount(0);
+
+  const hashimLinkedIn = page.getByRole("link", { name: "Open Hashim Raza's LinkedIn profile" });
+  await expect(hashimLinkedIn).toHaveAttribute("href", "https://www.linkedin.com/in/hashim-raza-900115114/");
+  await expect(hashimLinkedIn).toHaveAttribute("target", "_blank");
+  await expect(hashimLinkedIn).toHaveAttribute("rel", "noopener noreferrer");
+  await expect(hashimLinkedIn).toHaveAttribute("referrerpolicy", "no-referrer");
+
+  await expect(page.locator('[data-linkedin="true"]')).toHaveCount(7);
+  await expect(page.getByRole("link", { name: "Open Hamza Tufail's LinkedIn profile" })).toHaveCount(0);
+  await expect(page.getByRole("link", { name: "Open Munim Sohail's LinkedIn profile" })).toHaveCount(0);
+  await expect(page.getByRole("link", { name: "Open Zunair Ahmed Khan's LinkedIn profile" })).toHaveCount(0);
+  await expect(groups.first().locator('img[alt="The Meraki Partnership LLP"]')).toBeVisible();
+
+  if (!isMobile) {
+    const operationsCardBox = await groups.nth(3).locator("[data-team-card]").first().boundingBox();
+    const designCardBox = await groups.nth(4).locator("[data-team-card]").boundingBox();
+    const businessCardBox = await groups.nth(5).locator("[data-team-card]").boundingBox();
+    expect(Math.abs(designCardBox.width - operationsCardBox.width)).toBeLessThanOrEqual(1);
+    expect(Math.abs(designCardBox.width - businessCardBox.width)).toBeLessThanOrEqual(1);
+    expect(Math.abs(designCardBox.x - operationsCardBox.x)).toBeLessThanOrEqual(1);
+  }
 });
 
 test("main pages avoid horizontal overflow on mobile", async ({ page, isMobile }) => {

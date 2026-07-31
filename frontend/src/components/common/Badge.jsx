@@ -10,10 +10,10 @@ export default function Badge({ children, icon = "FiCheckCircle", tone = "blue",
 
   return (
     <span
-      className={`inline-flex max-w-full items-center gap-2 rounded-full border px-3 py-1 text-xs font-extrabold uppercase tracking-[0.14em] ${tones[tone]} ${className}`}
+      className={`inline-flex max-w-full items-center justify-center gap-2 rounded-full border px-3 py-1 text-center text-xs font-extrabold uppercase leading-5 tracking-[0.12em] ${tones[tone]} ${className}`}
     >
       {icon ? <Icon name={icon} className="h-3.5 w-3.5 shrink-0" /> : null}
-      <span className="truncate">{children}</span>
+      <span className="min-w-0 whitespace-normal break-words">{children}</span>
     </span>
   );
 }

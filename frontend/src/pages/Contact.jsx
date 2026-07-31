@@ -5,11 +5,23 @@ import ContactInfo from "../components/contact/ContactInfo";
 import SectionHeader from "../components/common/SectionHeader";
 import { pageTransition } from "../utils/animations";
 import { usePageMeta } from "../utils/usePageMeta";
+import { createBreadcrumbSchema, createWebPageSchema } from "../utils/seo";
+import { useStructuredData } from "../utils/useStructuredData";
 
 export default function Contact() {
-  usePageMeta(
-    "Contact",
-    "Contact Rapido Solutions Co. for web development, Shopify, WordPress, SEO, UI/UX optimization, maintenance, and financial services."
+  const description =
+    "Contact Rapido Solutions Co. about web development, Shopify, WordPress, SEO, bookkeeping, finance, or human resource support for your business.";
+  usePageMeta("Contact Rapido Solutions | Web, Finance & HR Support", description, {
+    absoluteTitle: true,
+    canonicalPath: "/contact"
+  });
+  useStructuredData(
+    "contact-page",
+    createWebPageSchema({ name: "Contact Rapido Solutions Co.", description, path: "/contact", type: "ContactPage" })
+  );
+  useStructuredData(
+    "contact-breadcrumbs",
+    createBreadcrumbSchema([{ name: "Home", path: "/" }, { name: "Contact", path: "/contact" }])
   );
 
   return (
@@ -25,7 +37,7 @@ export default function Contact() {
           <SectionHeader
             eyebrow="Project Request"
             title="Start with a Clear Conversation"
-            description="A focused intake form helps Rapido understand whether you need a website, store, SEO support, maintenance, or financial help."
+            description="A focused intake form helps Rapido understand whether you need web, SEO, bookkeeping, finance, or HR support."
           />
           <div className="grid gap-8 lg:grid-cols-[1fr_0.42fr]">
             <ContactForm />

@@ -45,9 +45,12 @@ export function loadConfig(env = process.env) {
     cloudinaryCloudName: env.CLOUDINARY_CLOUD_NAME || "",
     cloudinaryApiKey: env.CLOUDINARY_API_KEY || "",
     cloudinaryApiSecret: env.CLOUDINARY_API_SECRET || "",
+    geminiApiKey: env.GEMINI_API_KEY || "",
+    geminiModel: env.GEMINI_MODEL || "gemini-flash-latest",
     apiPublicUrl: env.API_PUBLIC_URL || `http://localhost:${Number(env.PORT || 4174)}`,
     uploadDir: path.join(__dirname, "uploads"),
-    maxUploadBytes: 5 * 1024 * 1024
+    maxUploadBytes: 5 * 1024 * 1024,
+    maxResumeBytes: 5 * 1024 * 1024
   };
 
   if (!["lax", "strict", "none"].includes(config.cookieSameSite)) {

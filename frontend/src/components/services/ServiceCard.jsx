@@ -1,4 +1,5 @@
 import Icon from "../ui/Icon";
+import { Link } from "react-router-dom";
 
 export default function ServiceCard({ service }) {
   return (
@@ -9,6 +10,12 @@ export default function ServiceCard({ service }) {
       <h3 className="mt-5 text-xl font-extrabold text-rapido-navy">{service.title}</h3>
       <p className="mt-3 leading-7 text-rapido-slate">{service.summary}</p>
       <p className="mt-4 rounded-lg bg-slate-50 p-4 text-sm font-bold text-rapido-navy">{service.benefit}</p>
+      <Link
+        to={`/web-services#${service.id}`}
+        className="mt-5 inline-flex font-extrabold text-rapido-blue transition hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rapido-blue focus-visible:ring-offset-2"
+      >
+        Explore service
+      </Link>
     </article>
   );
 }

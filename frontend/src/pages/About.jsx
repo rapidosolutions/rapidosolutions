@@ -11,6 +11,8 @@ import TeamSection from "../components/about/TeamSection";
 import { pageTransition } from "../utils/animations";
 import { brandStatement } from "../utils/constants";
 import { usePageMeta } from "../utils/usePageMeta";
+import { createBreadcrumbSchema, createWebPageSchema } from "../utils/seo";
+import { useStructuredData } from "../utils/useStructuredData";
 
 const values = ["Quality", "Reliability", "Speed", "Transparency", "Growth", "Professionalism"];
 
@@ -22,17 +24,23 @@ const differences = [
 ];
 
 export default function About() {
+  const description =
+    "Learn how Rapido Solutions Co. brings together web development, SEO, bookkeeping, finance, and HR expertise for growing businesses.";
+
   usePageMeta(
-    "About",
-    "Learn how Rapido Solutions Co. combines technology, design, SEO, eCommerce, web support, and financial support for growing businesses."
+    "About Rapido Solutions | Web, Finance & HR Team",
+    description,
+    { absoluteTitle: true, canonicalPath: "/about" }
   );
+  useStructuredData("about-page", createWebPageSchema({ name: "About Rapido Solutions Co.", description, path: "/about", type: "AboutPage" }));
+  useStructuredData("about-breadcrumbs", createBreadcrumbSchema([{ name: "Home", path: "/" }, { name: "About", path: "/about" }]));
 
   return (
     <motion.main {...pageTransition}>
       <PageHero
         eyebrow="About Rapido"
         title="A Modern Solutions Company for Growing Businesses"
-        description="Rapido Solutions Co. combines technology, design, SEO, eCommerce, maintenance, and financial expertise to help businesses build stronger digital systems and manage growth more professionally."
+        description="Rapido Solutions Co. combines web, SEO, bookkeeping, finance, and HR expertise to help growing businesses strengthen their digital presence and internal operations."
       >
         <div className="flex flex-col gap-3 sm:flex-row">
           <ServicePickerButton size="md" className="w-full sm:w-auto">Explore Our Services</ServicePickerButton>
@@ -54,8 +62,8 @@ export default function About() {
             />
             <p className="mt-6 text-lg leading-8 text-rapido-slate">
               Rapido was created to help businesses move beyond scattered digital work. The company supports websites,
-              stores, search visibility, operational systems, maintenance, and financial organization so owners can
-              grow with more confidence and fewer disconnected tools.
+              stores, search visibility, bookkeeping, financial workflows, and HR processes so owners can grow with
+              more confidence and fewer disconnected systems.
             </p>
           </ScrollReveal>
           <LogoCloud />

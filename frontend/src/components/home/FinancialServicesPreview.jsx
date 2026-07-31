@@ -10,6 +10,16 @@ const featuredServiceTitles = [
   "Property Accounting"
 ];
 
+const homepageDescriptions = {
+  Bookkeeping: "Accurate transaction recording, organized books, and dependable monthly bookkeeping routines.",
+  "Accounts Payable":
+    "Vendor bill organization, payment workflow support, and clearer visibility into outstanding payables.",
+  "Financial Reporting":
+    "Clear financial reporting that helps owners and managers understand business performance and financial activity.",
+  "Property Accounting":
+    "Support for ledgers, owner statements, reconciliations, reporting, and property management accounting workflows."
+};
+
 export default function FinancialServicesPreview() {
   const featuredServices = financialServices.filter((service) => featuredServiceTitles.includes(service.title));
 
@@ -17,20 +27,23 @@ export default function FinancialServicesPreview() {
     <section className="bg-rapido-mist py-12 md:py-16">
       <div className="container-shell">
         <SectionHeader
-          eyebrow="Financial Services"
-          title="Financial Support Built for Clearer Business Control"
-          description="Reliable bookkeeping, payables, reporting, and property accounting support for businesses that need organized records and better financial visibility."
+          eyebrow="Bookkeeping & Finance Support"
+          title="Bookkeeping Support for Clearer Financial Control"
+          description="Reliable bookkeeping, accounts payable, reporting, reconciliations, and property accounting support for businesses that need accurate records and better financial visibility."
         />
 
         <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
           {featuredServices.map((service) => (
-            <FinancialServiceCard key={service.title} service={service} />
+            <FinancialServiceCard
+              key={service.title}
+              service={{ ...service, description: homepageDescriptions[service.title] }}
+            />
           ))}
         </div>
 
         <div className="mt-8 text-center">
           <ServicePickerButton>
-            Explore Financial Services
+            Explore Bookkeeping & Finance Services
           </ServicePickerButton>
         </div>
       </div>

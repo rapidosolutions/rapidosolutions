@@ -8,6 +8,8 @@ import { blogPosts } from "../data/blogsData";
 import { getBlog } from "../utils/blogApi";
 import { pageTransition } from "../utils/animations";
 import { usePageMeta } from "../utils/usePageMeta";
+import { createBlogPostingSchema, createBreadcrumbSchema } from "../utils/seo";
+import { useStructuredData } from "../utils/useStructuredData";
 
 export default function BlogDetail() {
   const { slug } = useParams();
@@ -17,7 +19,27 @@ export default function BlogDetail() {
 
   usePageMeta(
     post?.title || "Blog",
-    post?.summary || "Read practical Rapido Solutions Co. notes about websites, operations, and finance."
+    post?.summary || "Read practical Rapido Solutions Co. notes about websites, operations, finance, and HR.",
+    {
+      author: post?.author,
+      canonicalPath: `/blogs/${slug}`,
+      image: post?.coverImage?.url,
+      modifiedTime: post?.updatedAt,
+      ogType: "article",
+      publishedTime: post?.publishedAt || post?.createdAt,
+      robots: status === "missing" ? "noindex, nofollow" : "index, follow"
+    }
+  );
+  useStructuredData("blog-post", post ? createBlogPostingSchema(post) : null);
+  useStructuredData(
+    "blog-post-breadcrumbs",
+    post
+      ? createBreadcrumbSchema([
+          { name: "Home", path: "/" },
+          { name: "Blogs", path: "/blogs" },
+          { name: post.title, path: `/blogs/${post.slug}` }
+        ])
+      : null
   );
 
   useEffect(() => {

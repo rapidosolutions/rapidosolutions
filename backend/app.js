@@ -13,9 +13,16 @@ import {
   loginSchema,
   passwordChangeSchema,
   messageStatusSchema,
+  reviewSchema,
+  reviewStatusSchema,
+  exportResumeSchema,
+  generateResumeSchema,
+  rebuildResumeSchema,
+  sampleResumeSchema,
   validateBody
 } from "./middleware/validation.js";
 import { AppError, asyncHandler } from "./utils/http.js";
+import { sampleResumeText } from "./services/resumeService.js";
 
 const imageTypes = new Set(["image/jpeg", "image/png", "image/webp"]);
 
@@ -34,6 +41,8 @@ export function createApp({
   authService,
   blogService,
   contactService,
+  reviewService,
+  resumeService,
   uploadService,
   databaseStatus
 }) {
@@ -44,6 +53,14 @@ export function createApp({
     limits: { fileSize: config.maxUploadBytes, files: 1 },
     fileFilter: (req, file, callback) => {
       callback(imageTypes.has(file.mimetype) ? null : new AppError(400, "Use a JPG, PNG, or WebP image.", "INVALID_FILE_TYPE"), imageTypes.has(file.mimetype));
+    }
+  });
+  const resumeUpload = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: config.maxResumeBytes, files: 1 },
+    fileFilter: (req, file, callback) => {
+      const isPdf = file.mimetype === "application/pdf";
+      callback(isPdf ? null : new AppError(400, "Upload a PDF resume.", "INVALID_FILE_TYPE"), isPdf);
     }
   });
 
@@ -100,6 +117,71 @@ export function createApp({
         reference: message.id,
         emailSent
       });
+    })
+  );
+
+  app.get("/api/reviews", asyncHandler(async (req, res) => {
+    res.json({ reviews: await reviewService.listPublic({ limit: req.query.limit }) });
+  }));
+  app.post(
+    "/api/reviews",
+    limiter(60 * 60 * 1000, 3, "Too many review submissions. Please try again later."),
+    validateBody(reviewSchema),
+    asyncHandler(async (req, res) => {
+      const review = await reviewService.create(req.validatedBody, req.get("user-agent") || "");
+      res.status(201).json({
+        message: "Thank you. Your review was submitted and will appear after approval.",
+        reference: review.id
+      });
+    })
+  );
+
+  app.post(
+    "/api/resume/analyze",
+    limiter(60 * 60 * 1000, 10, "Resume analysis limit reached. Please try again later."),
+    resumeUpload.single("resume"),
+    validateBody(sampleResumeSchema),
+    asyncHandler(async (req, res) => {
+      res.json(await resumeService.analyzePdf(req.file, req.validatedBody));
+    })
+  );
+  app.post(
+    "/api/resume/analyze/sample",
+    limiter(60 * 60 * 1000, 10, "Resume analysis limit reached. Please try again later."),
+    validateBody(sampleResumeSchema),
+    asyncHandler(async (req, res) => {
+      res.json(await resumeService.analyzeText(sampleResumeText, req.validatedBody));
+    })
+  );
+  app.post(
+    "/api/resume/rebuild",
+    limiter(60 * 60 * 1000, 6, "Resume rebuild limit reached. Please try again later."),
+    validateBody(rebuildResumeSchema),
+    asyncHandler(async (req, res) => {
+      res.json(await resumeService.rebuild(req.validatedBody));
+    })
+  );
+  app.post(
+    "/api/resume/generate",
+    limiter(60 * 60 * 1000, 6, "Resume generation limit reached. Please try again later."),
+    validateBody(generateResumeSchema),
+    asyncHandler(async (req, res) => {
+      res.json(await resumeService.generate(req.validatedBody));
+    })
+  );
+  app.post(
+    "/api/resume/export/pdf",
+    limiter(60 * 60 * 1000, 30, "Resume export limit reached. Please try again later."),
+    validateBody(exportResumeSchema),
+    asyncHandler(async (req, res) => {
+      const safeName = (req.validatedBody.fileName || "ats-resume").replace(/[^a-z0-9_-]+/gi, "-").replace(/^-+|-+$/g, "") || "ats-resume";
+      const pdf = await resumeService.exportPdf(req.validatedBody.markdown);
+      res.set({
+        "Content-Type": "application/pdf",
+        "Content-Disposition": `attachment; filename="${safeName}.pdf"`,
+        "Content-Length": String(pdf.length)
+      });
+      res.send(pdf);
     })
   );
 
@@ -160,6 +242,16 @@ export function createApp({
     await contactService.remove(req.params.id);
     res.status(204).end();
   }));
+  app.get("/api/admin/reviews", asyncHandler(async (req, res) => {
+    res.json(await reviewService.listAdmin(req.query));
+  }));
+  app.patch("/api/admin/reviews/:id", session.requireCsrf, validateBody(reviewStatusSchema), asyncHandler(async (req, res) => {
+    res.json({ review: await reviewService.updateStatus(req.params.id, req.validatedBody.status) });
+  }));
+  app.delete("/api/admin/reviews/:id", session.requireCsrf, asyncHandler(async (req, res) => {
+    await reviewService.remove(req.params.id);
+    res.status(204).end();
+  }));
 
   app.use((req, res, next) => next(new AppError(404, "Endpoint not found.", "NOT_FOUND")));
   app.use((error, req, res, next) => {
@@ -171,8 +263,8 @@ export function createApp({
     if (error instanceof multer.MulterError) {
       status = 400;
       code = error.code;
-      message = error.code === "LIMIT_FILE_SIZE" ? "The image must be 5 MB or smaller." : error.message;
-    } else if (status >= 500 && config.isProduction) {
+      message = error.code === "LIMIT_FILE_SIZE" ? "The uploaded file must be 5 MB or smaller." : error.message;
+    } else if (status >= 500 && config.isProduction && code !== "AI_NOT_CONFIGURED") {
       message = "An unexpected server error occurred.";
     }
 

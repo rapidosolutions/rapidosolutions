@@ -9,14 +9,26 @@ import { blogPosts } from "../data/blogsData";
 import { listBlogs } from "../utils/blogApi";
 import { pageTransition } from "../utils/animations";
 import { usePageMeta } from "../utils/usePageMeta";
+import { createBreadcrumbSchema, createWebPageSchema } from "../utils/seo";
+import { useStructuredData } from "../utils/useStructuredData";
 
 export default function Blogs() {
   const [posts, setPosts] = useState(blogPosts);
   const [status, setStatus] = useState("loading");
 
-  usePageMeta(
-    "Blogs",
-    "Read practical Rapido Solutions Co. notes about websites, eCommerce, SEO, operations, bookkeeping, and financial support."
+  const description =
+    "Read practical Rapido Solutions Co. articles about web development, Shopify, WordPress, SEO, bookkeeping, finance, HR, and business operations.";
+  usePageMeta("Web, Finance & HR Insights | Rapido Solutions Blog", description, {
+    absoluteTitle: true,
+    canonicalPath: "/blogs"
+  });
+  useStructuredData(
+    "blogs-page",
+    createWebPageSchema({ name: "Rapido Solutions Blog", description, path: "/blogs", type: "CollectionPage" })
+  );
+  useStructuredData(
+    "blogs-breadcrumbs",
+    createBreadcrumbSchema([{ name: "Home", path: "/" }, { name: "Blogs", path: "/blogs" }])
   );
 
   useEffect(() => {
@@ -42,8 +54,8 @@ export default function Blogs() {
     <motion.main {...pageTransition}>
       <PageHero
         eyebrow="Blogs"
-        title="Practical Notes for Better Websites and Operations"
-        description="Clear ideas for improving business websites, digital performance, financial organization, and long-term growth systems."
+        title="Practical Insights for Business Growth"
+        description="Clear ideas for improving websites, search visibility, financial organization, people operations, and long-term business systems."
       >
         <div className="flex flex-col gap-3 sm:flex-row">
           <Button to="/contact">Ask About a Topic</Button>
@@ -55,7 +67,7 @@ export default function Blogs() {
           <SectionHeader
             eyebrow="Latest Posts"
             title="Insights for Business Growth"
-            description="Browse web, eCommerce, operations, and finance articles written for business owners who want clearer systems."
+            description="Browse web, ecommerce, SEO, finance, HR, and operations articles written for business owners who want clearer systems."
           />
           {status === "offline" ? (
             <div className="mb-6 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm font-semibold text-amber-900">

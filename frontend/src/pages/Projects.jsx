@@ -10,6 +10,8 @@ import Button from "../components/common/Button";
 import { projectCategories, projects } from "../data/portfolioData";
 import { pageTransition } from "../utils/animations";
 import { usePageMeta } from "../utils/usePageMeta";
+import { createBreadcrumbSchema, createWebPageSchema } from "../utils/seo";
+import { useStructuredData } from "../utils/useStructuredData";
 
 export default function Projects() {
   const [active, setActive] = useState("All");
@@ -22,9 +24,19 @@ export default function Projects() {
     setActive("All");
   }, [normalizedType]);
 
-  usePageMeta(
-    "Projects",
-    "Explore Rapido Solutions Co. project directions for web services, financial support, human resource services, Shopify stores, WordPress websites, SEO, and business operations."
+  const description =
+    "Explore web, Shopify, WordPress, SEO, bookkeeping, finance, and HR project examples that show the service directions Rapido Solutions Co. can deliver.";
+  usePageMeta("Web, Finance & HR Project Examples | Rapido Solutions", description, {
+    absoluteTitle: true,
+    canonicalPath: "/projects"
+  });
+  useStructuredData(
+    "projects-page",
+    createWebPageSchema({ name: "Web, Finance and HR Project Examples", description, path: "/projects", type: "CollectionPage" })
+  );
+  useStructuredData(
+    "projects-breadcrumbs",
+    createBreadcrumbSchema([{ name: "Home", path: "/" }, { name: "Projects", path: "/projects" }])
   );
 
   const visibleProjects = useMemo(
@@ -50,8 +62,8 @@ export default function Projects() {
     <motion.main {...pageTransition}>
       <PageHero
         eyebrow="Projects"
-        title="Project Showcase and Service Directions"
-        description="A clean project-ready structure for showing web builds, financial support workflows, HR service projects, SEO improvements, and business operations support."
+        title="Web, Finance and HR Project Examples"
+        description="Explore practical project concepts for web builds, SEO improvements, financial workflows, and human resource support."
       >
         <Button to="/contact">Start a Similar Project</Button>
       </PageHero>

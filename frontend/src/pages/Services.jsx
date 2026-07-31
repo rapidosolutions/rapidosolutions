@@ -11,13 +11,26 @@ import Icon from "../components/ui/Icon";
 import { services } from "../data/servicesData";
 import { pageTransition } from "../utils/animations";
 import { usePageMeta } from "../utils/usePageMeta";
+import { createBreadcrumbSchema, createServiceSchema } from "../utils/seo";
+import { useStructuredData } from "../utils/useStructuredData";
 
 export default function Services() {
   const [activeId, setActiveId] = useState(services[0].id);
+  const description =
+    "Explore responsive web development, Shopify, WordPress, technical SEO, UI/UX, and website maintenance services from Rapido Solutions Co.";
 
   usePageMeta(
-    "Web Services",
-    "Explore Rapido Solutions Co. web services across web development, Shopify, WordPress, SEO, UI/UX, and maintenance."
+    "Web Development, Shopify & SEO Services | Rapido",
+    description,
+    { absoluteTitle: true, canonicalPath: "/web-services" }
+  );
+  useStructuredData(
+    "web-services",
+    createServiceSchema({ name: "Web Development and SEO Services", description, path: "/web-services", services })
+  );
+  useStructuredData(
+    "web-services-breadcrumbs",
+    createBreadcrumbSchema([{ name: "Home", path: "/" }, { name: "Web Services", path: "/web-services" }])
   );
 
   useEffect(() => {

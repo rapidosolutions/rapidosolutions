@@ -49,6 +49,29 @@ export function createEmailService(config) {
         confirmationEmailStatus: delivered(confirmationResult) ? "sent" : "failed",
         emailError: errors.join(" ").slice(0, 500)
       };
+    },
+
+    async sendReviewNotification(review) {
+      if (!configured) {
+        return {
+          notificationEmailStatus: "not_configured",
+          emailError: "Email delivery is not configured in this environment."
+        };
+      }
+
+      const safe = Object.fromEntries(
+        Object.entries(review).map(([key, value]) => [key, escapeHtml(String(value ?? ""))])
+      );
+      const result = await resend.emails.send({
+        from: config.emailFrom,
+        to: config.contactRecipientEmail,
+        replyTo: review.email,
+        subject: `New Rapido review awaiting approval from ${review.name}`,
+        html: `<h2>New review awaiting moderation</h2><p><strong>Name:</strong> ${safe.name}</p><p><strong>Email:</strong> ${safe.email}</p><p><strong>Company:</strong> ${safe.company || "Not provided"}</p><p><strong>Role:</strong> ${safe.role || "Not provided"}</p><p><strong>Service:</strong> ${safe.service}</p><p><strong>Rating:</strong> ${safe.rating}/5</p><p><strong>Review:</strong></p><p>${safe.review.replaceAll("\n", "<br>")}</p>`
+      });
+      return result?.error
+        ? { notificationEmailStatus: "failed", emailError: result.error.message.slice(0, 500) }
+        : { notificationEmailStatus: "sent", emailError: "" };
     }
   };
 }

@@ -53,7 +53,7 @@ export default function Navbar() {
 
   return (
     <>
-      <header className="fixed inset-x-0 top-0 z-40 px-4 pt-4">
+      <header className="sticky inset-x-0 top-0 z-40 px-3 pb-3 pt-[max(0.75rem,env(safe-area-inset-top))] lg:fixed lg:px-4 lg:pb-0 lg:pt-4">
         <div
           className={`mx-auto flex h-[72px] max-w-7xl items-center justify-between rounded-lg border px-4 transition duration-300 ${
             scrolled

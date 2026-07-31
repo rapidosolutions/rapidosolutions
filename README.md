@@ -19,11 +19,11 @@ Production-oriented website and content system for Rapido Solutions Co. The Reac
 4. Copy `backend/.env.example` to `backend/.env`.
 5. Copy `frontend/.env.example` to `frontend/.env` if you need to override Sanity settings.
 6. Set a strong `ADMIN_PASSWORD` with at least 12 characters. The initial administrator email is `rapidosolutionsco@outlook.com`.
-7. Run `backend/supabase/migrations/001_initial_schema.sql` once in the Supabase SQL Editor.
+7. Run `backend/supabase/migrations/001_initial_schema.sql`, then `backend/supabase/migrations/002_reviews.sql`, once in the Supabase SQL Editor.
 8. Run `npm run dev:full`.
 9. Open `http://localhost:5173`.
 
-The API uses Supabase PostgreSQL through the private service-role credential in `backend/.env`. Cloudinary and Resend are optional locally. Without Cloudinary, images are stored in `backend/uploads`. Without Resend, contact messages are saved and clearly reported as awaiting email delivery.
+The API uses Supabase PostgreSQL through the private service-role credential in `backend/.env`. Cloudinary and Resend are optional locally. Without Cloudinary, images are stored in `backend/uploads`. Without Resend, contact messages and review submissions are saved and clearly reported as awaiting email delivery.
 
 ## Commands
 
@@ -46,6 +46,19 @@ npm ci
 npm start
 npm test
 ```
+
+## AI Resume Workspace
+
+The public `/resume-analyzer` route can validate and score a text-based PDF resume, rebuild an analyzed resume, create an ATS-safe resume from structured career details, and export the best generated version as Markdown or PDF. Uploaded and generated resume content is processed in memory for the current request and is not stored in Supabase, Cloudinary, Sanity, or the local filesystem.
+
+The feature uses Gemini `gemini-flash-latest` from the Express backend. For local development, add the key only to `backend/.env`:
+
+```text
+GEMINI_API_KEY=your-private-gemini-api-key
+GEMINI_MODEL=gemini-flash-latest
+```
+
+For Belmo or Render, add the same variables through the backend service's private environment settings and redeploy. Never put the key in `frontend/.env`, Vercel, browser code, or a `VITE_` variable. `GEMINI_MODEL` is optional because the backend defaults to `gemini-flash-latest`; `GEMINI_API_KEY` is required for resume AI requests.
 
 ## Blog Workflow
 
@@ -85,6 +98,7 @@ In Vercel, set:
 Visit `/blog-admin` and sign in with the configured administrator email and password. The dashboard supports:
 
 - Reviewing saved contact enquiries
+- Approving, rejecting, or deleting customer review submissions before publication
 - Tracking messages as new, read, replied, or archived
 - Changing the administrator password without database access
 
@@ -94,7 +108,7 @@ The session is stored in a secure HttpOnly cookie. Write requests also require a
 
 ### Supabase
 
-Create a Supabase project and run `backend/supabase/migrations/001_initial_schema.sql` in its SQL Editor. Add the Project URL as `SUPABASE_URL` and the private service-role key as `SUPABASE_SERVICE_ROLE_KEY` in Belmo or Render. Never add the service-role key to Vercel or any `VITE_` variable. Row Level Security is enabled and the website accesses these private tables only through the Express backend.
+Create a Supabase project and run `backend/supabase/migrations/001_initial_schema.sql`, followed by `backend/supabase/migrations/002_reviews.sql`, in its SQL Editor. Add the Project URL as `SUPABASE_URL` and the private service-role key as `SUPABASE_SERVICE_ROLE_KEY` in Belmo or Render. Never add the service-role key to Vercel or any `VITE_` variable. Row Level Security is enabled and the website accesses these private tables only through the Express backend. Public review submissions start as `pending`; only administrator-approved records are returned by the public reviews endpoint.
 
 ### Cloudinary
 

@@ -90,7 +90,7 @@ Required services:
 
 - Render for the Express API
 - Belmo can also deploy the API directly from `backend/`
-- Supabase PostgreSQL for saved messages and private administrator data
+- Supabase PostgreSQL for saved messages, moderated customer reviews, and private administrator data
 - Resend for email notifications
 - Optional Cloudinary for persistent uploaded media
 
@@ -130,7 +130,7 @@ Frontend Vercel needs:
 
 Route: `/blog-admin`
 
-Despite the route name, blogs are now managed in Sanity. The dashboard is still useful for contact messages and admin password changes after the backend is deployed.
+Despite the route name, blogs are now managed in Sanity. The dashboard is still useful for contact messages, review moderation, and admin password changes after the backend is deployed. Review submissions remain pending until an administrator approves them.
 
 ## Security Decisions
 

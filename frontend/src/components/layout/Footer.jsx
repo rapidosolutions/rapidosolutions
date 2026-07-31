@@ -53,8 +53,8 @@ export default function Footer() {
               <img src={rapidoWordmark} alt="Rapido Solutions Co." className="h-20 w-full object-contain sm:h-24" />
             </div>
             <p className="mt-6 max-w-md leading-8 text-blue-100">
-              Rapido Solutions Co. helps businesses build better websites, improve digital performance, and manage
-              growth with reliable technology and financial solutions.
+              Rapido Solutions Co. provides web development, SEO, Shopify, WordPress, bookkeeping, property accounting,
+              and HR support for growing businesses.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <Button to="/contact" variant="light" icon="FiMessageCircle">
@@ -116,12 +116,12 @@ export default function Footer() {
           </div>
 
           <div className="hidden md:block">
-            <h3 className="text-sm font-extrabold uppercase tracking-[0.16em] text-rapido-cyan">Financial Services</h3>
+            <h3 className="text-sm font-extrabold uppercase tracking-[0.16em] text-rapido-cyan">Bookkeeping &amp; Finance</h3>
             <div className="mt-5 grid gap-3">
               {financialServices.map((service) => (
                 <Link
                   key={service.title}
-                  to="/financial-services"
+                  to={`/financial-services#${service.id}`}
                   className="text-sm font-semibold text-blue-100 transition hover:text-white"
                 >
                   {service.title}
@@ -133,7 +133,7 @@ export default function Footer() {
               {humanResourceServices.map((service) => (
                 <Link
                   key={service.title}
-                  to="/human-resource-services"
+                  to={`/human-resource-services#${service.id}`}
                   className="text-sm font-semibold text-blue-100 transition hover:text-white"
                 >
                   {service.title}
@@ -177,7 +177,7 @@ export default function Footer() {
         </div>
 
         <div className="mx-auto mt-12 flex max-w-6xl flex-col items-center gap-3 border-t border-white/10 pt-6 text-center text-sm text-blue-100">
-          <p>&copy; 2026 Rapido Solutions Co. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Rapido Solutions Co. All rights reserved.</p>
         </div>
       </div>
     </footer>

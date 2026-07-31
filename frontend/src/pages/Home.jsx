@@ -24,7 +24,7 @@ function MobileScrollCue() {
 
   return (
     <div
-      className={`relative z-20 -mt-5 flex justify-center md:hidden transition duration-300 ${
+      className={`relative z-20 flex justify-center bg-white pb-2 pt-5 md:hidden transition duration-300 ${
         visible ? "opacity-100" : "pointer-events-none opacity-0"
       }`}
     >
@@ -41,8 +41,15 @@ function MobileScrollCue() {
 
 export default function Home() {
   usePageMeta(
-    "Digital Solutions Built for Business Growth",
-    "Rapido Solutions Co. builds responsive websites, SEO-ready digital systems, and financial support solutions for growing businesses."
+    "Web, Bookkeeping & HR Services | Rapido Solutions",
+    "Rapido Solutions Co. provides web development, Shopify, WordPress, SEO, bookkeeping, property accounting, and HR support for growing businesses.",
+    {
+      absoluteTitle: true,
+      canonicalPath: "/",
+      ogTitle: "Web, Bookkeeping & HR Services | Rapido Solutions",
+      ogDescription:
+        "Build a stronger digital presence, organized financial operations, and better people processes with Rapido Solutions Co."
+    }
   );
 
   return (

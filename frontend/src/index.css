@@ -21,6 +21,7 @@ html {
   max-width: 100%;
   overflow-x: hidden;
   scroll-behavior: smooth;
+  scroll-padding-top: 7rem;
 }
 
 body {
@@ -73,6 +74,10 @@ a {
 
 .section-padding {
   padding-block: clamp(42px, 6vw, 76px);
+}
+
+section[id] {
+  scroll-margin-top: 7rem;
 }
 
 .text-balance {

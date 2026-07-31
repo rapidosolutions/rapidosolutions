@@ -15,11 +15,11 @@ export default function HomeCTA() {
                 Start the next move
               </Badge>
               <h2 className="mt-5 font-display text-3xl font-extrabold leading-tight text-balance md:text-5xl">
-                Ready to Build a Better Digital Presence?
+                Ready to Move Your Business Forward?
               </h2>
               <p className="mt-5 max-w-3xl text-lg leading-8 text-blue-100">
-                Whether you need web, SEO, financial, or human resource support, Rapido Solutions Co. is ready to help
-                you choose the right next step.
+                Whether you need web development, SEO, bookkeeping, finance, or HR support, Rapido Solutions Co. can
+                help you choose the right next step.
               </p>
             </div>
             <div className="grid gap-3 sm:grid-cols-2 lg:w-72 lg:grid-cols-1">

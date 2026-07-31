@@ -5,7 +5,9 @@ import { pageTransition } from "../utils/animations";
 import { usePageMeta } from "../utils/usePageMeta";
 
 export default function NotFound() {
-  usePageMeta("Page Not Found", "The page you are looking for could not be found on Rapido Solutions Co.");
+  usePageMeta("Page Not Found", "The page you are looking for could not be found on Rapido Solutions Co.", {
+    robots: "noindex, nofollow"
+  });
 
   return (
     <motion.main {...pageTransition} className="min-h-screen bg-rapido-navy pt-36 text-white">

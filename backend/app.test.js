@@ -14,6 +14,7 @@ const config = {
   jwtSecret: "test-secret-that-is-long-enough-for-automated-tests",
   jwtExpiresIn: "1h",
   maxUploadBytes: 5 * 1024 * 1024,
+  maxResumeBytes: 5 * 1024 * 1024,
   uploadDir: "D:/nonexistent-rapido-test-uploads"
 };
 
@@ -39,6 +40,26 @@ function buildApp() {
       list: vi.fn(async () => ({ messages: [], total: 0, page: 1, pages: 1 })),
       updateStatus: vi.fn(async (id, status) => ({ id, status })),
       remove: vi.fn(async () => undefined)
+    },
+    reviewService: {
+      listPublic: vi.fn(async () => [{ id: "review-1", name: "Verified Client", rating: 5, review: "A genuine approved review." }]),
+      create: vi.fn(async () => ({ id: "review-2", status: "pending" })),
+      listAdmin: vi.fn(async () => ({ reviews: [], total: 0, page: 1, pages: 1 })),
+      updateStatus: vi.fn(async (id, status) => ({ id, status })),
+      remove: vi.fn(async () => undefined)
+    },
+    resumeService: {
+      analyzePdf: vi.fn(async () => ({
+        resumeText: "Sample resume text",
+        analysis: { isResume: true, reason: "Valid resume", score: 6, strengths: [], weaknesses: [], missingKeywords: [], actionSteps: [] }
+      })),
+      analyzeText: vi.fn(async () => ({
+        resumeText: "Sample resume text",
+        analysis: { isResume: true, reason: "Valid resume", score: 6, strengths: [], weaknesses: [], missingKeywords: [], actionSteps: [] }
+      })),
+      rebuild: vi.fn(async () => ({ resumeMarkdown: "# Sample Resume", analysis: { score: 9 }, attempts: 2 })),
+      generate: vi.fn(async () => ({ resumeMarkdown: "# Generated Resume", analysis: { score: 9 }, attempts: 2 })),
+      exportPdf: vi.fn(async () => Buffer.from("%PDF-test"))
     },
     uploadService: {
       upload: vi.fn(async () => ({ url: "https://example.com/cover.jpg", publicId: "cover", storageType: "cloudinary" }))
@@ -71,6 +92,18 @@ const validBlog = {
   coverImage: null
 };
 
+const validReview = {
+  name: "Verified Client",
+  email: "client@example.com",
+  company: "Example Co.",
+  role: "Owner",
+  service: "Web Services",
+  rating: 5,
+  review: "Rapido delivered the agreed work clearly and professionally.",
+  consent: true,
+  website: ""
+};
+
 describe("Rapido API", () => {
   let context;
   beforeEach(() => {
@@ -98,6 +131,60 @@ describe("Rapido API", () => {
     expect(response.status).toBe(201);
     expect(response.body.reference).toBe("message-1");
     expect(context.services.contactService.create).toHaveBeenCalledOnce();
+  });
+
+  it("lists approved reviews and accepts moderated review submissions", async () => {
+    const listed = await request(context.app).get("/api/reviews?limit=3");
+    expect(listed.status).toBe(200);
+    expect(listed.body.reviews[0].name).toBe("Verified Client");
+
+    const invalid = await request(context.app).post("/api/reviews").send({ ...validReview, rating: 6 });
+    expect(invalid.status).toBe(400);
+
+    const created = await request(context.app).post("/api/reviews").send(validReview);
+    expect(created.status).toBe(201);
+    expect(created.body.message).toMatch(/after approval/i);
+  });
+
+  it("analyzes PDF resumes and rejects non-PDF uploads", async () => {
+    const invalid = await request(context.app)
+      .post("/api/resume/analyze")
+      .attach("resume", Buffer.from("plain text"), { filename: "resume.txt", contentType: "text/plain" });
+    expect(invalid.status).toBe(400);
+
+    const response = await request(context.app)
+      .post("/api/resume/analyze")
+      .field("targetRole", "Frontend Developer")
+      .attach("resume", Buffer.from("%PDF-test"), { filename: "resume.pdf", contentType: "application/pdf" });
+    expect(response.status).toBe(200);
+    expect(response.body.analysis.score).toBe(6);
+    expect(context.services.resumeService.analyzePdf).toHaveBeenCalledOnce();
+  });
+
+  it("supports sample analysis, rebuild, generation, and PDF export", async () => {
+    const sample = await request(context.app).post("/api/resume/analyze/sample").send({ targetRole: "Product Manager" });
+    expect(sample.status).toBe(200);
+
+    const resumeText = `${"Experience Education Skills Summary ".repeat(8)}Delivered projects and improved customer workflows.`;
+    const rebuild = await request(context.app).post("/api/resume/rebuild").send({ resumeText, targetRole: "Product Manager" });
+    expect(rebuild.status).toBe(200);
+    expect(rebuild.body.analysis.score).toBe(9);
+
+    const generated = await request(context.app).post("/api/resume/generate").send({
+      personalInfo: { name: "Alex Morgan", email: "alex@example.com", phone: "", location: "", linkedin: "", portfolio: "" },
+      targetRole: "Product Manager",
+      professionalSummary: "Product professional focused on practical customer outcomes.",
+      workExperience: [{ jobTitle: "Product Associate", company: "Example Co", startDate: "2022", endDate: "Present", achievements: "Supported launches and coordinated delivery across teams." }],
+      education: [{ degree: "BS Business", institution: "Example University", graduationDate: "2022" }],
+      skills: ["Roadmapping", "Research", "Analytics"],
+      certifications: []
+    });
+    expect(generated.status).toBe(200);
+
+    const exported = await request(context.app).post("/api/resume/export/pdf").send({ markdown: `# Alex Morgan\n\n${"Professional experience and qualifications. ".repeat(4)}`, fileName: "Alex Resume" });
+    expect(exported.status).toBe(200);
+    expect(exported.headers["content-type"]).toContain("application/pdf");
+    expect(exported.headers["content-disposition"]).toContain("Alex-Resume.pdf");
   });
 
   it("rejects protected routes without a session", async () => {

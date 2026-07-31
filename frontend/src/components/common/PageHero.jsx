@@ -3,7 +3,7 @@ import ScrollReveal from "./ScrollReveal";
 
 export default function PageHero({ eyebrow, title, description, children }) {
   return (
-    <section className="relative overflow-hidden bg-rapido-navy pt-36 text-white">
+    <section className="relative overflow-hidden bg-rapido-navy pt-16 text-white sm:pt-20 lg:pt-36">
       <div className="absolute inset-0 bg-grid-dark blueprint opacity-35" aria-hidden="true" />
       <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-white to-transparent" aria-hidden="true" />
       <div className="container-shell relative z-10 pb-24">

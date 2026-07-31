@@ -4,7 +4,6 @@ import Badge from "../common/Badge";
 import ServicePickerButton from "../common/ServicePickerButton";
 import FloatingMockup from "../ui/FloatingMockup";
 import AnimatedCounter from "../ui/AnimatedCounter";
-import { brandStatement } from "../../utils/constants";
 import rapidoIcon from "../../assets/logo/rapido-icon-cropped.png";
 
 const metrics = [
@@ -15,7 +14,7 @@ const metrics = [
 
 export default function Hero() {
   return (
-    <section className="relative min-h-0 overflow-hidden bg-hero-surface pb-2 pt-36 text-white sm:pb-10 sm:pt-28 lg:min-h-screen lg:pb-14 lg:pt-32">
+    <section className="relative min-h-0 overflow-hidden bg-hero-surface pb-2 pt-8 text-white sm:pb-10 sm:pt-10 lg:min-h-screen lg:pb-14 lg:pt-32">
       <div className="absolute inset-0 bg-grid-dark blueprint opacity-35" aria-hidden="true" />
       <div className="absolute inset-x-0 bottom-0 h-2 bg-gradient-to-t from-white to-transparent sm:h-12 lg:h-24" aria-hidden="true" />
 
@@ -27,7 +26,7 @@ export default function Hero() {
             transition={{ duration: 0.6 }}
           >
             <Badge tone="dark" icon="FiZap">
-              Digital Solutions Built for Business Growth
+              WEB &bull; FINANCE &bull; HUMAN RESOURCES
             </Badge>
           </motion.div>
           <motion.h1
@@ -36,7 +35,7 @@ export default function Hero() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.08 }}
           >
-            Web, SEO & Finance Solutions for Growth
+            Bookkeeping, Web & HR Services for Growing Businesses
           </motion.h1>
           <motion.p
             className="mt-4 max-w-2xl text-base leading-7 text-blue-100 sm:text-lg md:text-xl md:leading-8 lg:mt-6"
@@ -44,7 +43,9 @@ export default function Hero() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.16 }}
           >
-            {brandStatement}
+            Rapido Solutions Co. helps growing businesses build professional websites, improve search visibility,
+            organize financial records, and strengthen people operations through reliable web, finance, and HR
+            services.
           </motion.p>
           <motion.div
             className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap lg:mt-8"
@@ -85,7 +86,11 @@ export default function Hero() {
           </motion.div>
         </div>
 
-        <div className="relative hidden min-w-0 lg:block">
+        <div
+          className="relative hidden min-w-0 lg:block"
+          role="img"
+          aria-label="Rapido Solutions web, SEO, finance, and human resource services dashboard"
+        >
           <div className="mb-5 flex items-center gap-3 rounded-lg border border-white/[0.16] bg-white/10 p-3 backdrop-blur-xl lg:absolute lg:-left-8 lg:top-2 lg:z-20">
             <img src={rapidoIcon} alt="Rapido Solutions Co. icon" className="h-11 w-11 rounded-lg object-contain" />
             <div>

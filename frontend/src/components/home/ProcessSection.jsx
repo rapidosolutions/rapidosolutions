@@ -10,7 +10,7 @@ export default function ProcessSection() {
         <SectionHeader
           eyebrow="Simple Process"
           title="Our Simple Process"
-          description="A clear path from business clarity to delivery and support, designed to keep web, finance, and HR work organized."
+          description="A clear path from discovery to delivery and ongoing support across web development, SEO, finance, and HR services."
         />
         <div className="relative">
           <div className="absolute left-6 top-0 hidden h-full w-px bg-blue-100 lg:left-0 lg:right-0 lg:top-16 lg:mx-auto lg:block lg:h-px lg:w-full" />

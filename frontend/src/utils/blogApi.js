@@ -1,9 +1,9 @@
 import { getSanityBlog, listSanityBlogs } from "./sanityBlogApi";
 
-const apiBase = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
+export const apiBase = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
 let csrfToken = "";
 
-async function request(path, options = {}) {
+export async function request(path, options = {}) {
   const isFormData = options.body instanceof FormData;
   const response = await fetch(`${apiBase}${path}`, {
     credentials: "include",
@@ -96,4 +96,25 @@ export function updateMessageStatus(id, status) {
 
 export function deleteMessage(id) {
   return request(`/api/admin/messages/${encodeURIComponent(id)}`, { method: "DELETE" });
+}
+
+export function listPublicReviews({ limit = 6 } = {}) {
+  return request(`/api/reviews?limit=${encodeURIComponent(limit)}`);
+}
+
+export function submitReview(review) {
+  return request("/api/reviews", { method: "POST", body: review });
+}
+
+export function listAdminReviews(params = {}) {
+  const query = new URLSearchParams(params).toString();
+  return request(`/api/admin/reviews${query ? `?${query}` : ""}`);
+}
+
+export function updateReviewStatus(id, status) {
+  return request(`/api/admin/reviews/${encodeURIComponent(id)}`, { method: "PATCH", body: { status } });
+}
+
+export function deleteReview(id) {
+  return request(`/api/admin/reviews/${encodeURIComponent(id)}`, { method: "DELETE" });
 }

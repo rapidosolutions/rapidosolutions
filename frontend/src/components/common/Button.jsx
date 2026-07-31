@@ -34,7 +34,7 @@ export default function Button({
   disabled = false
 }) {
   const classes = [
-    "inline-flex items-center justify-center gap-2 rounded-lg font-bold transition duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60",
+    "inline-flex max-w-full items-center justify-center gap-2 rounded-lg text-center font-bold leading-snug transition duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60",
     variants[variant],
     sizes[size],
     className
@@ -42,7 +42,7 @@ export default function Button({
   const content = (
     <>
       {icon && iconPosition === "left" ? <Icon name={icon} className="h-4 w-4 shrink-0" /> : null}
-      <span>{children}</span>
+      <span className="min-w-0 whitespace-normal">{children}</span>
       {icon && iconPosition === "right" ? <Icon name={icon} className="h-4 w-4 shrink-0" /> : null}
     </>
   );

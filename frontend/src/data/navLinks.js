@@ -6,7 +6,8 @@ export const navLinks = [
     children: [
       { label: "Web Services", path: "/web-services" },
       { label: "Financial Services", path: "/financial-services" },
-      { label: "Human Resource Services", path: "/human-resource-services" }
+      { label: "Human Resource Services", path: "/human-resource-services" },
+      { label: "AI Resume Analyzer", path: "/resume-analyzer" }
     ]
   },
   {

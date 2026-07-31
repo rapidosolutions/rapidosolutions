@@ -19,7 +19,7 @@ export default function ServiceDetailBlock({ service }) {
               {service.category}
             </span>
           </div>
-          <h2 className="mt-5 font-display text-3xl font-extrabold text-rapido-navy">{service.title}</h2>
+          <h3 className="mt-5 font-display text-3xl font-extrabold text-rapido-navy">{service.title}</h3>
           <p className="mt-4 text-lg leading-8 text-rapido-slate">{service.summary}</p>
         </div>
         <Button to="/contact" variant="secondary">

@@ -1,43 +1,44 @@
-import { testimonials } from "../../data/testimonialsData";
+import { useEffect, useState } from "react";
 import Button from "../common/Button";
 import SectionHeader from "../common/SectionHeader";
-import ScrollReveal from "../common/ScrollReveal";
-import Icon from "../ui/Icon";
+import ReviewCard from "../reviews/ReviewCard";
+import { listPublicReviews } from "../../utils/blogApi";
 
 export default function ReviewsSection() {
-  const featuredReviews = testimonials.slice(0, 3);
+  const [reviews, setReviews] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let active = true;
+    listPublicReviews({ limit: 3 })
+      .then((data) => active && setReviews(data.reviews || []))
+      .catch(() => active && setReviews([]))
+      .finally(() => active && setLoading(false));
+    return () => { active = false; };
+  }, []);
 
   return (
     <section className="section-padding bg-white">
       <div className="container-shell">
         <SectionHeader
-          eyebrow="Reviews"
+          eyebrow="Client Reviews"
           title="What Clients Say About Working With Rapido"
-          description="Realistic feedback themes from website, SEO, financial support, and HR service work."
+          description="Feedback from clients who used our web development, SEO, bookkeeping, finance, and HR services."
         />
-        <div className="grid gap-4 md:grid-cols-3">
-          {featuredReviews.map((review, index) => (
-            <ScrollReveal
-              key={review.author}
-              delay={index * 0.05}
-              className="rounded-lg border border-slate-200 bg-slate-50 p-6"
-            >
-              <div className="flex gap-1 text-amber-400">
-                {Array.from({ length: 5 }).map((_, starIndex) => (
-                  <Icon key={starIndex} name="FiStar" className="h-4 w-4 fill-current" />
-                ))}
-              </div>
-              <p className="mt-4 leading-7 text-rapido-slate">"{review.quote}"</p>
-              <p className="mt-5 font-extrabold text-rapido-navy">{review.author}</p>
-              <p className="text-sm font-semibold text-rapido-blue">{review.role}</p>
-            </ScrollReveal>
-          ))}
-        </div>
-        <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+        {reviews.length ? (
+          <div className="mb-8 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+            {reviews.map((review) => <ReviewCard key={review.id} review={review} />)}
+          </div>
+        ) : (
+          <p className="mx-auto mb-8 max-w-2xl rounded-lg border border-blue-100 bg-rapido-mist p-5 text-center font-semibold leading-7 text-rapido-slate">
+            {loading ? "Loading approved client feedback..." : "Approved client feedback will appear here after verification."}
+          </p>
+        )}
+        <div className="flex flex-col justify-center gap-3 sm:flex-row">
           <Button to="/reviews" variant="secondary">
             See More Reviews
           </Button>
-          <Button to="/contact" icon="FiMessageCircle">
+          <Button to="/reviews#submit-review" icon="FiMessageCircle">
             Add Your Review
           </Button>
         </div>

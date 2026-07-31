@@ -1,28 +1,43 @@
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import PageHero from "../components/common/PageHero";
 import SectionHeader from "../components/common/SectionHeader";
 import Button from "../components/common/Button";
-import Icon from "../components/ui/Icon";
 import HomeCTA from "../components/home/HomeCTA";
-import { testimonials } from "../data/testimonialsData";
+import ReviewCard from "../components/reviews/ReviewCard";
+import ReviewForm from "../components/reviews/ReviewForm";
 import { pageTransition } from "../utils/animations";
+import { listPublicReviews } from "../utils/blogApi";
 import { usePageMeta } from "../utils/usePageMeta";
 
 export default function Reviews() {
+  const [reviews, setReviews] = useState([]);
+  const [loading, setLoading] = useState(true);
+
   usePageMeta(
     "Reviews",
-    "Read client reviews for Rapido Solutions Co. web services, SEO support, financial support, and human resource services."
+    "Review and share feedback about working with Rapido Solutions Co.",
+    { canonicalPath: "/reviews", robots: "noindex, follow" }
   );
+
+  useEffect(() => {
+    let active = true;
+    listPublicReviews({ limit: 24 })
+      .then((data) => active && setReviews(data.reviews || []))
+      .catch(() => active && setReviews([]))
+      .finally(() => active && setLoading(false));
+    return () => { active = false; };
+  }, []);
 
   return (
     <motion.main {...pageTransition}>
       <PageHero
         eyebrow="Reviews"
-        title="Client Feedback Across Web, Finance, and HR"
-        description="A simple place to review what clients say about Rapido's website, SEO, financial support, and human resource service work."
+        title="Client Reviews"
+        description="Verified feedback will be published here after it has been submitted and reviewed."
       >
         <div className="flex flex-col gap-3 sm:flex-row">
-          <Button to="/contact">Share Your Review</Button>
+          <Button to="/reviews#submit-review">Share Your Review</Button>
           <Button to="/projects" variant="light">
             View Projects
           </Button>
@@ -33,28 +48,29 @@ export default function Reviews() {
         <div className="container-shell">
           <SectionHeader
             eyebrow="All Reviews"
-            title="What Clients Notice Most"
-            description="Clear communication, cleaner systems, better customer journeys, and practical support are the themes clients mention most."
+            title="Verified Client Feedback"
+            description="Only genuine reviews approved by the Rapido team are displayed publicly."
           />
-          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-            {testimonials.map((review) => (
-              <article key={review.author} className="rounded-lg border border-slate-200 bg-slate-50 p-6 shadow-sm">
-                <div className="flex gap-1 text-amber-400">
-                  {Array.from({ length: 5 }).map((_, starIndex) => (
-                    <Icon key={starIndex} name="FiStar" className="h-4 w-4 fill-current" />
-                  ))}
-                </div>
-                <p className="mt-4 leading-7 text-rapido-slate">"{review.quote}"</p>
-                <p className="mt-5 font-extrabold text-rapido-navy">{review.author}</p>
-                <p className="text-sm font-semibold text-rapido-blue">{review.role}</p>
-              </article>
-            ))}
-          </div>
-          <div className="mt-8 flex justify-center">
-            <Button to="/contact" icon="FiMessageCircle">
-              Add Your Review
-            </Button>
-          </div>
+          {reviews.length ? (
+            <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+              {reviews.map((review) => <ReviewCard key={review.id} review={review} />)}
+            </div>
+          ) : (
+            <p className="mx-auto max-w-2xl rounded-lg border border-blue-100 bg-rapido-mist p-6 text-center font-semibold leading-7 text-rapido-slate">
+              {loading ? "Loading approved reviews..." : "No approved reviews have been published yet. Be the first to share an honest experience."}
+            </p>
+          )}
+        </div>
+      </section>
+
+      <section id="submit-review" className="section-padding scroll-mt-32 bg-rapido-mist">
+        <div className="container-shell">
+          <SectionHeader
+            eyebrow="Share Feedback"
+            title="Add Your Review"
+            description="Your review will be checked before publication. Your email address is used for verification and is never displayed publicly."
+          />
+          <ReviewForm />
         </div>
       </section>
 

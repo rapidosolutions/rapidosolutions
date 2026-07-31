@@ -7,11 +7,25 @@ import HomeCTA from "../components/home/HomeCTA";
 import { humanResourceServices } from "../data/humanResourceServicesData";
 import { pageTransition } from "../utils/animations";
 import { usePageMeta } from "../utils/usePageMeta";
+import { createBreadcrumbSchema, createServiceSchema } from "../utils/seo";
+import { useStructuredData } from "../utils/useStructuredData";
 
 export default function HumanResourceServices() {
+  const description =
+    "Strengthen hiring, HR policies, SOPs, onboarding, training, and employee development with practical human resource support from Rapido Solutions Co.";
+
   usePageMeta(
-    "Human Resource Services",
-    "Human resource services from Rapido Solutions Co. for talent acquisition, HR policies, SOPs, training, and development support."
+    "Human Resource Services for Growing Teams | Rapido",
+    description,
+    { absoluteTitle: true, canonicalPath: "/human-resource-services" }
+  );
+  useStructuredData(
+    "human-resource-services",
+    createServiceSchema({ name: "Human Resource Services", description, path: "/human-resource-services", services: humanResourceServices })
+  );
+  useStructuredData(
+    "human-resource-services-breadcrumbs",
+    createBreadcrumbSchema([{ name: "Home", path: "/" }, { name: "Human Resource Services", path: "/human-resource-services" }])
   );
 
   return (
@@ -40,12 +54,13 @@ export default function HumanResourceServices() {
             {humanResourceServices.map((service) => (
               <article
                 key={service.title}
-                className="h-full rounded-lg border border-slate-200 bg-white p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-premium"
+                id={service.id}
+                className="h-full scroll-mt-32 rounded-lg border border-slate-200 bg-white p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-premium"
               >
                 <span className="grid h-12 w-12 place-items-center rounded-lg bg-blue-50 text-rapido-blue">
                   <Icon name={service.icon} className="h-5 w-5" />
                 </span>
-                <h2 className="mt-5 text-xl font-extrabold text-rapido-navy">{service.title}</h2>
+                <h3 className="mt-5 text-xl font-extrabold text-rapido-navy">{service.title}</h3>
                 <p className="mt-3 leading-7 text-rapido-slate">{service.description}</p>
               </article>
             ))}

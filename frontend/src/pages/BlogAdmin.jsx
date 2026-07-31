@@ -7,13 +7,16 @@ import {
   changeAdminPassword,
   deleteBlog,
   deleteMessage,
+  deleteReview,
   getAdminSession,
   listBlogs,
   listMessages,
+  listAdminReviews,
   loginAdmin,
   logoutAdmin,
   updateBlog,
   updateMessageStatus,
+  updateReviewStatus,
   uploadBlogCover
 } from "../utils/blogApi";
 import { pageTransition } from "../utils/animations";
@@ -47,6 +50,7 @@ export default function BlogAdmin() {
   const [activeTab, setActiveTab] = useState("posts");
   const [blogs, setBlogs] = useState([]);
   const [messages, setMessages] = useState([]);
+  const [reviews, setReviews] = useState([]);
   const [form, setForm] = useState(emptyForm);
   const [coverFile, setCoverFile] = useState(null);
   const [fileKey, setFileKey] = useState(0);
@@ -55,7 +59,10 @@ export default function BlogAdmin() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  usePageMeta("Blog Admin", "Securely manage Rapido blog posts and customer enquiries.");
+  usePageMeta("Blog Admin", "Securely manage Rapido blog posts and customer enquiries.", {
+    canonicalPath: "/blog-admin",
+    robots: "noindex, nofollow"
+  });
 
   const sortedBlogs = useMemo(
     () => [...blogs].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)),
@@ -73,6 +80,7 @@ export default function BlogAdmin() {
     if (!admin) return;
     loadPosts();
     loadInbox();
+    loadReviews();
   }, [admin]);
 
   function clearFeedback() {
@@ -93,6 +101,15 @@ export default function BlogAdmin() {
     try {
       const data = await listMessages({ limit: "100" });
       setMessages(data.messages);
+    } catch (loadError) {
+      setError(loadError.message);
+    }
+  }
+
+  async function loadReviews() {
+    try {
+      const data = await listAdminReviews({ limit: "100" });
+      setReviews(data.reviews);
     } catch (loadError) {
       setError(loadError.message);
     }
@@ -120,6 +137,7 @@ export default function BlogAdmin() {
       setAdmin(null);
       setBlogs([]);
       setMessages([]);
+      setReviews([]);
     } catch (logoutError) {
       setError(logoutError.message);
     } finally {
@@ -237,6 +255,29 @@ export default function BlogAdmin() {
     }
   }
 
+  async function changeReviewStatus(id, status) {
+    clearFeedback();
+    try {
+      const data = await updateReviewStatus(id, status);
+      setReviews((current) => current.map((item) => (item.id === id ? data.review : item)));
+      setNotice(status === "approved" ? "Review approved and published." : "Review status updated.");
+    } catch (statusError) {
+      setError(statusError.message);
+    }
+  }
+
+  async function removeReview(review) {
+    if (!window.confirm(`Delete the review from ${review.name}?`)) return;
+    clearFeedback();
+    try {
+      await deleteReview(review.id);
+      setReviews((current) => current.filter((item) => item.id !== review.id));
+      setNotice("Review deleted.");
+    } catch (deleteError) {
+      setError(deleteError.message);
+    }
+  }
+
   if (authLoading) {
     return <main className="section-padding min-h-[70vh] bg-white text-center font-bold text-rapido-slate">Checking administrator session...</main>;
   }
@@ -279,6 +320,7 @@ export default function BlogAdmin() {
           <div className="mb-8 flex flex-wrap gap-2 border-b border-slate-200 pb-4">
             <Button type="button" size="sm" variant={activeTab === "posts" ? "primary" : "secondary"} icon="FiEdit3" onClick={() => setActiveTab("posts")}>Blog Posts</Button>
             <Button type="button" size="sm" variant={activeTab === "messages" ? "primary" : "secondary"} icon="FiMail" onClick={() => setActiveTab("messages")}>Messages ({messages.filter((item) => item.status === "new").length})</Button>
+            <Button type="button" size="sm" variant={activeTab === "reviews" ? "primary" : "secondary"} icon="FiStar" onClick={() => setActiveTab("reviews")}>Reviews ({reviews.filter((item) => item.status === "pending").length})</Button>
             <Button type="button" size="sm" variant={activeTab === "security" ? "primary" : "secondary"} icon="FiShield" onClick={() => setActiveTab("security")}>Security</Button>
           </div>
           <div className="mb-6 grid gap-3">
@@ -334,6 +376,35 @@ export default function BlogAdmin() {
                 <article key={item.id} className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
                   <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between"><div><p className="text-xs font-extrabold uppercase tracking-[0.12em] text-rapido-blue">{item.service} · {new Date(item.createdAt).toLocaleString()}</p><h2 className="mt-2 text-xl font-extrabold text-rapido-navy">{item.name}</h2><p className="mt-1 font-semibold text-rapido-slate"><a href={`mailto:${item.email}`}>{item.email}</a>{item.phone ? ` · ${item.phone}` : ""}{item.company ? ` · ${item.company}` : ""}</p></div><div className="flex flex-wrap gap-2"><select aria-label={`Status for ${item.name}`} className={inputClass} value={item.status} onChange={(event) => changeMessageStatus(item.id, event.target.value)}><option value="new">New</option><option value="read">Read</option><option value="replied">Replied</option><option value="archived">Archived</option></select><Button type="button" size="sm" variant="ghost" icon="FiTrash2" onClick={() => removeMessage(item)}>Delete</Button></div></div>
                   <p className="mt-5 whitespace-pre-wrap rounded-lg bg-slate-50 p-4 leading-7 text-rapido-slate">{item.message}</p><p className="mt-3 text-xs font-bold text-rapido-slate">Budget: {item.budget} · Team email: {item.notificationEmailStatus} · Customer confirmation: {item.confirmationEmailStatus}</p>
+                </article>
+              ))}
+            </div>
+          ) : activeTab === "reviews" ? (
+            <div className="grid gap-5">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <p className="max-w-2xl text-sm font-semibold leading-6 text-rapido-slate">Approve only genuine feedback. Reviewer email addresses are private and never included in the public review API.</p>
+                <Button type="button" size="sm" variant="secondary" icon="FiRefreshCw" onClick={loadReviews}>Refresh</Button>
+              </div>
+              {!reviews.length ? <p className="rounded-lg border border-slate-200 bg-slate-50 p-6 font-bold text-rapido-slate">No review submissions yet.</p> : null}
+              {reviews.map((item) => (
+                <article key={item.id} className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+                  <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                    <div>
+                      <p className="text-xs font-extrabold uppercase tracking-[0.12em] text-rapido-blue">{item.service} · {item.rating}/5 stars · {new Date(item.createdAt).toLocaleString()}</p>
+                      <h2 className="mt-2 text-xl font-extrabold text-rapido-navy">{item.name}</h2>
+                      <p className="mt-1 font-semibold text-rapido-slate"><a className="hover:text-rapido-blue" href={`mailto:${item.email}`}>{item.email}</a>{item.role ? ` · ${item.role}` : ""}{item.company ? ` · ${item.company}` : ""}</p>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      <select aria-label={`Status for ${item.name}'s review`} className={inputClass} value={item.status} onChange={(event) => changeReviewStatus(item.id, event.target.value)}>
+                        <option value="pending">Pending</option>
+                        <option value="approved">Approved</option>
+                        <option value="rejected">Rejected</option>
+                      </select>
+                      <Button type="button" size="sm" variant="ghost" icon="FiTrash2" onClick={() => removeReview(item)}>Delete</Button>
+                    </div>
+                  </div>
+                  <blockquote className="mt-5 whitespace-pre-wrap rounded-lg bg-slate-50 p-4 leading-7 text-rapido-slate">“{item.review}”</blockquote>
+                  <p className="mt-3 text-xs font-bold text-rapido-slate">Moderation: {item.status} · Admin notification: {item.notificationEmailStatus}</p>
                 </article>
               ))}
             </div>

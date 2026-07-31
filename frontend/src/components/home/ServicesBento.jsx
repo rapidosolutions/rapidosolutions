@@ -8,14 +8,36 @@ import Icon from "../ui/Icon";
 
 export default function ServicesBento() {
   const featuredServices = services.filter((service) => service.featured).slice(0, 4);
+  const homepageCopy = {
+    "web-development": {
+      title: "Web Development",
+      summary:
+        "Responsive business websites, landing pages, redesigns, and frontend builds created for speed, clarity, and stronger conversions."
+    },
+    "shopify-development": {
+      title: "Shopify Development",
+      summary:
+        "Shopify store setup, theme customization, product page improvements, and conversion-focused ecommerce experiences."
+    },
+    "wordpress-development": {
+      title: "WordPress Development",
+      summary:
+        "Flexible WordPress websites, Elementor builds, redesigns, maintenance, and performance optimization."
+    },
+    "seo-services": {
+      title: "Technical SEO",
+      summary:
+        "Technical SEO, metadata, site structure, speed improvements, and search-focused optimization for Shopify and WordPress websites."
+    }
+  };
 
   return (
     <section id="home-services" className="section-padding scroll-mt-24 bg-white">
       <div className="container-shell">
         <SectionHeader
-          eyebrow="Solutions Command Center"
-          title="Web Services Designed to Move Your Business Forward"
-          description="A focused service stack for companies that need clearer websites, better store experiences, stronger search visibility, and reliable ongoing support."
+          eyebrow="Web Development & SEO"
+          title="Web Development and SEO Services for Business Growth"
+          description="Build a stronger digital presence with responsive websites, Shopify and WordPress development, technical SEO, and reliable ongoing support."
         />
 
         <motion.div
@@ -34,13 +56,13 @@ export default function ServicesBento() {
               <span className="grid h-12 w-12 place-items-center rounded-lg bg-rapido-mist text-rapido-blue">
                 <Icon name={service.icon} className="h-5 w-5" />
               </span>
-              <h3 className="mt-5 text-xl font-extrabold text-rapido-navy">{service.title}</h3>
-              <p className="mt-3 leading-7 text-rapido-slate">{service.summary}</p>
+              <h3 className="mt-5 text-xl font-extrabold text-rapido-navy">{homepageCopy[service.id].title}</h3>
+              <p className="mt-3 leading-7 text-rapido-slate">{homepageCopy[service.id].summary}</p>
               <Link
                 to={`/web-services#${service.id}`}
                 className="mt-5 inline-flex items-center gap-2 text-sm font-extrabold text-rapido-blue"
               >
-                Explore service
+                Explore Service
                 <Icon name="FiArrowRight" className="h-4 w-4 transition group-hover:translate-x-1" />
               </Link>
             </motion.article>

@@ -9,11 +9,25 @@ import Icon from "../components/ui/Icon";
 import { financialServices, softwareSupport } from "../data/financialServicesData";
 import { pageTransition } from "../utils/animations";
 import { usePageMeta } from "../utils/usePageMeta";
+import { createBreadcrumbSchema, createServiceSchema } from "../utils/seo";
+import { useStructuredData } from "../utils/useStructuredData";
 
 export default function FinancialServices() {
+  const description =
+    "Get bookkeeping, accounts payable, reconciliations, reporting, payroll coordination, compliance, and property accounting support from Rapido Solutions Co.";
+
   usePageMeta(
-    "Financial Services",
-    "Bookkeeping, AR/AP, payroll support, reconciliations, reporting, compliance support, QuickBooks, Xero, Buildium, AppFolio, Oracle Fusion ERP, and property accounting support from Rapido Solutions Co."
+    "Bookkeeping & Finance Support Services | Rapido Solutions",
+    description,
+    { absoluteTitle: true, canonicalPath: "/financial-services" }
+  );
+  useStructuredData(
+    "financial-services",
+    createServiceSchema({ name: "Bookkeeping and Finance Support", description, path: "/financial-services", services: financialServices })
+  );
+  useStructuredData(
+    "financial-services-breadcrumbs",
+    createBreadcrumbSchema([{ name: "Home", path: "/" }, { name: "Bookkeeping & Finance", path: "/financial-services" }])
   );
 
   return (

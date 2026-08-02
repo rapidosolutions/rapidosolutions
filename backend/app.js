@@ -76,8 +76,10 @@ export function createApp({
   app.use(cors({
     credentials: true,
     origin(origin, callback) {
-      if (!origin || config.frontendOrigins.includes(origin)) return callback(null, true);
-      return callback(new AppError(403, "This website origin is not allowed.", "ORIGIN_NOT_ALLOWED"));
+      if (!origin) return callback(null, true);
+      const normalizedOrigin = origin.replace(/\/$/, "");
+      if (config.frontendOrigins.includes(normalizedOrigin)) return callback(null, true);
+      return callback(null, false);
     }
   }));
   app.use(express.json({ limit: "256kb" }));

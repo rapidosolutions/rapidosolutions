@@ -12,6 +12,7 @@
     "build": "vite build --config frontend/vite.config.js",
     "build:studio": "npm --prefix backend/sanity/studio run build",
     "preview": "vite preview --config frontend/vite.config.js",
+    "start": "node backend/index.js",
     "start:api": "npm --prefix backend run start",
     "deploy:studio": "npm --prefix backend/sanity/studio run deploy",
     "test": "vitest run",

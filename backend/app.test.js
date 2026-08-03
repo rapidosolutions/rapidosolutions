@@ -230,4 +230,12 @@ describe("Rapido API", () => {
     expect(response.status).toBe(204);
     expect(context.services.authService.changePassword).toHaveBeenCalledWith("admin-1", "correct-password", "a-new-secure-password");
   });
+
+  it("handles CORS headers correctly for allowed and disallowed origins", async () => {
+    const allowed = await request(context.app).get("/api/reviews").set("Origin", "http://localhost:5173");
+    expect(allowed.headers["access-control-allow-origin"]).toBe("http://localhost:5173");
+
+    const disallowed = await request(context.app).get("/api/reviews").set("Origin", "https://unauthorized-domain.com");
+    expect(disallowed.headers["access-control-allow-origin"]).toBeUndefined();
+  });
 });

@@ -9,8 +9,8 @@ dotenv.config({ path: path.join(__dirname, "../.env"), quiet: true });
 
 function list(value, fallback = []) {
   return value
-    ? value.split(",").map((item) => item.trim()).filter(Boolean)
-    : fallback;
+    ? value.split(",").map((item) => item.trim().replace(/\/$/, "")).filter(Boolean)
+    : fallback.map((item) => item.trim().replace(/\/$/, ""));
 }
 
 function boolean(value, fallback) {

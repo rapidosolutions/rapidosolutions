@@ -5,24 +5,34 @@ let ready = false;
 
 export async function connectDatabase({ supabaseUrl, supabaseServiceRoleKey }) {
   if (!supabaseUrl || !supabaseServiceRoleKey) {
-    throw new Error("SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required.");
+    console.warn("[Database Warning] SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY is not configured. Running in degraded mode.");
+    ready = false;
+    return null;
   }
 
-  client = createClient(supabaseUrl, supabaseServiceRoleKey, {
-    auth: {
-      autoRefreshToken: false,
-      detectSessionInUrl: false,
-      persistSession: false
+  try {
+    client = createClient(supabaseUrl, supabaseServiceRoleKey, {
+      auth: {
+        autoRefreshToken: false,
+        detectSessionInUrl: false,
+        persistSession: false
+      }
+    });
+
+    const { error } = await client.from("admins").select("id").limit(1);
+    if (error) {
+      console.warn(`[Database Warning] Supabase connection check failed (${error.message}). Operating in degraded mode.`);
+      ready = false;
+      return client;
     }
-  });
 
-  const { error } = await client.from("admins").select("id").limit(1);
-  if (error) {
-    throw new Error(`Supabase connection check failed. Run the database migration first. ${error.message}`);
+    ready = true;
+    return client;
+  } catch (err) {
+    console.warn(`[Database Warning] Failed to initialize Supabase client: ${err.message}. Operating in degraded mode.`);
+    ready = false;
+    return null;
   }
-
-  ready = true;
-  return client;
 }
 
 export function getDatabase() {

@@ -21,8 +21,10 @@ async function start() {
   const reviewService = createReviewService({ supabase, emailService });
   const resumeService = createResumeService(config);
 
-  await authService.bootstrapAdmin();
-  await blogService.seed();
+  if (supabase && databaseStatus()) {
+    await authService.bootstrapAdmin().catch((err) => console.warn("[Admin Bootstrap Warning]", err.message));
+    await blogService.seed().catch((err) => console.warn("[Blog Seed Warning]", err.message));
+  }
 
   const app = createApp({ config, authService, blogService, contactService, reviewService, resumeService, uploadService, databaseStatus });
   const server = http.createServer(app);

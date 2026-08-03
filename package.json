@@ -14,6 +14,7 @@
     "preview": "vite preview --config frontend/vite.config.js",
     "start": "node backend/index.js",
     "start:api": "npm --prefix backend run start",
+    "postinstall": "npm --prefix backend install",
     "deploy:studio": "npm --prefix backend/sanity/studio run deploy",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -21,11 +22,28 @@
     "check": "npm run test && npm --prefix backend test && npm run build"
   },
   "dependencies": {
+    "@google/genai": "^2.14.0",
+    "@supabase/supabase-js": "^2.110.6",
+    "bcryptjs": "^3.0.3",
+    "cloudinary": "^2.10.0",
+    "compression": "^1.8.1",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.5.2",
     "framer-motion": "^12.0.0",
+    "helmet": "^8.2.0",
+    "jsonwebtoken": "^9.0.3",
+    "multer": "^2.2.0",
+    "pdf-parse": "^2.4.5",
+    "pdfkit": "^0.19.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-icons": "^5.4.0",
-    "react-router-dom": "7.18.2"
+    "react-router-dom": "7.18.2",
+    "resend": "^6.14.0",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@playwright/test": "^1.61.0",

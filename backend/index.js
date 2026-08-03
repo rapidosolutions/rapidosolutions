@@ -28,7 +28,8 @@ async function start() {
 
   const app = createApp({ config, authService, blogService, contactService, reviewService, resumeService, uploadService, databaseStatus });
   const server = http.createServer(app);
-  server.listen(config.port, () => console.log(`Rapido API listening on http://localhost:${config.port}`));
+  const host = process.env.HOST || "0.0.0.0";
+  server.listen(config.port, host, () => console.log(`Rapido API listening on http://${host}:${config.port}`));
 
   const shutdown = (signal) => {
     console.log(`${signal} received. Closing Rapido API.`);

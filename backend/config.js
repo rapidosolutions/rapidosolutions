@@ -54,7 +54,7 @@ export function loadConfig(env = process.env) {
   const config = {
     nodeEnv,
     isProduction,
-    port: Number(env.PORT || 4174),
+    port: Number(env.PORT) || 4174,
     supabaseUrl: cleanOrigin(env.SUPABASE_URL || ""),
     supabaseServiceRoleKey: cleanOrigin(env.SUPABASE_SERVICE_ROLE_KEY || ""),
     jwtSecret,

@@ -58,6 +58,7 @@ export function createReviewService({ supabase, emailService }) {
     async listPublic({ limit = 6, featuredOnly = false } = {}) {
       const maximum = featuredOnly ? 4 : 24;
       const safeLimit = Math.min(maximum, Math.max(1, Number(limit) || 6));
+      if (!supabase) return [];
       let query = supabase
         .from("reviews")
         .select("id,name,company,role,service,rating,review,approved_at")

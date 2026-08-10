@@ -23,12 +23,15 @@ async function start() {
   const resumeService = createResumeService(config);
   const projectService = createProjectService({ supabase, uploadService });
 
-  await authService.bootstrapAdmin();
-  await blogService.seed();
+  if (supabase && databaseStatus()) {
+    await authService.bootstrapAdmin().catch((err) => console.warn("[Admin Bootstrap Warning]", err.message));
+    await blogService.seed().catch((err) => console.warn("[Blog Seed Warning]", err.message));
+  }
 
   const app = createApp({ config, authService, blogService, contactService, reviewService, resumeService, projectService, uploadService, databaseStatus });
   const server = http.createServer(app);
-  server.listen(config.port, () => console.log(`Rapido API listening on http://localhost:${config.port}`));
+  const host = process.env.HOST || "0.0.0.0";
+  server.listen(config.port, host, () => console.log(`Rapido API listening on http://${host}:${config.port}`));
 
   const shutdown = (signal) => {
     console.log(`${signal} received. Closing Rapido API.`);

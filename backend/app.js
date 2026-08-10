@@ -41,6 +41,27 @@ function limiter(windowMs, limit, message) {
   });
 }
 
+export function isAllowedOrigin(origin, allowedOrigins = []) {
+  if (!origin) return true;
+  const cleanOrigin = origin.trim().toLowerCase().replace(/\/$/, "");
+  
+  return allowedOrigins.some((pattern) => {
+    const cleanPattern = pattern.trim().toLowerCase().replace(/\/$/, "");
+    if (cleanPattern === "*" || cleanPattern === cleanOrigin) return true;
+    
+    if (cleanOrigin.endsWith(`://${cleanPattern}`)) return true;
+    
+    if (cleanPattern.includes("*")) {
+      const regexPattern = "^" + cleanPattern
+        .replace(/[-\/\\^$+?.()|[\]{}]/g, "\\$&")
+        .replace(/\*/g, ".*") + "$";
+      return new RegExp(regexPattern, "i").test(cleanOrigin);
+    }
+    
+    return false;
+  });
+}
+
 export function createApp({
   config,
   authService,
@@ -86,11 +107,15 @@ export function createApp({
   app.use(cors({
     credentials: true,
     origin(origin, callback) {
-      if (!origin) return callback(null, true);
-      const normalizedOrigin = origin.replace(/\/$/, "");
-      if (config.frontendOrigins.includes(normalizedOrigin)) return callback(null, true);
+      if (!origin || isAllowedOrigin(origin, config.frontendOrigins)) {
+        return callback(null, true);
+      }
+      console.warn(`[CORS Warning] Rejected request from origin: "${origin}". Allowed origins:`, config.frontendOrigins);
       return callback(null, false);
-    }
+    },
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Request-Id", "X-CSRF-Token", "Accept"],
+    optionsSuccessStatus: 200
   }));
   app.use(express.json({ limit: "256kb" }));
   app.use(express.urlencoded({ extended: false, limit: "64kb" }));

@@ -1,12 +1,13 @@
 // @vitest-environment node
 import request from "supertest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { createApp } from "./app.js";
+import { createApp, isAllowedOrigin } from "./app.js";
+import { loadConfig } from "./config.js";
 import { AppError } from "./utils/http.js";
 
 const config = {
   isProduction: false,
-  frontendOrigins: ["http://localhost:5173"],
+  frontendOrigins: ["http://localhost:5173", "https://rapidosolutions.vercel.app"],
   trustProxy: false,
   cookieName: "test_session",
   cookieSecure: false,
@@ -403,7 +404,32 @@ describe("Rapido API", () => {
     const allowed = await request(context.app).get("/api/reviews").set("Origin", "http://localhost:5173");
     expect(allowed.headers["access-control-allow-origin"]).toBe("http://localhost:5173");
 
+    const vercelAllowed = await request(context.app).get("/api/reviews").set("Origin", "https://rapidosolutions.vercel.app");
+    expect(vercelAllowed.headers["access-control-allow-origin"]).toBe("https://rapidosolutions.vercel.app");
+
+    const preflight = await request(context.app)
+      .options("/api/reviews?limit=3")
+      .set("Origin", "https://rapidosolutions.vercel.app")
+      .set("Access-Control-Request-Method", "GET");
+    expect(preflight.status).toBe(200);
+    expect(preflight.headers["access-control-allow-origin"]).toBe("https://rapidosolutions.vercel.app");
+
     const disallowed = await request(context.app).get("/api/reviews").set("Origin", "https://unauthorized-domain.com");
     expect(disallowed.headers["access-control-allow-origin"]).toBeUndefined();
+  });
+
+  it("validates origins with isAllowedOrigin matching wildcards, domain-only patterns, and slashes", () => {
+    expect(isAllowedOrigin("https://rapidosolutions.vercel.app", ["https://rapidosolutions.vercel.app"])).toBe(true);
+    expect(isAllowedOrigin("https://rapidosolutions.vercel.app/", ["rapidosolutions.vercel.app"])).toBe(true);
+    expect(isAllowedOrigin("https://rapidosolutions-git-main.vercel.app", ["*.vercel.app"])).toBe(true);
+    expect(isAllowedOrigin("https://malicious.com", ["https://rapidosolutions.vercel.app"])).toBe(false);
+  });
+
+  it("cleans quoted and trailing slash environment variables in loadConfig", () => {
+    const loaded = loadConfig({
+      FRONTEND_URLS: '"https://rapidosolutions.vercel.app/", https://custom.com/'
+    });
+    expect(loaded.frontendOrigins).toContain("https://rapidosolutions.vercel.app");
+    expect(loaded.frontendOrigins).toContain("https://custom.com");
   });
 });

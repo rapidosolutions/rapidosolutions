@@ -19,7 +19,7 @@ Production-oriented website and content system for Rapido Solutions Co. The Reac
 4. Copy `backend/.env.example` to `backend/.env`.
 5. Copy `frontend/.env.example` to `frontend/.env` if you need to override Sanity settings.
 6. Set a strong `ADMIN_PASSWORD` with at least 12 characters. The initial administrator email is `rapidosolutionsco@outlook.com`.
-7. Run `backend/supabase/migrations/001_initial_schema.sql`, then `backend/supabase/migrations/002_reviews.sql`, once in the Supabase SQL Editor.
+7. Run `backend/supabase/migrations/001_initial_schema.sql`, `002_reviews.sql`, `003_projects.sql`, and `004_review_moderation.sql`, in order, once in the Supabase SQL Editor.
 8. Run `npm run dev:full`.
 9. Open `http://localhost:5173`.
 
@@ -104,11 +104,17 @@ Visit `/blog-admin` and sign in with the configured administrator email and pass
 
 The session is stored in a secure HttpOnly cookie. Write requests also require a per-session CSRF token. Failed login attempts are rate-limited and the account is temporarily locked after repeated failures.
 
+## Project Management
+
+Visit the unlisted `/project-admin` route and sign in with a manually provisioned administrator account. Authorized administrators can manage projects and customer reviews from separate dashboard sections. Project creation, editing, preview, publishing, unpublishing, soft-archiving, and confirmed permanent deletion remain available. Review controls support approval, hiding, restoration, rejection, Home-page featuring, and confirmed permanent deletion. There is no public registration flow. Public `/api/projects` responses include published projects only, and the public Projects page retains its bundled project data as a safe fallback while the API or migration is unavailable.
+
+Project access is controlled by `admins.can_manage_projects`. Migration `003_projects.sql` grants this permission to administrators that already exist when it is first run, then makes `false` the default for manually inserted future accounts. The configured bootstrap administrator is explicitly created with access. Project images use the existing authenticated Cloudinary upload path in production and local backend uploads during development.
+
 ## Production Deployment
 
 ### Supabase
 
-Create a Supabase project and run `backend/supabase/migrations/001_initial_schema.sql`, followed by `backend/supabase/migrations/002_reviews.sql`, in its SQL Editor. Add the Project URL as `SUPABASE_URL` and the private service-role key as `SUPABASE_SERVICE_ROLE_KEY` in Belmo or Render. Never add the service-role key to Vercel or any `VITE_` variable. Row Level Security is enabled and the website accesses these private tables only through the Express backend. Public review submissions start as `pending`; only administrator-approved records are returned by the public reviews endpoint.
+Create a Supabase project and run `backend/supabase/migrations/001_initial_schema.sql`, followed by `002_reviews.sql`, `003_projects.sql`, and `004_review_moderation.sql`, in its SQL Editor. Add the Project URL as `SUPABASE_URL` and the private service-role key as `SUPABASE_SERVICE_ROLE_KEY` in Belmo or Render. Never add the service-role key to Vercel or any `VITE_` variable. Row Level Security is enabled and the website accesses these private tables only through the Express backend. Review submissions use conservative deterministic moderation: trustworthy submissions may be approved while suspicious, duplicate, or uncertain submissions remain pending. Only approved reviews and published projects are returned by public endpoints.
 
 ### Cloudinary
 

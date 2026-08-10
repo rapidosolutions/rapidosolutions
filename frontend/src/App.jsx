@@ -15,6 +15,7 @@ const HumanResourceServices = lazy(() => import("./pages/HumanResourceServices")
 const Blogs = lazy(() => import("./pages/Blogs"));
 const BlogDetail = lazy(() => import("./pages/BlogDetail"));
 const BlogAdmin = lazy(() => import("./pages/BlogAdmin"));
+const ProjectAdmin = lazy(() => import("./pages/ProjectAdmin"));
 const Reviews = lazy(() => import("./pages/Reviews"));
 const ResumeAnalyzer = lazy(() => import("./pages/ResumeAnalyzer"));
 const Contact = lazy(() => import("./pages/Contact"));
@@ -89,6 +90,7 @@ export default function App() {
             <Route path="/blogs" element={<Blogs />} />
             <Route path="/blogs/:slug" element={<BlogDetail />} />
             <Route path="/blog-admin" element={<BlogAdmin />} />
+            <Route path="/project-admin" element={<ProjectAdmin />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

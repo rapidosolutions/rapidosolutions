@@ -65,7 +65,49 @@ export const reviewSchema = z.object({
 });
 
 export const reviewStatusSchema = z.object({
-  status: z.enum(["pending", "approved", "rejected"])
+  status: z.enum(["pending", "approved", "hidden", "rejected"])
+});
+
+export const reviewFeaturedSchema = z.object({
+  featured: z.boolean()
+});
+
+export const reviewDeleteSchema = z.object({
+  confirmationName: z.string().min(1).max(120)
+});
+
+const projectImageSchema = z.object({
+  url: z.string().url().max(2000),
+  publicId: z.string().max(500).optional().default(""),
+  storageType: z.enum(["cloudinary", "local"]).optional().default("cloudinary"),
+  alt: z.string().trim().max(200).optional().default("")
+});
+
+export const projectSchema = z.object({
+  title: shortText(160),
+  slug: optionalText(100),
+  type: z.enum(["web", "financial", "human"]),
+  category: shortText(100),
+  description: shortText(1000),
+  services: z.array(shortText(80)).min(1).max(12),
+  metric: shortText(160),
+  coverImage: projectImageSchema.nullable().optional(),
+  coverAlt: optionalText(200),
+  accent: optionalText(120),
+  projectUrl: z.union([z.string().trim().url().max(2000), z.literal("")]).optional().default(""),
+  featured: z.boolean().optional().default(false),
+  displayOrder: z.number().int().min(0).max(10000).optional().default(0),
+  status: z.enum(["draft", "published", "archived"]).optional().default("draft"),
+  seoTitle: optionalText(160),
+  seoDescription: optionalText(300)
+});
+
+export const projectStatusSchema = z.object({
+  status: z.enum(["draft", "published", "archived"])
+});
+
+export const projectDeleteSchema = z.object({
+  confirmationTitle: z.string().min(1).max(160)
 });
 
 const resumeAnalysisShape = z.object({

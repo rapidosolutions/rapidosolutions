@@ -23,9 +23,10 @@ function buildApp() {
     authService: {
       authenticate: vi.fn(async (email, password) => {
         if (password !== "correct-password") throw new AppError(401, "Invalid email or password.");
-        return { id: "admin-1", email };
+        return { id: "admin-1", email, canManageProjects: true };
       }),
-      changePassword: vi.fn(async () => undefined)
+      changePassword: vi.fn(async () => undefined),
+      assertProjectAccess: vi.fn(async () => undefined)
     },
     blogService: {
       listPublic: vi.fn(async () => [{ id: "blog-1", title: "Public" }]),
@@ -46,7 +47,22 @@ function buildApp() {
       create: vi.fn(async () => ({ id: "review-2", status: "pending" })),
       listAdmin: vi.fn(async () => ({ reviews: [], total: 0, page: 1, pages: 1 })),
       updateStatus: vi.fn(async (id, status) => ({ id, status })),
+      updateFeatured: vi.fn(async (id, featured) => ({ id, status: "approved", featured })),
       remove: vi.fn(async () => undefined)
+    },
+    projectService: {
+      listPublic: vi.fn(async () => [{ id: "project-1", slug: "published-project", title: "Published Project" }]),
+      getPublic: vi.fn(async (slug) => ({ id: "project-1", slug, title: "Published Project" })),
+      listAdmin: vi.fn(async () => [{ id: "project-1", status: "published", title: "Published Project" }]),
+      getAdmin: vi.fn(async (id) => ({ id, status: "draft", title: "Draft Project" })),
+      create: vi.fn(async (project) => ({ id: "project-new", ...project })),
+      update: vi.fn(async (id, project) => ({ id, ...project })),
+      updateStatus: vi.fn(async (id, status) => ({ id, status })),
+      archive: vi.fn(async (id) => ({ id, status: "archived" })),
+      remove: vi.fn(async (id, confirmationTitle) => {
+        if (id === "missing-project") throw new AppError(404, "Project not found.", "PROJECT_NOT_FOUND");
+        if (confirmationTitle !== "Updated project") throw new AppError(400, "The project title confirmation does not match.", "PROJECT_DELETE_CONFIRMATION_MISMATCH");
+      })
     },
     resumeService: {
       analyzePdf: vi.fn(async () => ({
@@ -104,6 +120,25 @@ const validReview = {
   website: ""
 };
 
+const validProject = {
+  title: "A managed project",
+  slug: "",
+  type: "web",
+  category: "Business Websites",
+  description: "A useful project description that appears on the public Projects page.",
+  services: ["Web Development", "SEO"],
+  metric: "Clearer customer journey",
+  coverImage: null,
+  coverAlt: "Project preview",
+  accent: "from-slate-200 to-blue-400",
+  projectUrl: "",
+  featured: false,
+  displayOrder: 10,
+  status: "draft",
+  seoTitle: "",
+  seoDescription: ""
+};
+
 describe("Rapido API", () => {
   let context;
   beforeEach(() => {
@@ -121,6 +156,12 @@ describe("Rapido API", () => {
     const response = await request(context.app).get("/api/blogs");
     expect(response.status).toBe(200);
     expect(response.body.blogs[0].title).toBe("Public");
+  });
+
+  it("returns published projects through the public project API", async () => {
+    const response = await request(context.app).get("/api/projects");
+    expect(response.status).toBe(200);
+    expect(response.body.projects[0].slug).toBe("published-project");
   });
 
   it("validates and saves contact requests", async () => {
@@ -143,7 +184,51 @@ describe("Rapido API", () => {
 
     const created = await request(context.app).post("/api/reviews").send(validReview);
     expect(created.status).toBe(201);
-    expect(created.body.message).toMatch(/after approval/i);
+    expect(created.body.message).toBe("Thank you. Your review was submitted successfully.");
+    expect(context.services.reviewService.listPublic).toHaveBeenCalledWith({ limit: "3", featuredOnly: false });
+  });
+
+  it("protects review administration and supports moderation, featuring, and confirmed deletion", async () => {
+    expect((await request(context.app).get("/api/admin/reviews")).status).toBe(401);
+    const agent = request.agent(context.app);
+    const login = await agent.post("/api/auth/login").send({ email: "rapidosolutionsco@outlook.com", password: "correct-password" });
+    const csrf = login.body.csrfToken;
+
+    expect((await agent.get("/api/admin/reviews")).status).toBe(200);
+    expect((await agent.patch("/api/admin/reviews/review-1").send({ status: "approved" })).status).toBe(403);
+    for (const status of ["approved", "hidden", "approved", "rejected"]) {
+      const response = await agent.patch("/api/admin/reviews/review-1").set("X-CSRF-Token", csrf).send({ status });
+      expect(response.status).toBe(200);
+      expect(response.body.review.status).toBe(status);
+    }
+
+    const featured = await agent.patch("/api/admin/reviews/review-1/featured").set("X-CSRF-Token", csrf).send({ featured: true });
+    expect(featured.status).toBe(200);
+    expect(featured.body.review.featured).toBe(true);
+    const unfeatured = await agent.patch("/api/admin/reviews/review-1/featured").set("X-CSRF-Token", csrf).send({ featured: false });
+    expect(unfeatured.status).toBe(200);
+    expect(unfeatured.body.review.featured).toBe(false);
+
+    context.services.reviewService.updateFeatured.mockRejectedValueOnce(new AppError(400, "Only approved reviews can be featured.", "REVIEW_NOT_APPROVED"));
+    const invalidFeature = await agent.patch("/api/admin/reviews/pending-review/featured").set("X-CSRF-Token", csrf).send({ featured: true });
+    expect(invalidFeature.status).toBe(400);
+    expect(invalidFeature.body.code).toBe("REVIEW_NOT_APPROVED");
+
+    expect((await agent.delete("/api/admin/reviews/review-1").set("X-CSRF-Token", csrf).send({})).status).toBe(400);
+    const deleted = await agent.delete("/api/admin/reviews/review-1").set("X-CSRF-Token", csrf).send({ confirmationName: "Verified Client" });
+    expect(deleted.status).toBe(204);
+    expect(context.services.reviewService.remove).toHaveBeenCalledWith("review-1", "Verified Client");
+  });
+
+  it("handles deletion of a nonexistent review safely", async () => {
+    context.services.reviewService.remove.mockRejectedValueOnce(new AppError(404, "Review not found.", "REVIEW_NOT_FOUND"));
+    const agent = request.agent(context.app);
+    const login = await agent.post("/api/auth/login").send({ email: "rapidosolutionsco@outlook.com", password: "correct-password" });
+    const response = await agent.delete("/api/admin/reviews/missing-review")
+      .set("X-CSRF-Token", login.body.csrfToken)
+      .send({ confirmationName: "Missing Client" });
+    expect(response.status).toBe(404);
+    expect(response.body.code).toBe("REVIEW_NOT_FOUND");
   });
 
   it("analyzes PDF resumes and rejects non-PDF uploads", async () => {
@@ -207,6 +292,89 @@ describe("Rapido API", () => {
     const created = await agent.post("/api/admin/blogs").set("X-CSRF-Token", login.body.csrfToken).send(validBlog);
     expect(created.status).toBe(201);
     expect(created.body.blog.title).toBe(validBlog.title);
+  });
+
+  it("fails invalid administrator credentials without exposing account details", async () => {
+    const response = await request(context.app).post("/api/auth/login").send({
+      email: "rapidosolutionsco@outlook.com",
+      password: "incorrect-password"
+    });
+    expect(response.status).toBe(401);
+    expect(response.body.error).toBe("Invalid email or password.");
+  });
+
+  it("protects project management and supports create, edit, lifecycle, and archive operations", async () => {
+    expect((await request(context.app).get("/api/admin/projects")).status).toBe(401);
+    const agent = request.agent(context.app);
+    const login = await agent.post("/api/auth/login").send({ email: "rapidosolutionsco@outlook.com", password: "correct-password" });
+    const csrf = login.body.csrfToken;
+
+    expect((await agent.post("/api/admin/projects").send(validProject)).status).toBe(403);
+    const invalid = await agent.post("/api/admin/projects").set("X-CSRF-Token", csrf).send({ ...validProject, services: [] });
+    expect(invalid.status).toBe(400);
+
+    const created = await agent.post("/api/admin/projects").set("X-CSRF-Token", csrf).send(validProject);
+    expect(created.status).toBe(201);
+    const edited = await agent.put("/api/admin/projects/project-new").set("X-CSRF-Token", csrf).send({ ...validProject, title: "Updated project" });
+    expect(edited.status).toBe(200);
+    const published = await agent.patch("/api/admin/projects/project-new/status").set("X-CSRF-Token", csrf).send({ status: "published" });
+    expect(published.body.project.status).toBe("published");
+    const unpublished = await agent.patch("/api/admin/projects/project-new/status").set("X-CSRF-Token", csrf).send({ status: "draft" });
+    expect(unpublished.body.project.status).toBe("draft");
+    const archived = await agent.delete("/api/admin/projects/project-new").set("X-CSRF-Token", csrf);
+    expect(archived.body.project.status).toBe("archived");
+  });
+
+  it("protects permanent deletion with authentication, authorization, CSRF, and title confirmation", async () => {
+    const path = "/api/admin/projects/project-new/permanent";
+    expect((await request(context.app).delete(path).send({ confirmationTitle: "Updated project" })).status).toBe(401);
+
+    const limitedAgent = request.agent(context.app);
+    context.services.authService.authenticate.mockResolvedValueOnce({ id: "admin-2", email: "limited@example.com", canManageProjects: false });
+    const limitedLogin = await limitedAgent.post("/api/auth/login").send({ email: "limited@example.com", password: "correct-password" });
+    expect(limitedLogin.status).toBe(200);
+    expect((await limitedAgent.delete(path).set("X-CSRF-Token", limitedLogin.body.csrfToken).send({ confirmationTitle: "Updated project" })).status).toBe(403);
+
+    const agent = request.agent(context.app);
+    const login = await agent.post("/api/auth/login").send({ email: "rapidosolutionsco@outlook.com", password: "correct-password" });
+    expect((await agent.delete(path).send({ confirmationTitle: "Updated project" })).status).toBe(403);
+    expect((await agent.delete(path).set("X-CSRF-Token", login.body.csrfToken).send({ confirmationTitle: "Wrong title" })).status).toBe(400);
+
+    const deleted = await agent.delete(path).set("X-CSRF-Token", login.body.csrfToken).send({ confirmationTitle: "Updated project" });
+    expect(deleted.status).toBe(204);
+    expect(context.services.projectService.remove).toHaveBeenCalledWith("project-new", "Updated project");
+  });
+
+  it("handles permanent deletion of a nonexistent project safely", async () => {
+    const agent = request.agent(context.app);
+    const login = await agent.post("/api/auth/login").send({ email: "rapidosolutionsco@outlook.com", password: "correct-password" });
+    const response = await agent.delete("/api/admin/projects/missing-project/permanent")
+      .set("X-CSRF-Token", login.body.csrfToken)
+      .send({ confirmationTitle: "Updated project" });
+    expect(response.status).toBe(404);
+    expect(response.body.code).toBe("PROJECT_NOT_FOUND");
+  });
+
+  it("rejects authenticated administrators without project authorization", async () => {
+    context.services.authService.authenticate.mockResolvedValueOnce({ id: "admin-2", email: "limited@example.com", canManageProjects: false });
+    const agent = request.agent(context.app);
+    const login = await agent.post("/api/auth/login").send({ email: "limited@example.com", password: "correct-password" });
+    expect(login.status).toBe(200);
+    expect((await agent.get("/api/admin/projects")).status).toBe(403);
+  });
+
+  it("rechecks project authorization against the database for active sessions", async () => {
+    const agent = request.agent(context.app);
+    await agent.post("/api/auth/login").send({ email: "rapidosolutionsco@outlook.com", password: "correct-password" });
+    context.services.authService.assertProjectAccess.mockRejectedValueOnce(new AppError(403, "You are not authorized to manage projects.", "PROJECT_ADMIN_REQUIRED"));
+    expect((await agent.get("/api/admin/projects")).status).toBe(403);
+  });
+
+  it("logs out and rejects the cleared or expired administrator session", async () => {
+    const agent = request.agent(context.app);
+    const login = await agent.post("/api/auth/login").send({ email: "rapidosolutionsco@outlook.com", password: "correct-password" });
+    expect((await agent.post("/api/auth/logout").set("X-CSRF-Token", login.body.csrfToken)).status).toBe(204);
+    expect((await agent.get("/api/admin/projects")).status).toBe(401);
   });
 
   it("accepts a protected cover upload", async () => {

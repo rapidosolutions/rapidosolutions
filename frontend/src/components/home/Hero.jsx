@@ -35,7 +35,7 @@ export default function Hero() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.08 }}
           >
-            Bookkeeping, Web & HR Services for Growing Businesses
+            Bookkeeping, Web & HR Services
           </motion.h1>
           <motion.p
             className="mt-4 max-w-2xl text-base leading-7 text-blue-100 sm:text-lg md:text-xl md:leading-8 lg:mt-6"

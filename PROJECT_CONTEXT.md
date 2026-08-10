@@ -90,7 +90,7 @@ Required services:
 
 - Render for the Express API
 - Belmo can also deploy the API directly from `backend/`
-- Supabase PostgreSQL for saved messages, moderated customer reviews, and private administrator data
+- Supabase PostgreSQL for saved messages, moderated customer reviews, managed projects, and private administrator data
 - Resend for email notifications
 - Optional Cloudinary for persistent uploaded media
 
@@ -130,7 +130,11 @@ Frontend Vercel needs:
 
 Route: `/blog-admin`
 
-Despite the route name, blogs are now managed in Sanity. The dashboard is still useful for contact messages, review moderation, and admin password changes after the backend is deployed. Review submissions remain pending until an administrator approves them.
+Despite the route name, blogs are now managed in Sanity. The dashboard remains useful for contact messages, review moderation, and admin password changes after the backend is deployed. Review submissions use conservative deterministic moderation; uncertain submissions remain pending.
+
+Route: `/project-admin`
+
+This unlisted, noindex route reuses the same authenticated administrator session and adds an explicit `can_manage_projects` authorization check. Separate Projects and Reviews sections manage project drafts, publishing, ordering, images, archiving, deletion, and review moderation/featuring. Run `backend/supabase/migrations/003_projects.sql` and `004_review_moderation.sql` before deploying this functionality. Public project endpoints return published records only.
 
 ## Security Decisions
 

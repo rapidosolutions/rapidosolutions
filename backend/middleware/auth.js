@@ -22,7 +22,7 @@ export function createSessionManager(config) {
   function issue(res, admin) {
     const csrfToken = crypto.randomBytes(32).toString("hex");
     const token = jwt.sign(
-      { sub: admin.id, email: admin.email, csrf: csrfToken },
+      { sub: admin.id, email: admin.email, csrf: csrfToken, canManageProjects: Boolean(admin.canManageProjects) },
       config.jwtSecret,
       { expiresIn: config.jwtExpiresIn, issuer: "rapido-solutions-api", audience: "rapido-admin" }
     );
@@ -62,5 +62,13 @@ export function createSessionManager(config) {
     next();
   }
 
-  return { issue, clear, requireAuth, requireCsrf };
+  function requireProjectAdmin(req, res, next) {
+    if (!req.admin?.canManageProjects) {
+      next(new AppError(403, "You are not authorized to manage projects.", "PROJECT_ADMIN_REQUIRED"));
+      return;
+    }
+    next();
+  }
+
+  return { issue, clear, requireAuth, requireCsrf, requireProjectAdmin };
 }

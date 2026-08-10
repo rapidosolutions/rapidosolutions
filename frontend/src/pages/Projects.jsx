@@ -8,6 +8,7 @@ import PortfolioFilter from "../components/portfolio/PortfolioFilter";
 import HomeCTA from "../components/home/HomeCTA";
 import Button from "../components/common/Button";
 import { projectCategories, projects } from "../data/portfolioData";
+import { listPublicProjects } from "../utils/projectApi";
 import { pageTransition } from "../utils/animations";
 import { usePageMeta } from "../utils/usePageMeta";
 import { createBreadcrumbSchema, createWebPageSchema } from "../utils/seo";
@@ -15,6 +16,7 @@ import { useStructuredData } from "../utils/useStructuredData";
 
 export default function Projects() {
   const [active, setActive] = useState("All");
+  const [availableProjects, setAvailableProjects] = useState(projects);
   const [searchParams] = useSearchParams();
   const projectType = searchParams.get("type");
   const normalizedType =
@@ -23,6 +25,21 @@ export default function Projects() {
   useEffect(() => {
     setActive("All");
   }, [normalizedType]);
+
+  useEffect(() => {
+    let activeRequest = true;
+    const legacyBySlug = new Map(projects.map((project) => [project.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""), project]));
+    listPublicProjects()
+      .then(({ projects: managedProjects }) => {
+        if (!activeRequest || !managedProjects?.length) return;
+        setAvailableProjects(managedProjects.map((project) => {
+          const legacy = legacyBySlug.get(project.slug);
+          return { ...project, coverImage: project.coverImage?.url || legacy?.coverImage || null, coverAlt: project.coverImage?.alt || project.coverAlt || legacy?.coverAlt || "" };
+        }));
+      })
+      .catch(() => undefined);
+    return () => { activeRequest = false; };
+  }, []);
 
   const description =
     "Explore web, Shopify, WordPress, SEO, bookkeeping, finance, and HR project examples that show the service directions Rapido Solutions Co. can deliver.";
@@ -41,13 +58,18 @@ export default function Projects() {
 
   const visibleProjects = useMemo(
     () =>
-      projects.filter((project) => {
+      availableProjects.filter((project) => {
         const matchesType = normalizedType === "all" || project.type === normalizedType;
         const matchesCategory = active === "All" || project.category === active;
         return matchesType && matchesCategory;
       }),
-    [active, normalizedType]
+    [active, availableProjects, normalizedType]
   );
+
+  const availableCategories = useMemo(() => {
+    const categories = new Set(availableProjects.map((project) => project.category));
+    return [...projectCategories, ...[...categories].filter((category) => !projectCategories.includes(category))];
+  }, [availableProjects]);
 
   const filterDescription =
     normalizedType === "financial"
@@ -82,15 +104,15 @@ export default function Projects() {
                 : normalizedType === "human"
                   ? ["All", "Human Resource Projects"]
                 : normalizedType === "web"
-                  ? projectCategories.filter((category) => !["Financial Projects", "Human Resource Projects"].includes(category))
-                  : projectCategories
+                  ? availableCategories.filter((category) => !["Financial Projects", "Human Resource Projects"].includes(category))
+                  : availableCategories
             }
             active={active}
             onChange={setActive}
           />
           <div className="mt-8 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
             {visibleProjects.map((project, index) => (
-              <PortfolioCard key={project.title} project={project} index={index} />
+              <PortfolioCard key={project.id || project.slug || project.title} project={project} index={index} />
             ))}
           </div>
         </div>

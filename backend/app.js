@@ -15,6 +15,11 @@ import {
   messageStatusSchema,
   reviewSchema,
   reviewStatusSchema,
+  reviewFeaturedSchema,
+  reviewDeleteSchema,
+  projectSchema,
+  projectStatusSchema,
+  projectDeleteSchema,
   exportResumeSchema,
   generateResumeSchema,
   rebuildResumeSchema,
@@ -42,12 +47,17 @@ export function createApp({
   blogService,
   contactService,
   reviewService,
+  projectService,
   resumeService,
   uploadService,
   databaseStatus
 }) {
   const app = express();
   const session = createSessionManager(config);
+  const requireProjectAuthorization = asyncHandler(async (req, res, next) => {
+    await authService.assertProjectAccess(req.admin.sub);
+    next();
+  });
   const upload = multer({
     storage: multer.memoryStorage(),
     limits: { fileSize: config.maxUploadBytes, files: 1 },
@@ -105,6 +115,13 @@ export function createApp({
     res.json({ blog: await blogService.getPublic(req.params.slug) });
   }));
 
+  app.get("/api/projects", asyncHandler(async (req, res) => {
+    res.json({ projects: await projectService.listPublic() });
+  }));
+  app.get("/api/projects/:slug", asyncHandler(async (req, res) => {
+    res.json({ project: await projectService.getPublic(req.params.slug) });
+  }));
+
   app.post(
     "/api/contact",
     limiter(60 * 60 * 1000, 5, "Too many contact requests. Please try again later."),
@@ -123,7 +140,7 @@ export function createApp({
   );
 
   app.get("/api/reviews", asyncHandler(async (req, res) => {
-    res.json({ reviews: await reviewService.listPublic({ limit: req.query.limit }) });
+    res.json({ reviews: await reviewService.listPublic({ limit: req.query.limit, featuredOnly: req.query.featured === "true" }) });
   }));
   app.post(
     "/api/reviews",
@@ -132,7 +149,7 @@ export function createApp({
     asyncHandler(async (req, res) => {
       const review = await reviewService.create(req.validatedBody, req.get("user-agent") || "");
       res.status(201).json({
-        message: "Thank you. Your review was submitted and will appear after approval.",
+        message: "Thank you. Your review was submitted successfully.",
         reference: review.id
       });
     })
@@ -194,11 +211,11 @@ export function createApp({
     asyncHandler(async (req, res) => {
       const admin = await authService.authenticate(req.validatedBody.email, req.validatedBody.password);
       const csrfToken = session.issue(res, admin);
-      res.json({ admin: { email: admin.email }, csrfToken });
+      res.json({ admin: { email: admin.email, canManageProjects: admin.canManageProjects }, csrfToken });
     })
   );
   app.get("/api/auth/session", session.requireAuth, (req, res) => {
-    res.json({ admin: { email: req.admin.email }, csrfToken: req.admin.csrf });
+    res.json({ admin: { email: req.admin.email, canManageProjects: Boolean(req.admin.canManageProjects) }, csrfToken: req.admin.csrf });
   });
   app.post("/api/auth/logout", session.requireAuth, session.requireCsrf, (req, res) => {
     session.clear(res);
@@ -250,10 +267,61 @@ export function createApp({
   app.patch("/api/admin/reviews/:id", session.requireCsrf, validateBody(reviewStatusSchema), asyncHandler(async (req, res) => {
     res.json({ review: await reviewService.updateStatus(req.params.id, req.validatedBody.status) });
   }));
-  app.delete("/api/admin/reviews/:id", session.requireCsrf, asyncHandler(async (req, res) => {
-    await reviewService.remove(req.params.id);
-    res.status(204).end();
+  app.patch("/api/admin/reviews/:id/featured", session.requireCsrf, validateBody(reviewFeaturedSchema), asyncHandler(async (req, res) => {
+    res.json({ review: await reviewService.updateFeatured(req.params.id, req.validatedBody.featured) });
   }));
+  app.delete(
+    "/api/admin/reviews/:id",
+    session.requireCsrf,
+    limiter(60 * 60 * 1000, 20, "Review deletion limit reached. Please try again later."),
+    validateBody(reviewDeleteSchema),
+    asyncHandler(async (req, res) => {
+      await reviewService.remove(req.params.id, req.validatedBody.confirmationName);
+      res.status(204).end();
+    })
+  );
+  app.get("/api/admin/projects", session.requireProjectAdmin, requireProjectAuthorization, asyncHandler(async (req, res) => {
+    res.json({ projects: await projectService.listAdmin() });
+  }));
+  app.get("/api/admin/projects/:id", session.requireProjectAdmin, requireProjectAuthorization, asyncHandler(async (req, res) => {
+    res.json({ project: await projectService.getAdmin(req.params.id) });
+  }));
+  app.post("/api/admin/projects", session.requireProjectAdmin, requireProjectAuthorization, session.requireCsrf, validateBody(projectSchema), asyncHandler(async (req, res) => {
+    res.status(201).json({ project: await projectService.create(req.validatedBody) });
+  }));
+  app.put("/api/admin/projects/:id", session.requireProjectAdmin, requireProjectAuthorization, session.requireCsrf, validateBody(projectSchema), asyncHandler(async (req, res) => {
+    res.json({ project: await projectService.update(req.params.id, req.validatedBody) });
+  }));
+  app.patch("/api/admin/projects/:id/status", session.requireProjectAdmin, requireProjectAuthorization, session.requireCsrf, validateBody(projectStatusSchema), asyncHandler(async (req, res) => {
+    res.json({ project: await projectService.updateStatus(req.params.id, req.validatedBody.status) });
+  }));
+  app.delete("/api/admin/projects/:id", session.requireProjectAdmin, requireProjectAuthorization, session.requireCsrf, asyncHandler(async (req, res) => {
+    res.json({ project: await projectService.archive(req.params.id) });
+  }));
+  app.delete(
+    "/api/admin/projects/:id/permanent",
+    session.requireProjectAdmin,
+    requireProjectAuthorization,
+    session.requireCsrf,
+    limiter(60 * 60 * 1000, 10, "Project deletion limit reached. Please try again later."),
+    validateBody(projectDeleteSchema),
+    asyncHandler(async (req, res) => {
+      await projectService.remove(req.params.id, req.validatedBody.confirmationTitle);
+      res.status(204).end();
+    })
+  );
+  app.post(
+    "/api/admin/uploads/project-image",
+    limiter(60 * 60 * 1000, 30, "Upload limit reached. Please try again later."),
+    session.requireProjectAdmin,
+    requireProjectAuthorization,
+    session.requireCsrf,
+    upload.single("image"),
+    asyncHandler(async (req, res) => {
+      if (!req.file) throw new AppError(400, "Choose an image to upload.", "IMAGE_REQUIRED");
+      res.status(201).json({ asset: await uploadService.upload(req.file, { folder: "rapido/projects" }) });
+    })
+  );
 
   app.use((req, res, next) => next(new AppError(404, "Endpoint not found.", "NOT_FOUND")));
   app.use((error, req, res, next) => {

@@ -6,14 +6,11 @@ import { listPublicReviews } from "../../utils/blogApi";
 
 export default function ReviewsSection() {
   const [reviews, setReviews] = useState([]);
-  const [loading, setLoading] = useState(true);
-
   useEffect(() => {
     let active = true;
-    listPublicReviews({ limit: 3 })
+    listPublicReviews({ limit: 4, featured: true })
       .then((data) => active && setReviews(data.reviews || []))
-      .catch(() => active && setReviews([]))
-      .finally(() => active && setLoading(false));
+      .catch(() => active && setReviews([]));
     return () => { active = false; };
   }, []);
 
@@ -26,14 +23,10 @@ export default function ReviewsSection() {
           description="Feedback from clients who used our web development, SEO, bookkeeping, finance, and HR services."
         />
         {reviews.length ? (
-          <div className="mb-8 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+          <div className="mb-8 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
             {reviews.map((review) => <ReviewCard key={review.id} review={review} />)}
           </div>
-        ) : (
-          <p className="mx-auto mb-8 max-w-2xl rounded-lg border border-blue-100 bg-rapido-mist p-5 text-center font-semibold leading-7 text-rapido-slate">
-            {loading ? "Loading approved client feedback..." : "Approved client feedback will appear here after verification."}
-          </p>
-        )}
+        ) : null}
         <div className="flex flex-col justify-center gap-3 sm:flex-row">
           <Button to="/reviews" variant="secondary">
             See More Reviews

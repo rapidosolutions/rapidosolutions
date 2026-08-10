@@ -6,8 +6,8 @@ Supabase stores private backend data for Rapido. The public website never connec
 
 1. Open the Rapido project in the Supabase dashboard.
 2. Open SQL Editor and create a new query.
-3. Paste and run `migrations/001_initial_schema.sql`.
-4. Confirm that `admins`, `contact_messages`, and `legacy_blogs` appear in Table Editor.
+3. Run `migrations/001_initial_schema.sql`, `migrations/002_reviews.sql`, `migrations/003_projects.sql`, and `migrations/004_review_moderation.sql` in that order.
+4. Confirm that `admins`, `contact_messages`, `legacy_blogs`, `reviews`, and `projects` appear in Table Editor.
 
 The migration enables Row Level Security and does not create public `anon` or `authenticated` policies. The Express backend uses the private service-role credential and is the only application allowed to access these tables.
 
@@ -31,3 +31,5 @@ Find the URL and server-side key under Supabase Project Settings -> API. Never a
 5. The private operations dashboard reads and updates messages through authenticated API routes.
 
 Public blog posts continue to use Sanity. The `legacy_blogs` table exists only to preserve compatibility with the older protected backend blog API.
+
+The private `/project-admin` interface uses the same administrator session. Project access is separately authorized through `admins.can_manage_projects`; set this field to `false` for administrators who should not manage projects. Its Reviews section uses the existing authenticated review APIs. Public project API queries return only rows whose status is `published`. Archive operations are soft deletes that set status to `archived`.

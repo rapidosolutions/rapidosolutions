@@ -98,8 +98,10 @@ export function deleteMessage(id) {
   return request(`/api/admin/messages/${encodeURIComponent(id)}`, { method: "DELETE" });
 }
 
-export function listPublicReviews({ limit = 6 } = {}) {
-  return request(`/api/reviews?limit=${encodeURIComponent(limit)}`);
+export function listPublicReviews({ limit = 6, featured = false } = {}) {
+  const query = new URLSearchParams({ limit: String(limit) });
+  if (featured) query.set("featured", "true");
+  return request(`/api/reviews?${query.toString()}`);
 }
 
 export function submitReview(review) {
@@ -115,6 +117,10 @@ export function updateReviewStatus(id, status) {
   return request(`/api/admin/reviews/${encodeURIComponent(id)}`, { method: "PATCH", body: { status } });
 }
 
-export function deleteReview(id) {
-  return request(`/api/admin/reviews/${encodeURIComponent(id)}`, { method: "DELETE" });
+export function updateReviewFeatured(id, featured) {
+  return request(`/api/admin/reviews/${encodeURIComponent(id)}/featured`, { method: "PATCH", body: { featured } });
+}
+
+export function deleteReview(id, confirmationName) {
+  return request(`/api/admin/reviews/${encodeURIComponent(id)}`, { method: "DELETE", body: { confirmationName } });
 }

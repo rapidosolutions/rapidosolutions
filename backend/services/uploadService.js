@@ -26,12 +26,12 @@ export function createUploadService(config) {
   return {
     mode: cloudinaryConfigured ? "cloudinary" : "local",
 
-    async upload(file) {
+    async upload(file, { folder = "rapido/blogs" } = {}) {
       if (cloudinaryConfigured) {
         const result = await new Promise((resolve, reject) => {
           const stream = cloudinary.uploader.upload_stream(
             {
-              folder: "rapido/blogs",
+              folder,
               resource_type: "image",
               transformation: [{ width: 1600, height: 900, crop: "limit", quality: "auto", fetch_format: "auto" }]
             },

@@ -61,6 +61,11 @@ const routeMetadata = {
     title: "Blog Admin | Rapido Solutions Co.",
     description: "Securely manage Rapido blog posts and customer enquiries.",
     robots: "noindex, nofollow"
+  },
+  "/project-admin": {
+    title: "Project Admin | Rapido Solutions Co.",
+    description: "Securely manage Rapido project content.",
+    robots: "noindex, nofollow"
   }
 };
 
@@ -91,7 +96,7 @@ function renderRouteHtml(html, siteUrl, route, metadata) {
 }
 
 function createSeoAssets(siteUrl) {
-  const robots = `User-agent: *\nAllow: /\nDisallow: /blog-admin\n\nSitemap: ${siteUrl}/sitemap.xml\n`;
+  const robots = `User-agent: *\nAllow: /\nDisallow: /blog-admin\nDisallow: /project-admin\n\nSitemap: ${siteUrl}/sitemap.xml\n`;
   const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${publicRoutes
     .map((route) => `  <url><loc>${new URL(route, `${siteUrl}/`).href}</loc></url>`)
     .join("\n")}\n</urlset>\n`;

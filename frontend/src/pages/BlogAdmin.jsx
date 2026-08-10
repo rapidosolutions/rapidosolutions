@@ -270,7 +270,7 @@ export default function BlogAdmin() {
     if (!window.confirm(`Delete the review from ${review.name}?`)) return;
     clearFeedback();
     try {
-      await deleteReview(review.id);
+      await deleteReview(review.id, review.name);
       setReviews((current) => current.filter((item) => item.id !== review.id));
       setNotice("Review deleted.");
     } catch (deleteError) {
@@ -398,6 +398,7 @@ export default function BlogAdmin() {
                       <select aria-label={`Status for ${item.name}'s review`} className={inputClass} value={item.status} onChange={(event) => changeReviewStatus(item.id, event.target.value)}>
                         <option value="pending">Pending</option>
                         <option value="approved">Approved</option>
+                        <option value="hidden">Hidden</option>
                         <option value="rejected">Rejected</option>
                       </select>
                       <Button type="button" size="sm" variant="ghost" icon="FiTrash2" onClick={() => removeReview(item)}>Delete</Button>

@@ -9,6 +9,7 @@ import { createEmailService } from "./services/emailService.js";
 import { createUploadService } from "./services/uploadService.js";
 import { createReviewService } from "./services/reviewService.js";
 import { createResumeService } from "./services/resumeService.js";
+import { createProjectService } from "./services/projectService.js";
 
 async function start() {
   const supabase = await connectDatabase(config);
@@ -20,11 +21,12 @@ async function start() {
   const contactService = createContactService({ supabase, emailService });
   const reviewService = createReviewService({ supabase, emailService });
   const resumeService = createResumeService(config);
+  const projectService = createProjectService({ supabase, uploadService });
 
   await authService.bootstrapAdmin();
   await blogService.seed();
 
-  const app = createApp({ config, authService, blogService, contactService, reviewService, resumeService, uploadService, databaseStatus });
+  const app = createApp({ config, authService, blogService, contactService, reviewService, resumeService, projectService, uploadService, databaseStatus });
   const server = http.createServer(app);
   server.listen(config.port, () => console.log(`Rapido API listening on http://localhost:${config.port}`));
 

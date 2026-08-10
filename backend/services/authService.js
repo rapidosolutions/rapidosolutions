@@ -5,7 +5,7 @@ import { assertDatabaseResult } from "../utils/database.js";
 const DUMMY_HASH = "$2b$12$C6UzMDM.H6dfI/f/IKcEe.7K.nY1aQzNHVPlQOVGP6xOq0JGM0D5e";
 const MAX_ATTEMPTS = 5;
 const LOCK_DURATION_MS = 15 * 60 * 1000;
-const adminColumns = "id,email,password_hash,failed_login_attempts,lock_until,last_login_at,created_at,updated_at";
+const adminColumns = "id,email,password_hash,failed_login_attempts,lock_until,last_login_at,can_manage_projects,created_at,updated_at";
 
 export function createAuthService({ supabase, config }) {
   return {
@@ -16,7 +16,7 @@ export function createAuthService({ supabase, config }) {
         .eq("email", config.adminEmail)
         .maybeSingle();
       assertDatabaseResult(findError, "Administrator lookup failed.");
-      if (existing) return { id: existing.id, email: existing.email };
+      if (existing) return { id: existing.id, email: existing.email, canManageProjects: Boolean(existing.can_manage_projects) };
 
       if (!config.adminPassword) {
         if (config.isProduction) {
@@ -30,11 +30,11 @@ export function createAuthService({ supabase, config }) {
       const passwordHash = await bcrypt.hash(config.adminPassword, 12);
       const { data, error } = await supabase
         .from("admins")
-        .insert({ email: config.adminEmail, password_hash: passwordHash })
-        .select("id,email")
+        .insert({ email: config.adminEmail, password_hash: passwordHash, can_manage_projects: true })
+        .select("id,email,can_manage_projects")
         .single();
       assertDatabaseResult(error, "Administrator creation failed.");
-      return data;
+      return { id: data.id, email: data.email, canManageProjects: Boolean(data.can_manage_projects) };
     },
 
     async authenticate(email, password) {
@@ -74,7 +74,15 @@ export function createAuthService({ supabase, config }) {
         .update({ failed_login_attempts: 0, lock_until: null, last_login_at: new Date().toISOString() })
         .eq("id", admin.id);
       assertDatabaseResult(updateError, "Administrator login state could not be updated.");
-      return { id: admin.id, email: admin.email };
+      return { id: admin.id, email: admin.email, canManageProjects: Boolean(admin.can_manage_projects) };
+    },
+
+    async assertProjectAccess(adminId) {
+      const { data, error } = await supabase.from("admins").select("can_manage_projects").eq("id", adminId).maybeSingle();
+      assertDatabaseResult(error, "Administrator authorization could not be verified.");
+      if (!data?.can_manage_projects) {
+        throw new AppError(403, "You are not authorized to manage projects.", "PROJECT_ADMIN_REQUIRED");
+      }
     },
 
     async changePassword(adminId, currentPassword, newPassword) {

@@ -44,7 +44,7 @@ function limiter(windowMs, limit, message) {
 export function isAllowedOrigin(origin, allowedOrigins = []) {
   if (!origin) return true;
   const cleanOrigin = origin.trim().toLowerCase().replace(/\/$/, "");
-  
+
   return allowedOrigins.some((pattern) => {
     const cleanPattern = pattern.trim().toLowerCase().replace(/\/$/, "");
     if (cleanPattern === "*" || cleanPattern === cleanOrigin) return true;

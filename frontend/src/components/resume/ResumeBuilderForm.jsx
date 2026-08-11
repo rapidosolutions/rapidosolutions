@@ -2,152 +2,134 @@ import { useState } from "react";
 import Button from "../common/Button";
 import Icon from "../ui/Icon";
 
-const emptyWork = () => ({ jobTitle: "", company: "", startDate: "", endDate: "", achievements: "" });
-const emptyEducation = () => ({ degree: "", institution: "", graduationDate: "" });
+const csv = (value) => value.split(",").map((item) => item.trim()).filter(Boolean);
+const lines = (value) => value.split(/\r?\n/).map((item) => item.trim()).filter(Boolean);
+const emptyAchievement = () => ({ action: "", result: "", metric: "", businessImpact: "" });
+const emptyWork = () => ({ jobTitle: "", company: "", location: "", employmentType: "", department: "", startDate: "", endDate: "", current: false, roleScope: "", responsibilities: "", achievements: [emptyAchievement()], tools: "", skills: "" });
+const emptyEducation = () => ({ degree: "", field: "", institution: "", location: "", startDate: "", graduationDate: "", gpa: "", honors: "", coursework: "", achievements: "" });
+const emptyProject = () => ({ name: "", role: "", type: "", description: "", contributions: "", technologies: "", skills: "", result: "", metric: "", projectUrl: "", githubUrl: "" });
+const emptyCertification = () => ({ name: "", issuer: "", issueDate: "", expirationDate: "", credentialId: "", credentialUrl: "" });
+const emptyAward = () => ({ title: "", issuer: "", date: "", description: "", significance: "" });
+const emptyLanguage = () => ({ language: "", proficiency: "" });
+const emptyVolunteer = () => ({ organization: "", role: "", dates: "", contributions: "", achievements: "" });
+const emptyPublication = () => ({ title: "", publisher: "", date: "", url: "" });
+const emptyAssociation = () => ({ organization: "", role: "", dates: "" });
 
 const inputClass = "mt-2 min-h-12 w-full rounded-lg border border-rapido-line bg-white px-4 text-rapido-navy outline-none transition focus:border-rapido-blue focus:ring-2 focus:ring-blue-100";
 const labelClass = "text-sm font-bold text-rapido-navy";
 
-function Field({ label, name, value, onChange, type = "text", required = false, placeholder = "" }) {
-  return (
-    <label className={labelClass}>
-      {label}{required ? <span className="text-red-600"> *</span> : null}
-      <input className={inputClass} type={type} name={name} value={value} onChange={onChange} required={required} placeholder={placeholder} />
-    </label>
-  );
+function Indicator({ kind = "Optional" }) {
+  return <span className={kind === "Required" ? "ml-1 text-xs font-bold text-red-700" : kind === "Recommended" ? "ml-1 text-xs font-semibold text-rapido-blue" : "ml-1 text-xs font-medium text-rapido-slate"}>({kind})</span>;
+}
+
+function Field({ label, value, onChange, type = "text", required = false, recommended = false, placeholder = "", disabled = false, name }) {
+  return <label className={labelClass}>{label}<Indicator kind={required ? "Required" : recommended ? "Recommended" : "Optional"} /><input className={inputClass} type={type} name={name} value={value} onChange={onChange} required={required} placeholder={placeholder} disabled={disabled} /></label>;
+}
+
+function TextArea({ label, value, onChange, required = false, recommended = false, placeholder = "", rows = 4 }) {
+  return <label className={labelClass}>{label}<Indicator kind={required ? "Required" : recommended ? "Recommended" : "Optional"} /><textarea className={`${inputClass} py-3`} style={{ minHeight: `${rows * 1.75}rem` }} value={value} onChange={onChange} required={required} placeholder={placeholder} /></label>;
+}
+
+function RemoveButton({ children, onClick }) {
+  return <button className="mt-3 inline-flex items-center gap-2 text-sm font-bold text-red-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500" type="button" onClick={onClick}><Icon name="FiMinus" />{children}</button>;
+}
+
+function OptionalSection({ title, description, children }) {
+  return <details className="mt-8 rounded-lg border border-rapido-line bg-white"><summary className="cursor-pointer px-5 py-4 font-display text-xl font-extrabold text-rapido-navy focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-rapido-blue">{title} <span className="text-sm font-semibold text-rapido-slate">(Optional)</span></summary><div className="border-t border-rapido-line p-5"><p className="mb-5 text-sm leading-6 text-rapido-slate">{description}</p>{children}</div></details>;
 }
 
 export default function ResumeBuilderForm({ onGenerate, pending }) {
   const [skillError, setSkillError] = useState("");
   const [form, setForm] = useState({
-    personalInfo: { name: "", email: "", phone: "", location: "", linkedin: "", portfolio: "" },
-    targetRole: "",
-    professionalSummary: "",
-    workExperience: [emptyWork()],
-    education: [emptyEducation()],
-    skills: "",
-    certifications: ""
+    targetPosition: { targetRole: "", targetIndustry: "", targetCompany: "", jobDescription: "" },
+    personalInfo: { name: "", email: "", phone: "", location: "", linkedin: "", portfolio: "", github: "", website: "", professionalHeadline: "" },
+    professionalProfile: { professionalSummary: "", yearsExperience: "", primarySpecialization: "", coreExpertise: "", keyStrengths: "", majorAchievement: "", valueProposition: "" },
+    workExperience: [emptyWork()], education: [emptyEducation()],
+    skills: { technical: "", tools: "", industry: "", professional: "" },
+    projects: [], certifications: [], achievements: [], languages: [], volunteerExperience: [], leadershipExperience: [], publications: [], professionalAssociations: []
   });
 
-  const updatePersonal = (event) => setForm((current) => ({ ...current, personalInfo: { ...current.personalInfo, [event.target.name]: event.target.value } }));
-  const updateList = (key, index, field, value) => setForm((current) => ({
-    ...current,
-    [key]: current[key].map((item, itemIndex) => itemIndex === index ? { ...item, [field]: value } : item)
-  }));
-  const addItem = (key) => setForm((current) => ({ ...current, [key]: [...current[key], key === "workExperience" ? emptyWork() : emptyEducation()] }));
+  const updateObject = (key, field, value) => setForm((current) => ({ ...current, [key]: { ...current[key], [field]: value } }));
+  const updateList = (key, index, field, value) => setForm((current) => ({ ...current, [key]: current[key].map((item, itemIndex) => itemIndex === index ? { ...item, [field]: value } : item) }));
+  const addItem = (key, factory) => setForm((current) => ({ ...current, [key]: [...current[key], factory()] }));
   const removeItem = (key, index) => setForm((current) => ({ ...current, [key]: current[key].filter((_, itemIndex) => itemIndex !== index) }));
+  const updateWorkAchievement = (workIndex, achievementIndex, field, value) => setForm((current) => ({
+    ...current,
+    workExperience: current.workExperience.map((work, index) => index === workIndex ? { ...work, achievements: work.achievements.map((achievement, itemIndex) => itemIndex === achievementIndex ? { ...achievement, [field]: value } : achievement) } : work)
+  }));
+  const addWorkAchievement = (workIndex) => setForm((current) => ({ ...current, workExperience: current.workExperience.map((work, index) => index === workIndex ? { ...work, achievements: [...work.achievements, emptyAchievement()] } : work) }));
+  const removeWorkAchievement = (workIndex, achievementIndex) => setForm((current) => ({ ...current, workExperience: current.workExperience.map((work, index) => index === workIndex ? { ...work, achievements: work.achievements.filter((_, itemIndex) => itemIndex !== achievementIndex) } : work) }));
 
-  const submit = (event) => {
+  function submit(event) {
     event.preventDefault();
-    const skills = form.skills.split(",").map((item) => item.trim()).filter(Boolean);
-
-    if (skills.length < 3) {
-      setSkillError("Enter at least three skills separated by commas.");
+    const structuredSkills = Object.fromEntries(Object.entries(form.skills).map(([key, value]) => [key, csv(value)]));
+    const totalSkills = Object.values(structuredSkills).flat();
+    if (totalSkills.length < 3) {
+      setSkillError("Enter at least three skills across the skill categories.");
       return;
     }
-
     setSkillError("");
     onGenerate({
       ...form,
-      skills,
-      certifications: form.certifications.split(",").map((item) => item.trim()).filter(Boolean)
+      professionalProfile: { ...form.professionalProfile, coreExpertise: csv(form.professionalProfile.coreExpertise), keyStrengths: csv(form.professionalProfile.keyStrengths) },
+      workExperience: form.workExperience.map((entry) => ({ ...entry, endDate: entry.current ? "" : entry.endDate, responsibilities: lines(entry.responsibilities), achievements: entry.achievements.filter((item) => Object.values(item).some(Boolean)), tools: csv(entry.tools), skills: csv(entry.skills) })),
+      education: form.education.map((entry) => ({ ...entry, coursework: csv(entry.coursework), achievements: lines(entry.achievements) })),
+      skills: structuredSkills,
+      projects: form.projects.filter((item) => item.name).map((item) => ({ ...item, contributions: lines(item.contributions), technologies: csv(item.technologies), skills: csv(item.skills) })),
+      certifications: form.certifications.filter((item) => item.name), achievements: form.achievements.filter((item) => item.title), languages: form.languages.filter((item) => item.language),
+      volunteerExperience: form.volunteerExperience.filter((item) => item.organization).map((item) => ({ ...item, contributions: lines(item.contributions), achievements: lines(item.achievements) })),
+      leadershipExperience: form.leadershipExperience.filter((item) => item.organization).map((item) => ({ ...item, contributions: lines(item.contributions), achievements: lines(item.achievements) })),
+      publications: form.publications.filter((item) => item.title), professionalAssociations: form.professionalAssociations.filter((item) => item.organization)
     });
-  };
+  }
 
-  return (
-    <form className="rounded-lg border border-rapido-line bg-white p-5 shadow-premium sm:p-7" onSubmit={submit}>
-      <fieldset>
-        <legend className="font-display text-xl font-extrabold text-rapido-navy">Personal information</legend>
-        <div className="mt-5 grid gap-4 md:grid-cols-2">
-          <Field label="Full name" name="name" value={form.personalInfo.name} onChange={updatePersonal} required />
-          <Field label="Email" name="email" type="email" value={form.personalInfo.email} onChange={updatePersonal} required />
-          <Field label="Phone" name="phone" value={form.personalInfo.phone} onChange={updatePersonal} />
-          <Field label="Location" name="location" value={form.personalInfo.location} onChange={updatePersonal} />
-          <Field label="LinkedIn" name="linkedin" value={form.personalInfo.linkedin} onChange={updatePersonal} placeholder="linkedin.com/in/your-profile" />
-          <Field label="Portfolio" name="portfolio" value={form.personalInfo.portfolio} onChange={updatePersonal} placeholder="yourportfolio.com" />
-        </div>
-      </fieldset>
+  return <form className="rounded-lg border border-rapido-line bg-white p-5 shadow-premium sm:p-7" onSubmit={submit}>
+    <fieldset><legend className="font-display text-xl font-extrabold text-rapido-navy">1. Target Position</legend><p className="mt-2 text-sm leading-6 text-rapido-slate">Paste the vacancy text for the strongest role-specific tailoring.</p><div className="mt-5 grid gap-4 md:grid-cols-2">
+      <Field label="Target role" value={form.targetPosition.targetRole} onChange={(e) => updateObject("targetPosition", "targetRole", e.target.value)} required />
+      <Field label="Target industry" value={form.targetPosition.targetIndustry} onChange={(e) => updateObject("targetPosition", "targetIndustry", e.target.value)} recommended placeholder="Finance, Software Development, Marketing" />
+      <Field label="Target company" value={form.targetPosition.targetCompany} onChange={(e) => updateObject("targetPosition", "targetCompany", e.target.value)} />
+      <div className="md:col-span-2"><TextArea label="Job description / vacancy text" value={form.targetPosition.jobDescription} onChange={(e) => updateObject("targetPosition", "jobDescription", e.target.value)} recommended rows={7} placeholder="Paste the complete job description here." /></div>
+    </div></fieldset>
 
-      <fieldset className="mt-8 border-t border-rapido-line pt-7">
-        <legend className="font-display text-xl font-extrabold text-rapido-navy">Professional direction</legend>
-        <div className="mt-5 grid gap-4">
-          <Field label="Target role" name="targetRole" value={form.targetRole} onChange={(event) => setForm((current) => ({ ...current, targetRole: event.target.value }))} required />
-          <label className={labelClass}>Professional summary
-            <textarea className={`${inputClass} min-h-28 py-3`} value={form.professionalSummary} onChange={(event) => setForm((current) => ({ ...current, professionalSummary: event.target.value }))} />
-          </label>
-        </div>
-      </fieldset>
+    <fieldset className="mt-8 border-t border-rapido-line pt-7"><legend className="font-display text-xl font-extrabold text-rapido-navy">2. Personal Information</legend><div className="mt-5 grid gap-4 md:grid-cols-2">
+      <Field label="Full name" name="name" value={form.personalInfo.name} onChange={(e) => updateObject("personalInfo", "name", e.target.value)} required /><Field label="Email" name="email" type="email" value={form.personalInfo.email} onChange={(e) => updateObject("personalInfo", "email", e.target.value)} required />
+      <Field label="Professional headline" value={form.personalInfo.professionalHeadline} onChange={(e) => updateObject("personalInfo", "professionalHeadline", e.target.value)} recommended /><Field label="Phone" value={form.personalInfo.phone} onChange={(e) => updateObject("personalInfo", "phone", e.target.value)} />
+      <Field label="Location" value={form.personalInfo.location} onChange={(e) => updateObject("personalInfo", "location", e.target.value)} /><Field label="LinkedIn" value={form.personalInfo.linkedin} onChange={(e) => updateObject("personalInfo", "linkedin", e.target.value)} placeholder="linkedin.com/in/your-profile" />
+      <Field label="Portfolio" value={form.personalInfo.portfolio} onChange={(e) => updateObject("personalInfo", "portfolio", e.target.value)} /><Field label="GitHub URL" value={form.personalInfo.github} onChange={(e) => updateObject("personalInfo", "github", e.target.value)} />
+      <Field label="Personal website" value={form.personalInfo.website} onChange={(e) => updateObject("personalInfo", "website", e.target.value)} />
+    </div></fieldset>
 
-      <fieldset className="mt-8 border-t border-rapido-line pt-7">
-        <div className="flex items-center justify-between gap-3">
-          <legend className="font-display text-xl font-extrabold text-rapido-navy">Work experience</legend>
-          <Button size="sm" variant="secondary" icon="FiPlus" onClick={() => addItem("workExperience")}>Add role</Button>
-        </div>
-        <div className="mt-5 space-y-5">
-          {form.workExperience.map((entry, index) => (
-            <div key={`work-${index}`} className="rounded-lg bg-rapido-mist p-4 sm:p-5">
-              <div className="grid gap-4 md:grid-cols-2">
-                <Field label="Job title" value={entry.jobTitle} onChange={(event) => updateList("workExperience", index, "jobTitle", event.target.value)} required />
-                <Field label="Company" value={entry.company} onChange={(event) => updateList("workExperience", index, "company", event.target.value)} required />
-                <Field label="Start date" value={entry.startDate} onChange={(event) => updateList("workExperience", index, "startDate", event.target.value)} required placeholder="Jan 2023" />
-                <Field label="End date" value={entry.endDate} onChange={(event) => updateList("workExperience", index, "endDate", event.target.value)} placeholder="Present" />
-              </div>
-              <label className={`${labelClass} mt-4 block`}>Achievements and responsibilities <span className="text-red-600">*</span>
-                <textarea className={`${inputClass} min-h-28 py-3`} value={entry.achievements} onChange={(event) => updateList("workExperience", index, "achievements", event.target.value)} required placeholder="Add one achievement or responsibility per line." />
-              </label>
-              {form.workExperience.length > 1 ? <button className="mt-3 inline-flex items-center gap-2 text-sm font-bold text-red-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500" type="button" onClick={() => removeItem("workExperience", index)}><Icon name="FiMinus" />Remove role</button> : null}
-            </div>
-          ))}
-        </div>
-      </fieldset>
+    <fieldset className="mt-8 border-t border-rapido-line pt-7"><legend className="font-display text-xl font-extrabold text-rapido-navy">3. Professional Profile</legend><p className="mt-2 text-sm leading-6 text-rapido-slate">Structured details let the builder write a summary; you do not need polished wording.</p><div className="mt-5 grid gap-4 md:grid-cols-2">
+      <Field label="Years of relevant experience" value={form.professionalProfile.yearsExperience} onChange={(e) => updateObject("professionalProfile", "yearsExperience", e.target.value)} recommended /><Field label="Primary profession / specialization" value={form.professionalProfile.primarySpecialization} onChange={(e) => updateObject("professionalProfile", "primarySpecialization", e.target.value)} recommended />
+      <Field label="Core expertise" value={form.professionalProfile.coreExpertise} onChange={(e) => updateObject("professionalProfile", "coreExpertise", e.target.value)} recommended placeholder="Comma separated" /><Field label="Key strengths" value={form.professionalProfile.keyStrengths} onChange={(e) => updateObject("professionalProfile", "keyStrengths", e.target.value)} recommended placeholder="Comma separated" />
+      <div className="md:col-span-2"><TextArea label="Most important career achievement" value={form.professionalProfile.majorAchievement} onChange={(e) => updateObject("professionalProfile", "majorAchievement", e.target.value)} recommended /><TextArea label="Desired value proposition" value={form.professionalProfile.valueProposition} onChange={(e) => updateObject("professionalProfile", "valueProposition", e.target.value)} /><TextArea label="Professional summary" value={form.professionalProfile.professionalSummary} onChange={(e) => updateObject("professionalProfile", "professionalSummary", e.target.value)} /></div>
+    </div></fieldset>
 
-      <fieldset className="mt-8 border-t border-rapido-line pt-7">
-        <div className="flex items-center justify-between gap-3">
-          <legend className="font-display text-xl font-extrabold text-rapido-navy">Education</legend>
-          <Button size="sm" variant="secondary" icon="FiPlus" onClick={() => addItem("education")}>Add education</Button>
-        </div>
-        <div className="mt-5 space-y-5">
-          {form.education.map((entry, index) => (
-            <div key={`education-${index}`} className="rounded-lg bg-rapido-mist p-4 sm:p-5">
-              <div className="grid gap-4 md:grid-cols-3">
-                <Field label="Degree" value={entry.degree} onChange={(event) => updateList("education", index, "degree", event.target.value)} required />
-                <Field label="Institution" value={entry.institution} onChange={(event) => updateList("education", index, "institution", event.target.value)} required />
-                <Field label="Graduation date" value={entry.graduationDate} onChange={(event) => updateList("education", index, "graduationDate", event.target.value)} required />
-              </div>
-              {form.education.length > 1 ? <button className="mt-3 inline-flex items-center gap-2 text-sm font-bold text-red-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500" type="button" onClick={() => removeItem("education", index)}><Icon name="FiMinus" />Remove education</button> : null}
-            </div>
-          ))}
-        </div>
-      </fieldset>
+    <fieldset className="mt-8 border-t border-rapido-line pt-7"><legend className="font-display text-xl font-extrabold text-rapido-navy">4. Work Experience</legend><div className="mt-3 flex justify-end"><Button size="sm" variant="secondary" icon="FiPlus" onClick={() => addItem("workExperience", emptyWork)}>Add Experience</Button></div><div className="mt-5 space-y-5">{form.workExperience.map((entry, index) => <div key={`work-${index}`} className="rounded-lg bg-rapido-mist p-4 sm:p-5"><div className="grid gap-4 md:grid-cols-2">
+      <Field label="Job title" value={entry.jobTitle} onChange={(e) => updateList("workExperience", index, "jobTitle", e.target.value)} required /><Field label="Company" value={entry.company} onChange={(e) => updateList("workExperience", index, "company", e.target.value)} required />
+      <Field label="Location" value={entry.location} onChange={(e) => updateList("workExperience", index, "location", e.target.value)} /><label className={labelClass}>Employment type<Indicator /><select className={inputClass} value={entry.employmentType} onChange={(e) => updateList("workExperience", index, "employmentType", e.target.value)}><option value="">Select</option>{["Full-time","Part-time","Contract","Freelance","Internship","Temporary"].map((value) => <option key={value}>{value}</option>)}</select></label>
+      <Field label="Department / function" value={entry.department} onChange={(e) => updateList("workExperience", index, "department", e.target.value)} /><Field label="Start date" value={entry.startDate} onChange={(e) => updateList("workExperience", index, "startDate", e.target.value)} required placeholder="Jan 2023" />
+      <Field label="End date" value={entry.endDate} onChange={(e) => updateList("workExperience", index, "endDate", e.target.value)} disabled={entry.current} placeholder="Present" /><label className={`${labelClass} flex items-center gap-3 pt-7`}><input type="checkbox" checked={entry.current} onChange={(e) => updateList("workExperience", index, "current", e.target.checked)} />Currently working here</label>
+      <div className="md:col-span-2"><TextArea label="Brief role scope" value={entry.roleScope} onChange={(e) => updateList("workExperience", index, "roleScope", e.target.value)} recommended /><TextArea label="Responsibilities" value={entry.responsibilities} onChange={(e) => updateList("workExperience", index, "responsibilities", e.target.value)} required placeholder="One responsibility per line" /></div>
+      <Field label="Tools / technologies used" value={entry.tools} onChange={(e) => updateList("workExperience", index, "tools", e.target.value)} recommended placeholder="Comma separated" /><Field label="Skills used" value={entry.skills} onChange={(e) => updateList("workExperience", index, "skills", e.target.value)} recommended placeholder="Comma separated" />
+      </div><div className="mt-5"><div className="flex items-center justify-between gap-3"><h3 className="font-extrabold text-rapido-navy">Quantified achievements <Indicator kind="Recommended" /></h3><Button size="sm" variant="secondary" icon="FiPlus" onClick={() => addWorkAchievement(index)}>Add Achievement</Button></div>{entry.achievements.map((achievement, achievementIndex) => <div key={achievementIndex} className="mt-3 grid gap-3 rounded-lg border border-rapido-line bg-white p-4 md:grid-cols-2"><Field label="Achievement / action" value={achievement.action} onChange={(e) => updateWorkAchievement(index, achievementIndex, "action", e.target.value)} recommended /><Field label="Result / outcome" value={achievement.result} onChange={(e) => updateWorkAchievement(index, achievementIndex, "result", e.target.value)} recommended /><Field label="Metric / number / percentage" value={achievement.metric} onChange={(e) => updateWorkAchievement(index, achievementIndex, "metric", e.target.value)} /><Field label="Business impact" value={achievement.businessImpact} onChange={(e) => updateWorkAchievement(index, achievementIndex, "businessImpact", e.target.value)} recommended />{entry.achievements.length > 1 ? <RemoveButton onClick={() => removeWorkAchievement(index, achievementIndex)}>Remove achievement</RemoveButton> : null}</div>)}</div>{form.workExperience.length > 1 ? <RemoveButton onClick={() => removeItem("workExperience", index)}>Remove experience</RemoveButton> : null}</div>)}</div></fieldset>
 
-      <fieldset className="mt-8 border-t border-rapido-line pt-7">
-        <legend className="font-display text-xl font-extrabold text-rapido-navy">Skills and certifications</legend>
-        <div className="mt-5 grid gap-4 md:grid-cols-2">
-          <label className={labelClass}>Skills <span className="text-red-600">*</span>
-            <textarea
-              aria-describedby="resume-skills-help resume-skills-error"
-              aria-invalid={Boolean(skillError)}
-              className={`${inputClass} min-h-28 py-3`}
-              value={form.skills}
-              onChange={(event) => {
-                setForm((current) => ({ ...current, skills: event.target.value }));
-                if (skillError) setSkillError("");
-              }}
-              required
-              placeholder="React, JavaScript, Technical SEO"
-            />
-            <span id="resume-skills-help" className="mt-2 block text-xs font-medium text-rapido-slate">Enter at least three, separated by commas.</span>
-            {skillError ? <span id="resume-skills-error" className="mt-2 block text-sm font-semibold text-red-700" role="alert">{skillError}</span> : null}
-          </label>
-          <label className={labelClass}>Certifications
-            <textarea className={`${inputClass} min-h-28 py-3`} value={form.certifications} onChange={(event) => setForm((current) => ({ ...current, certifications: event.target.value }))} placeholder="Certification name, another certification" />
-          </label>
-        </div>
-      </fieldset>
+    <fieldset className="mt-8 border-t border-rapido-line pt-7"><legend className="font-display text-xl font-extrabold text-rapido-navy">5. Education</legend><div className="mt-3 flex justify-end"><Button size="sm" variant="secondary" icon="FiPlus" onClick={() => addItem("education", emptyEducation)}>Add Education</Button></div><div className="mt-5 space-y-5">{form.education.map((entry, index) => <div key={index} className="rounded-lg bg-rapido-mist p-4 sm:p-5"><div className="grid gap-4 md:grid-cols-3"><Field label="Degree" value={entry.degree} onChange={(e) => updateList("education", index, "degree", e.target.value)} required /><Field label="Field / major" value={entry.field} onChange={(e) => updateList("education", index, "field", e.target.value)} recommended /><Field label="Institution" value={entry.institution} onChange={(e) => updateList("education", index, "institution", e.target.value)} required /><Field label="Location" value={entry.location} onChange={(e) => updateList("education", index, "location", e.target.value)} /><Field label="Start date" value={entry.startDate} onChange={(e) => updateList("education", index, "startDate", e.target.value)} /><Field label="Graduation date" value={entry.graduationDate} onChange={(e) => updateList("education", index, "graduationDate", e.target.value)} required /><Field label="GPA / grade" value={entry.gpa} onChange={(e) => updateList("education", index, "gpa", e.target.value)} /><Field label="Honors / distinctions" value={entry.honors} onChange={(e) => updateList("education", index, "honors", e.target.value)} /><Field label="Relevant coursework" value={entry.coursework} onChange={(e) => updateList("education", index, "coursework", e.target.value)} placeholder="Comma separated" /><div className="md:col-span-3"><TextArea label="Academic achievements" value={entry.achievements} onChange={(e) => updateList("education", index, "achievements", e.target.value)} /></div></div>{form.education.length > 1 ? <RemoveButton onClick={() => removeItem("education", index)}>Remove education</RemoveButton> : null}</div>)}</div></fieldset>
 
-      <Button className="mt-8 w-full sm:w-auto" type="submit" icon="FiZap" disabled={pending}>
-        {pending ? "Building Resume..." : "Build ATS Resume"}
-      </Button>
-    </form>
-  );
+    <fieldset className="mt-8 border-t border-rapido-line pt-7"><legend className="font-display text-xl font-extrabold text-rapido-navy">6. Skills</legend><p className="mt-2 text-sm text-rapido-slate">Enter comma-separated skills in the relevant categories. At least three total are required.</p><div className="mt-5 grid gap-4 md:grid-cols-2">{[["technical","Technical skills"],["tools","Software / tools"],["industry","Industry / functional skills"],["professional","Professional skills"]].map(([key,label]) => <TextArea key={key} label={label} value={form.skills[key]} onChange={(e) => { updateObject("skills", key, e.target.value); if (skillError) setSkillError(""); }} recommended={key !== "professional"} placeholder="Comma separated" />)}</div>{skillError ? <p className="mt-3 text-sm font-semibold text-red-700" role="alert">{skillError}</p> : null}</fieldset>
+
+    <OptionalSection title="7. Projects" description="Useful for technical, design, marketing, student, freelance, and career-change applications."><Button size="sm" variant="secondary" icon="FiPlus" onClick={() => addItem("projects", emptyProject)}>Add Project</Button><div className="mt-4 space-y-4">{form.projects.map((entry,index) => <div key={index} className="grid gap-4 rounded-lg bg-rapido-mist p-4 md:grid-cols-2"><Field label="Project name" value={entry.name} onChange={(e) => updateList("projects",index,"name",e.target.value)} recommended /><Field label="Role" value={entry.role} onChange={(e) => updateList("projects",index,"role",e.target.value)} /><Field label="Project type" value={entry.type} onChange={(e) => updateList("projects",index,"type",e.target.value)} /><div className="md:col-span-2"><TextArea label="Project description" value={entry.description} onChange={(e) => updateList("projects",index,"description",e.target.value)} /><TextArea label="Key contributions" value={entry.contributions} onChange={(e) => updateList("projects",index,"contributions",e.target.value)} placeholder="One per line" /></div><Field label="Technologies / tools" value={entry.technologies} onChange={(e) => updateList("projects",index,"technologies",e.target.value)} placeholder="Comma separated" /><Field label="Skills used" value={entry.skills} onChange={(e) => updateList("projects",index,"skills",e.target.value)} placeholder="Comma separated" /><Field label="Result / outcome" value={entry.result} onChange={(e) => updateList("projects",index,"result",e.target.value)} /><Field label="Metrics / impact" value={entry.metric} onChange={(e) => updateList("projects",index,"metric",e.target.value)} /><Field label="Project URL" value={entry.projectUrl} onChange={(e) => updateList("projects",index,"projectUrl",e.target.value)} /><Field label="GitHub URL" value={entry.githubUrl} onChange={(e) => updateList("projects",index,"githubUrl",e.target.value)} /><RemoveButton onClick={() => removeItem("projects",index)}>Remove project</RemoveButton></div>)}</div></OptionalSection>
+
+    <OptionalSection title="8. Certifications & Licenses" description="Add only relevant professional credentials."><Button size="sm" variant="secondary" icon="FiPlus" onClick={() => addItem("certifications", emptyCertification)}>Add Certification</Button><div className="mt-4 space-y-4">{form.certifications.map((entry,index) => <div key={index} className="grid gap-4 rounded-lg bg-rapido-mist p-4 md:grid-cols-2"><Field label="Certification / license name" value={entry.name} onChange={(e) => updateList("certifications",index,"name",e.target.value)} recommended /><Field label="Issuing organization" value={entry.issuer} onChange={(e) => updateList("certifications",index,"issuer",e.target.value)} recommended /><Field label="Issue date" value={entry.issueDate} onChange={(e) => updateList("certifications",index,"issueDate",e.target.value)} /><Field label="Expiration date" value={entry.expirationDate} onChange={(e) => updateList("certifications",index,"expirationDate",e.target.value)} /><Field label="Credential ID" value={entry.credentialId} onChange={(e) => updateList("certifications",index,"credentialId",e.target.value)} /><Field label="Credential URL" value={entry.credentialUrl} onChange={(e) => updateList("certifications",index,"credentialUrl",e.target.value)} /><RemoveButton onClick={() => removeItem("certifications",index)}>Remove certification</RemoveButton></div>)}</div></OptionalSection>
+
+    <OptionalSection title="9. Achievements & Awards" description="Include meaningful professional, academic, or industry recognition."><Button size="sm" variant="secondary" icon="FiPlus" onClick={() => addItem("achievements", emptyAward)}>Add Award</Button><div className="mt-4 space-y-4">{form.achievements.map((entry,index) => <div key={index} className="grid gap-4 rounded-lg bg-rapido-mist p-4 md:grid-cols-2"><Field label="Achievement / award name" value={entry.title} onChange={(e) => updateList("achievements",index,"title",e.target.value)} recommended /><Field label="Issuing organization" value={entry.issuer} onChange={(e) => updateList("achievements",index,"issuer",e.target.value)} /><Field label="Date" value={entry.date} onChange={(e) => updateList("achievements",index,"date",e.target.value)} /><TextArea label="Description" value={entry.description} onChange={(e) => updateList("achievements",index,"description",e.target.value)} /><TextArea label="Result / significance" value={entry.significance} onChange={(e) => updateList("achievements",index,"significance",e.target.value)} /><RemoveButton onClick={() => removeItem("achievements",index)}>Remove award</RemoveButton></div>)}</div></OptionalSection>
+
+    <OptionalSection title="10. Additional Information" description="Add only sections that strengthen this application."><div className="grid gap-6">
+      <div><Button size="sm" variant="secondary" icon="FiPlus" onClick={() => addItem("languages", emptyLanguage)}>Add Language</Button>{form.languages.map((entry,index) => <div key={index} className="mt-3 grid gap-3 md:grid-cols-2"><Field label="Language" value={entry.language} onChange={(e) => updateList("languages",index,"language",e.target.value)} /><Field label="Proficiency" value={entry.proficiency} onChange={(e) => updateList("languages",index,"proficiency",e.target.value)} /><RemoveButton onClick={() => removeItem("languages",index)}>Remove language</RemoveButton></div>)}</div>
+      {[["volunteerExperience","Volunteer Experience",emptyVolunteer],["leadershipExperience","Leadership Experience",emptyVolunteer]].map(([key,label,factory]) => <div key={key}><Button size="sm" variant="secondary" icon="FiPlus" onClick={() => addItem(key,factory)}>Add {label}</Button>{form[key].map((entry,index) => <div key={index} className="mt-3 grid gap-3 rounded-lg bg-rapido-mist p-4 md:grid-cols-2"><Field label="Organization" value={entry.organization} onChange={(e) => updateList(key,index,"organization",e.target.value)} /><Field label="Role" value={entry.role} onChange={(e) => updateList(key,index,"role",e.target.value)} /><Field label="Dates" value={entry.dates} onChange={(e) => updateList(key,index,"dates",e.target.value)} /><TextArea label="Contributions" value={entry.contributions} onChange={(e) => updateList(key,index,"contributions",e.target.value)} /><TextArea label="Achievements" value={entry.achievements} onChange={(e) => updateList(key,index,"achievements",e.target.value)} /><RemoveButton onClick={() => removeItem(key,index)}>Remove entry</RemoveButton></div>)}</div>)}
+      <div><Button size="sm" variant="secondary" icon="FiPlus" onClick={() => addItem("publications", emptyPublication)}>Add Publication</Button>{form.publications.map((entry,index) => <div key={index} className="mt-3 grid gap-3 md:grid-cols-2"><Field label="Publication title" value={entry.title} onChange={(e) => updateList("publications",index,"title",e.target.value)} /><Field label="Publisher" value={entry.publisher} onChange={(e) => updateList("publications",index,"publisher",e.target.value)} /><Field label="Publication date" value={entry.date} onChange={(e) => updateList("publications",index,"date",e.target.value)} /><Field label="Publication URL" value={entry.url} onChange={(e) => updateList("publications",index,"url",e.target.value)} /><RemoveButton onClick={() => removeItem("publications",index)}>Remove publication</RemoveButton></div>)}</div>
+      <div><Button size="sm" variant="secondary" icon="FiPlus" onClick={() => addItem("professionalAssociations", emptyAssociation)}>Add Professional Association</Button>{form.professionalAssociations.map((entry,index) => <div key={index} className="mt-3 grid gap-3 md:grid-cols-3"><Field label="Association organization" value={entry.organization} onChange={(e) => updateList("professionalAssociations",index,"organization",e.target.value)} /><Field label="Membership / role" value={entry.role} onChange={(e) => updateList("professionalAssociations",index,"role",e.target.value)} /><Field label="Association dates" value={entry.dates} onChange={(e) => updateList("professionalAssociations",index,"dates",e.target.value)} /><RemoveButton onClick={() => removeItem("professionalAssociations",index)}>Remove association</RemoveButton></div>)}</div>
+    </div></OptionalSection>
+    <Button className="mt-8 w-full sm:w-auto" type="submit" icon="FiZap" disabled={pending}>{pending ? "Building Resume..." : "Build ATS Resume"}</Button>
+  </form>;
 }

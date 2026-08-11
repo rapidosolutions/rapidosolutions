@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, expect, it, vi } from "vitest";
-import { createResumeService, markdownToPdf, sampleResumeText, validateExtractedResumeText } from "./resumeService.js";
+import { createResumeService, generationPrompt, markdownToPdf, profileToSourceText, sampleResumeText, validateExtractedResumeText } from "./resumeService.js";
 
 const config = { geminiApiKey: "test-key", geminiModel: "gemini-flash-latest" };
 
@@ -18,6 +18,46 @@ function analysis(score, overrides = {}) {
 }
 
 describe("resumeService", () => {
+  const structuredProfile = {
+    personalInfo: { name: "Alex Morgan", email: "alex@example.com", phone: "", location: "" },
+    targetPosition: { targetRole: "Frontend Engineer", targetIndustry: "Software", targetCompany: "Example Co", jobDescription: "Build accessible React products and improve Core Web Vitals." },
+    professionalProfile: { professionalSummary: "", yearsExperience: "", primarySpecialization: "", coreExpertise: [], keyStrengths: [], majorAchievement: "", valueProposition: "" },
+    workExperience: [{ jobTitle: "Developer", company: "Agency", startDate: "2022", endDate: "", responsibilities: ["Built accessible interfaces"], achievements: [{ action: "Reduced bundle size", result: "Faster page loads", metric: "32%", businessImpact: "" }], tools: ["Vite"], skills: ["React"] }],
+    education: [{ degree: "BSc", institution: "Example University", graduationDate: "2021", coursework: [], achievements: [] }],
+    skills: { technical: ["React", "JavaScript"], tools: ["Vite"], industry: [], professional: [] },
+    projects: [], certifications: [], achievements: [], languages: [], volunteerExperience: [], leadershipExperience: [], publications: [], professionalAssociations: []
+  };
+
+  it("prioritizes the job description and supplied metrics while prohibiting fabricated facts", () => {
+    const prompt = generationPrompt(structuredProfile);
+    const source = profileToSourceText(structuredProfile);
+
+    expect(prompt).toContain("Build accessible React products");
+    expect(prompt).toContain("32%");
+    expect(prompt).toMatch(/Never invent or infer numbers/i);
+    expect(prompt).toMatch(/Separate routine responsibilities from achievements/i);
+    expect(source).toContain("TARGET ROLE: Frontend Engineer");
+    expect(source).toContain("Built accessible interfaces");
+  });
+
+  it("generates from the expanded profile and tolerates empty optional sections", async () => {
+    const generateStructured = vi.fn()
+      .mockResolvedValueOnce({ resumeMarkdown: "# Alex Morgan\n\n## EXPERIENCE\n- Reduced bundle size by 32%, improving page-load performance.\n\n## SKILLS\nReact, JavaScript, Vite" })
+      .mockResolvedValueOnce(analysis(9));
+    const service = createResumeService(config, { generateStructured });
+
+    const result = await service.generate(structuredProfile);
+
+    expect(result.analysis.score).toBe(9);
+    expect(result.resumeMarkdown).toContain("32%");
+    expect(generateStructured.mock.calls[0][0].prompt).toContain("Core Web Vitals");
+  });
+
+  it("fails safely instead of fabricating a resume when AI is not configured", async () => {
+    const service = createResumeService({ geminiApiKey: "", geminiModel: "gemini-flash-latest" });
+    await expect(service.generate(structuredProfile)).rejects.toMatchObject({ status: 503, code: "AI_NOT_CONFIGURED" });
+  });
+
   it("rejects blank, unrelated, and obvious invoice content before an AI call", async () => {
     expect(() => validateExtractedResumeText("short")).toThrow(/could not read enough/i);
     expect(() => validateExtractedResumeText(

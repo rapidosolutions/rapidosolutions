@@ -127,56 +127,9 @@ function parseStructuredResponse(response) {
   }
 }
 
-function fallbackGenerator({ schema }) {
-  console.warn("[AI Warning] GEMINI_API_KEY is not configured in backend environment; using heuristic resume analyzer engine.");
-  if (schema?.properties?.isResume) {
-    return {
-      isResume: true,
-      reason: "Resume text extracted and processed using local analyzer engine.",
-      score: 7,
-      strengths: [
-        "Clear section headings and chronological structure",
-        "Includes work experience, contact details, and skill breakdown",
-        "ATS-compatible text formatting"
-      ],
-      weaknesses: [
-        "Achievements could be quantified with more numerical metrics",
-        "Bullet points can begin with stronger action verbs"
-      ],
-      missingKeywords: ["Project Management", "Cross-Functional Leadership", "KPI Tracking"],
-      actionSteps: [
-        "Add measurable outcomes (percentages, revenue, team size) to past achievements.",
-        "Align technical keywords with target job post descriptions.",
-        "Maintain single-column Markdown layout for seamless ATS scanning."
-      ]
-    };
-  }
-
-  return {
-    resumeMarkdown: `# Professional Resume
-
-## PROFESSIONAL SUMMARY
-Results-driven professional with demonstrated expertise in project execution, problem solving, and cross-functional team collaboration.
-
-## EXPERIENCE
-**Senior Professional** | 2022 – Present
-- Led cross-functional projects resulting in increased operational efficiency and user engagement.
-- Collaborated with key stakeholders to define project goals and deliverables.
-
-**Specialist** | 2020 – 2022
-- Managed day-to-day project workflows and maintained documentation.
-
-## EDUCATION
-**Bachelor of Science** | University
-
-## SKILLS
-Project Management, Strategic Planning, Technical Analysis, Communication`
-  };
-}
-
 function createGeminiGenerator(config) {
   if (!config.geminiApiKey) {
-    return async ({ schema }) => fallbackGenerator({ schema });
+    return async () => { throw new AppError(503, "Resume AI is not configured yet. Add GEMINI_API_KEY to the backend environment.", "AI_NOT_CONFIGURED"); };
   }
 
   const ai = new GoogleGenAI({ apiKey: config.geminiApiKey });
@@ -192,9 +145,9 @@ function createGeminiGenerator(config) {
         }
       });
       return parseStructuredResponse(response);
-    } catch (err) {
-      console.warn(`[AI Warning] Gemini API call failed (${err.message}); falling back to heuristic engine.`);
-      return fallbackGenerator({ schema });
+    } catch (error) {
+      if (error instanceof AppError) throw error;
+      throw new AppError(502, "The resume AI service is temporarily unavailable.", "AI_SERVICE_ERROR");
     }
   };
 }
@@ -232,41 +185,26 @@ SOURCE RESUME
 ${resumeText}`;
 }
 
-function profileToSourceText(profile) {
-  const work = profile.workExperience
-    .map((entry) => `${entry.jobTitle} at ${entry.company} | ${entry.startDate} - ${entry.endDate || "Present"}\n${entry.achievements}`)
-    .join("\n\n");
-  const education = profile.education
-    .map((entry) => `${entry.degree}, ${entry.institution} | ${entry.graduationDate}`)
-    .join("\n");
-
-  return normalizeText(`${profile.personalInfo.name}
-${profile.personalInfo.email} | ${profile.personalInfo.phone} | ${profile.personalInfo.location}
-${profile.personalInfo.linkedin} ${profile.personalInfo.portfolio}
-
-TARGET ROLE
-${profile.targetRole}
-
-PROFESSIONAL SUMMARY
-${profile.professionalSummary}
-
-WORK EXPERIENCE
-${work}
-
-EDUCATION
-${education}
-
-SKILLS
-${profile.skills.join(", ")}
-
-CERTIFICATIONS
-${profile.certifications.join(", ")}`);
+export function profileToSourceText(profile) {
+  const targetRole = profile.targetPosition?.targetRole || profile.targetRole || "";
+  return normalizeText(`CANDIDATE: ${profile.personalInfo.name}
+CONTACT: ${profile.personalInfo.email} ${profile.personalInfo.phone || ""} ${profile.personalInfo.location || ""}
+TARGET ROLE: ${targetRole}
+TARGET INDUSTRY: ${profile.targetPosition?.targetIndustry || ""}
+TARGET COMPANY: ${profile.targetPosition?.targetCompany || ""}
+JOB DESCRIPTION: ${profile.targetPosition?.jobDescription || ""}
+STRUCTURED CANDIDATE FACTS:
+${JSON.stringify(profile, null, 2)}`);
 }
 
-function generationPrompt(profile) {
+export function generationPrompt(profile) {
+  const target = profile.targetPosition || { targetRole: profile.targetRole || "" };
   return `You are an expert ATS resume writer. Build a complete one-column resume in Markdown from the supplied candidate data.
-Use standard headings, reverse chronological experience, concise accomplishment-oriented bullets, and natural keywords for the target role.
-Do not use tables, columns, icons, graphics, HTML, fabricated metrics, fabricated skills, or fabricated experience. Omit empty fields.
+Prioritize, in order: the supplied job description, relevant work experience, quantified achievements, relevant skills and tools, professional profile, education, projects, then certifications and optional sections.
+Target the role ${target.targetRole || "provided by the candidate"}${target.targetIndustry ? ` in ${target.targetIndustry}` : ""}${target.targetCompany ? ` at ${target.targetCompany}` : ""}.
+Extract role-relevant terminology from the vacancy naturally; never keyword-stuff. Separate routine responsibilities from achievements. Turn supplied action, result, metric, and business-impact fields into concise accomplishment bullets.
+Use a metric only when the candidate supplied that exact metric. Never invent or infer numbers, dates, employers, experience, qualifications, certifications, tools, skills, awards, or outcomes. Omit unsupported or empty information.
+Use standard ATS headings, reverse chronological experience, consistent dates, concise action-oriented bullets, and professional language. Do not use tables, columns, icons, graphics, or HTML.
 
 CANDIDATE DATA
 ${JSON.stringify(profile, null, 2)}`;
@@ -358,7 +296,7 @@ export function createResumeService(config, dependencies = {}) {
       const sourceText = profileToSourceText(profile);
       return runRefinementLoop({
         sourceText,
-        targetRole: profile.targetRole,
+        targetRole: profile.targetPosition?.targetRole || profile.targetRole,
         initialPrompt: generationPrompt(profile),
         generateStructured
       });

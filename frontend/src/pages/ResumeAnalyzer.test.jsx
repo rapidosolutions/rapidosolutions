@@ -59,16 +59,16 @@ describe("ResumeAnalyzer", () => {
 
     fireEvent.click(screen.getByRole("tab", { name: "Create From Scratch" }));
     await waitFor(() => expect(screen.queryByRole("heading", { name: "Best version: 9/10" })).not.toBeInTheDocument());
-    expect(screen.getByRole("group", { name: "Personal information" })).toBeInTheDocument();
+    expect(screen.getByRole("group", { name: "2. Personal Information" })).toBeInTheDocument();
   });
 
   it("requires at least three skills before generating a resume", () => {
     render(<MemoryRouter><ResumeAnalyzer /></MemoryRouter>);
     fireEvent.click(screen.getByRole("tab", { name: "Create From Scratch" }));
-    fireEvent.change(screen.getByPlaceholderText("React, JavaScript, Technical SEO"), { target: { value: "React" } });
+    fireEvent.change(screen.getByLabelText(/Technical skills/), { target: { value: "React" } });
     fireEvent.submit(screen.getByRole("button", { name: "Build ATS Resume" }).closest("form"));
 
-    expect(screen.getByRole("alert")).toHaveTextContent("Enter at least three skills separated by commas.");
+    expect(screen.getByRole("alert")).toHaveTextContent("Enter at least three skills across the skill categories.");
     expect(generateResume).not.toHaveBeenCalled();
   });
 });

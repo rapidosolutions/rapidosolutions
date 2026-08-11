@@ -50,5 +50,11 @@ test("resume workspace analyzes, rebuilds, and stays responsive", async ({ page 
   await expect(page.getByText("Built accessible applications.")).toBeVisible();
 
   await page.getByRole("tab", { name: "Create From Scratch" }).click();
-  await expect(page.getByRole("group", { name: "Personal information" })).toBeVisible();
+  await expect(page.getByRole("group", { name: "2. Personal Information" })).toBeVisible();
+  await expect(page.getByLabel(/Job description \/ vacancy text/)).toBeVisible();
+  await expect(page.getByRole("group", { name: "4. Work Experience" })).toBeVisible();
+  await expect(page.getByText(/7. Projects/)).toBeVisible();
+
+  const builderOverflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
+  expect(builderOverflow).toBe(false);
 });

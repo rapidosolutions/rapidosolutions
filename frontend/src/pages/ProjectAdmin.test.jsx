@@ -2,7 +2,7 @@ import { fireEvent, render, screen, waitFor, within } from "@testing-library/rea
 import { MemoryRouter } from "react-router-dom";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import ProjectAdmin from "./ProjectAdmin";
-import { getAdminSession } from "../utils/blogApi";
+import { getAdminSession, loginAdmin } from "../utils/blogApi";
 import { deleteProjectPermanently, listAdminProjects } from "../utils/projectApi";
 
 vi.mock("../utils/blogApi", () => ({
@@ -113,5 +113,34 @@ describe("Project Admin permanent deletion", () => {
     expect(await screen.findByRole("heading", { name: "Customer Reviews (0)" })).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Projects" }));
     expect(screen.getByRole("heading", { name: "Projects (2)" })).toBeInTheDocument();
+  });
+});
+
+describe("Project Admin login", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    getAdminSession.mockRejectedValue(new Error("Not authenticated"));
+    loginAdmin.mockResolvedValue({ admin: { email: "admin@example.com", canManageProjects: true } });
+    listAdminProjects.mockResolvedValue({ projects: [] });
+  });
+
+  it("does not prefill credentials and preserves password-manager and visibility behavior", async () => {
+    renderAdmin();
+
+    const email = await screen.findByLabelText("Administrator Email");
+    const password = screen.getByLabelText("Password");
+    expect(email).toHaveValue("");
+    expect(email).toHaveAttribute("autocomplete", "username");
+    expect(password).toHaveValue("");
+    expect(password).toHaveAttribute("autocomplete", "current-password");
+    expect(password).toHaveAttribute("type", "password");
+
+    fireEvent.change(email, { target: { value: "admin@example.com" } });
+    fireEvent.change(password, { target: { value: "valid-password" } });
+    fireEvent.click(screen.getByRole("button", { name: "Show" }));
+    expect(password).toHaveAttribute("type", "text");
+    fireEvent.submit(screen.getByRole("button", { name: "Sign In" }).closest("form"));
+
+    await waitFor(() => expect(loginAdmin).toHaveBeenCalledWith({ email: "admin@example.com", password: "valid-password" }));
   });
 });

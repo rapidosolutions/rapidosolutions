@@ -119,8 +119,12 @@ test("project admin is hidden from public navigation and requires login", async 
   await page.route("**/api/auth/session", (route) => route.fulfill({ status: 401, contentType: "application/json", body: JSON.stringify({ error: "Administrator login required." }) }));
   await page.goto("/project-admin");
   await expect(page.getByRole("heading", { name: "Project Administrator Login" })).toBeVisible();
-  await expect(page.getByLabel("Administrator Email")).toBeVisible();
-  await expect(page.getByLabel("Password")).toBeVisible();
+  await expect(page.getByLabel("Administrator Email")).toHaveValue("");
+  await expect(page.getByLabel("Administrator Email")).toHaveAttribute("autocomplete", "username");
+  await expect(page.getByLabel("Password")).toHaveValue("");
+  await expect(page.getByLabel("Password")).toHaveAttribute("autocomplete", "current-password");
+  await page.getByRole("button", { name: "Show" }).click();
+  await expect(page.getByLabel("Password")).toHaveAttribute("type", "text");
   await expect(page.getByText(/create account|sign up/i)).toHaveCount(0);
 
   await page.goto("/");

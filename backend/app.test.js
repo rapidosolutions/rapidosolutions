@@ -267,6 +267,20 @@ describe("Rapido API", () => {
     });
     expect(generated.status).toBe(200);
 
+    const structured = await request(context.app).post("/api/resume/generate").send({
+      personalInfo: { name: "Alex Morgan", email: "alex@example.com" },
+      targetPosition: { targetRole: "Frontend Engineer", targetIndustry: "Software", targetCompany: "", jobDescription: "Build accessible React products." },
+      professionalProfile: { coreExpertise: ["Accessibility"], keyStrengths: ["Collaboration"] },
+      workExperience: [{ jobTitle: "Developer", company: "Example Co", startDate: "2022", responsibilities: ["Built interfaces"], achievements: [{ action: "Reduced bundle size", result: "Faster loads", metric: "32%", businessImpact: "" }], tools: ["Vite"], skills: ["React"] }],
+      education: [{ degree: "BSc", institution: "Example University", graduationDate: "2021", coursework: [], achievements: [] }],
+      skills: { technical: ["React", "JavaScript"], tools: ["Vite"], industry: [], professional: [] }
+    });
+    expect(structured.status).toBe(200);
+    expect(context.services.resumeService.generate).toHaveBeenLastCalledWith(expect.objectContaining({
+      targetPosition: expect.objectContaining({ targetRole: "Frontend Engineer", jobDescription: "Build accessible React products." }),
+      skills: expect.objectContaining({ technical: ["React", "JavaScript"] })
+    }));
+
     const exported = await request(context.app).post("/api/resume/export/pdf").send({ markdown: `# Alex Morgan\n\n${"Professional experience and qualifications. ".repeat(4)}`, fileName: "Alex Resume" });
     expect(exported.status).toBe(200);
     expect(exported.headers["content-type"]).toContain("application/pdf");

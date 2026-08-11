@@ -130,36 +130,57 @@ export const rebuildResumeSchema = z.object({
   analysis: resumeAnalysisShape.optional()
 });
 
+const resumeList = (maxItems, itemMax = 200) => z.array(z.string().trim().min(1).max(itemMax)).max(maxItems).default([]);
+const quantifiedAchievementSchema = z.object({ action: optionalText(500), result: optionalText(500), metric: optionalText(120), businessImpact: optionalText(500) });
 const workExperienceSchema = z.object({
-  jobTitle: shortText(160),
-  company: shortText(160),
-  startDate: shortText(40),
-  endDate: optionalText(40),
-  achievements: shortText(3000)
-});
+  jobTitle: shortText(160), company: shortText(160), location: optionalText(160),
+  employmentType: z.enum(["", "Full-time", "Part-time", "Contract", "Freelance", "Internship", "Temporary"]).optional().default(""),
+  department: optionalText(160), startDate: shortText(40), endDate: optionalText(40), current: z.boolean().optional().default(false), roleScope: optionalText(1000),
+  responsibilities: resumeList(30, 500),
+  achievements: z.union([z.string().trim().min(1).max(3000), z.array(quantifiedAchievementSchema).max(20)]).default([]),
+  tools: resumeList(30, 100), skills: resumeList(30, 100)
+}).transform((entry) => ({ ...entry, responsibilities: typeof entry.achievements === "string" && !entry.responsibilities.length ? entry.achievements.split(/\r?\n/).map((item) => item.trim()).filter(Boolean) : entry.responsibilities, achievements: typeof entry.achievements === "string" ? [] : entry.achievements }))
+  .refine((entry) => entry.responsibilities.length || entry.achievements.some((item) => Object.values(item).some(Boolean)), { message: "Add at least one responsibility or achievement." });
 
 const educationSchema = z.object({
-  degree: shortText(200),
-  institution: shortText(200),
-  graduationDate: shortText(40)
+  degree: shortText(200), field: optionalText(200), institution: shortText(200), location: optionalText(160), startDate: optionalText(40), graduationDate: shortText(40),
+  gpa: optionalText(40), honors: optionalText(500), coursework: resumeList(30, 200), achievements: resumeList(20, 500)
 });
+const projectResumeSchema = z.object({ name: shortText(200), role: optionalText(160), type: optionalText(120), description: optionalText(2000), contributions: resumeList(20, 500), technologies: resumeList(30, 100), skills: resumeList(30, 100), result: optionalText(1000), metric: optionalText(200), projectUrl: optionalText(500), githubUrl: optionalText(500) });
+const certificationSchema = z.object({ name: shortText(200), issuer: optionalText(200), issueDate: optionalText(40), expirationDate: optionalText(40), credentialId: optionalText(200), credentialUrl: optionalText(500) });
+const awardSchema = z.object({ title: shortText(200), issuer: optionalText(200), date: optionalText(40), description: optionalText(1000), significance: optionalText(1000) });
+const experienceExtraSchema = z.object({ organization: shortText(200), role: optionalText(160), dates: optionalText(100), contributions: resumeList(20, 500), achievements: resumeList(20, 500) });
 
 export const generateResumeSchema = z.object({
   personalInfo: z.object({
     name: shortText(120),
     email: z.string().trim().toLowerCase().email().max(254),
-    phone: optionalText(50),
-    location: optionalText(160),
-    linkedin: optionalText(500),
-    portfolio: optionalText(500)
+    phone: optionalText(50), location: optionalText(160), linkedin: optionalText(500), portfolio: optionalText(500),
+    github: optionalText(500), website: optionalText(500), professionalHeadline: optionalText(200)
   }),
-  targetRole: shortText(160),
+  targetRole: optionalText(160),
   professionalSummary: optionalText(2000),
+  targetPosition: z.object({ targetRole: optionalText(160), targetIndustry: optionalText(160), targetCompany: optionalText(200), jobDescription: optionalText(12000) }).optional().default({}),
+  professionalProfile: z.object({ professionalSummary: optionalText(2000), yearsExperience: optionalText(50), primarySpecialization: optionalText(200), coreExpertise: resumeList(30, 100), keyStrengths: resumeList(30, 150), majorAchievement: optionalText(1500), valueProposition: optionalText(1500) }).optional().default({}),
   workExperience: z.array(workExperienceSchema).min(1).max(12),
   education: z.array(educationSchema).min(1).max(8),
-  skills: z.array(shortText(100)).min(3).max(50),
-  certifications: z.array(z.string().trim().max(200)).max(20).default([])
-});
+  skills: z.union([z.array(shortText(100)).min(3).max(50), z.object({ technical: resumeList(50, 100), tools: resumeList(50, 100), industry: resumeList(50, 100), professional: resumeList(50, 100) })]),
+  projects: z.array(projectResumeSchema).max(20).default([]),
+  certifications: z.union([z.array(z.string().trim().min(1).max(200)).max(20), z.array(certificationSchema).max(20)]).default([]),
+  achievements: z.array(awardSchema).max(20).default([]),
+  languages: z.array(z.object({ language: shortText(100), proficiency: optionalText(100) })).max(20).default([]),
+  volunteerExperience: z.array(experienceExtraSchema).max(20).default([]), leadershipExperience: z.array(experienceExtraSchema).max(20).default([]),
+  publications: z.array(z.object({ title: shortText(300), publisher: optionalText(200), date: optionalText(40), url: optionalText(500) })).max(30).default([]),
+  professionalAssociations: z.array(z.object({ organization: shortText(200), role: optionalText(160), dates: optionalText(100) })).max(20).default([])
+}).refine((value) => value.targetPosition.targetRole || value.targetRole, { message: "Target role is required.", path: ["targetPosition", "targetRole"] })
+  .refine((value) => Array.isArray(value.skills) ? value.skills.length >= 3 : Object.values(value.skills).flat().length >= 3, { message: "Enter at least three skills.", path: ["skills"] })
+  .transform((value) => ({
+    ...value,
+    targetPosition: { ...value.targetPosition, targetRole: value.targetPosition.targetRole || value.targetRole },
+    professionalProfile: { ...value.professionalProfile, professionalSummary: value.professionalProfile.professionalSummary || value.professionalSummary },
+    skills: Array.isArray(value.skills) ? { technical: value.skills, tools: [], industry: [], professional: [] } : value.skills,
+    certifications: value.certifications.map((item) => typeof item === "string" ? { name: item, issuer: "", issueDate: "", expirationDate: "", credentialId: "", credentialUrl: "" } : item)
+  }));
 
 export const exportResumeSchema = z.object({
   markdown: z.string().trim().min(100).max(30000),

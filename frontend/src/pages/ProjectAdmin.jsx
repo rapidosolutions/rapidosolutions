@@ -87,7 +87,7 @@ function DeleteProjectDialog({ project, confirmation, error, loading, fallbackFo
 export default function ProjectAdmin() {
   const [admin, setAdmin] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
-  const [credentials, setCredentials] = useState({ email: "rapidosolutionsco@outlook.com", password: "" });
+  const [credentials, setCredentials] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
   const [projects, setProjects] = useState([]);
   const [activeSection, setActiveSection] = useState("projects");

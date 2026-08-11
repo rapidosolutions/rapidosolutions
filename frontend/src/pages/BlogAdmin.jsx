@@ -45,7 +45,7 @@ function Notice({ type = "success", children }) {
 export default function BlogAdmin() {
   const [admin, setAdmin] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
-  const [credentials, setCredentials] = useState({ email: "rapidosolutionsco@outlook.com", password: "" });
+  const [credentials, setCredentials] = useState({ email: "", password: "" });
   const [passwordForm, setPasswordForm] = useState({ currentPassword: "", newPassword: "", confirmPassword: "" });
   const [activeTab, setActiveTab] = useState("posts");
   const [blogs, setBlogs] = useState([]);

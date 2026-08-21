@@ -20,6 +20,7 @@ const Reviews = lazy(() => import("./pages/Reviews"));
 const ResumeAnalyzer = lazy(() => import("./pages/ResumeAnalyzer"));
 const Contact = lazy(() => import("./pages/Contact"));
 const NotFound = lazy(() => import("./pages/NotFound"));
+const AdminRoutes = lazy(() => import("./admin/routes/AdminRoutes"));
 
 function ScrollToTop() {
   const { hash, pathname } = useLocation();
@@ -68,14 +69,15 @@ function StickyReviewCTA() {
 
 export default function App() {
   const location = useLocation();
+  const isCvAdmin = location.pathname.startsWith("/system-x7k2");
 
   return (
     <>
       <ScrollToTop />
-      <Navbar />
+      {!isCvAdmin ? <Navbar /> : null}
       <AnimatePresence mode="wait">
         <Suspense fallback={<div className="min-h-[45vh] bg-white" aria-label="Loading page" />}>
-          <Routes location={location} key={location.pathname}>
+          <Routes location={location} key={isCvAdmin ? "cv-admin" : location.pathname}>
             <Route path="/" element={<Home />} />
             <Route path="/about" element={<About />} />
             <Route path="/web-services" element={<Services />} />
@@ -92,13 +94,18 @@ export default function App() {
             <Route path="/blog-admin" element={<BlogAdmin />} />
             <Route path="/project-admin" element={<ProjectAdmin />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/system-x7k2/*" element={<AdminRoutes />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
       </AnimatePresence>
-      <StickyReviewCTA />
-      <BackToTopButton />
-      <Footer />
+      {!isCvAdmin ? (
+        <>
+          <StickyReviewCTA />
+          <BackToTopButton />
+          <Footer />
+        </>
+      ) : null}
     </>
   );
 }

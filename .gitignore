@@ -12,6 +12,7 @@ frontend/dist/
 backend/.env
 frontend/.env
 backend/uploads/
+backend/data/
 coverage/
 backend/coverage/
 playwright-report/

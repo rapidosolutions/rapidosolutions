@@ -153,6 +153,14 @@ describe("Rapido API", () => {
     expect(response.headers["x-content-type-options"]).toBe("nosniff");
   });
 
+  it("returns 200 with degraded status when database is disconnected", async () => {
+    const degradedApp = createApp({ config, ...context.services, databaseStatus: () => 0 });
+    const response = await request(degradedApp).get("/api/health");
+    expect(response.status).toBe(200);
+    expect(response.body.status).toBe("degraded");
+    expect(response.body.database).toBe("disconnected");
+  });
+
   it("returns public blog posts without authentication", async () => {
     const response = await request(context.app).get("/api/blogs");
     expect(response.status).toBe(200);

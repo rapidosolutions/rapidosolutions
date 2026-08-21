@@ -6,10 +6,16 @@ Supabase stores private backend data for Rapido. The public website never connec
 
 1. Open the Rapido project in the Supabase dashboard.
 2. Open SQL Editor and create a new query.
-3. Run `migrations/001_initial_schema.sql`, `migrations/002_reviews.sql`, `migrations/003_projects.sql`, and `migrations/004_review_moderation.sql` in that order.
-4. Confirm that `admins`, `contact_messages`, `legacy_blogs`, `reviews`, and `projects` appear in Table Editor.
+3. Run `migrations/001_initial_schema.sql`, `migrations/002_reviews.sql`, `migrations/003_projects.sql`, `migrations/004_review_moderation.sql`, and `migrations/005_cv_admin.sql` in that order.
+4. Confirm that `admins`, `contact_messages`, `legacy_blogs`, `reviews`, `projects`, `cvs`, and `admin_users` appear in Table Editor.
 
 The migration enables Row Level Security and does not create public `anon` or `authenticated` policies. The Express backend uses the private service-role credential and is the only application allowed to access these tables.
+
+## CV admin bootstrap
+
+Set `CV_ADMIN_PASSWORD` (min 12 characters) once so the API can create the first `super_admin` in `admin_users` on startup. After first login, open `/system-x7k2/security` and enable TOTP 2FA. Remove or rotate the bootstrap password afterward.
+
+The CV console is unlisted at `/system-x7k2` (not linked from the public site). Public resume analysis still works as before; successful PDF analyses are also persisted into `cvs` for the admin panel. Migration file: `005_cv_admin.sql`.
 
 ## Configure the backend
 

@@ -110,11 +110,24 @@ Visit the unlisted `/project-admin` route and sign in with a manually provisione
 
 Project access is controlled by `admins.can_manage_projects`. Migration `003_projects.sql` grants this permission to administrators that already exist when it is first run, then makes `false` the default for manually inserted future accounts. The configured bootstrap administrator is explicitly created with access. Project images use the existing authenticated Cloudinary upload path in production and local backend uploads during development.
 
+## CV Admin Panel & WhatsApp Portal
+
+Private unlisted console (not in navbar/footer/`robots` allow list):
+
+- Login: `/system-x7k2/login`
+- WhatsApp QR portal: `/system-x7k2/whatsapp`
+
+Full live setup (passwords, email, Resend, Cloudinary, Baileys WhatsApp, deploy steps):
+
+→ **[docs/CV_ADMIN_LIVE_SETUP.md](docs/CV_ADMIN_LIVE_SETUP.md)**
+
+Apply migration `backend/supabase/migrations/005_cv_admin.sql`, set `CV_ADMIN_EMAIL` / `CV_ADMIN_PASSWORD` on the API once to bootstrap the first `super_admin`, then enable 2FA inside the console.
+
 ## Production Deployment
 
 ### Supabase
 
-Create a Supabase project and run `backend/supabase/migrations/001_initial_schema.sql`, followed by `002_reviews.sql`, `003_projects.sql`, and `004_review_moderation.sql`, in its SQL Editor. Add the Project URL as `SUPABASE_URL` and the private service-role key as `SUPABASE_SERVICE_ROLE_KEY` in Belmo or Render. Never add the service-role key to Vercel or any `VITE_` variable. Row Level Security is enabled and the website accesses these private tables only through the Express backend. Review submissions use conservative deterministic moderation: trustworthy submissions may be approved while suspicious, duplicate, or uncertain submissions remain pending. Only approved reviews and published projects are returned by public endpoints.
+Create a Supabase project and run `backend/supabase/migrations/001_initial_schema.sql`, followed by `002_reviews.sql`, `003_projects.sql`, `004_review_moderation.sql`, and `005_cv_admin.sql`, in its SQL Editor. Add the Project URL as `SUPABASE_URL` and the private service-role key as `SUPABASE_SERVICE_ROLE_KEY` in Belmo or Render. Never add the service-role key to Vercel or any `VITE_` variable. Row Level Security is enabled and the website accesses these private tables only through the Express backend. Review submissions use conservative deterministic moderation: trustworthy submissions may be approved while suspicious, duplicate, or uncertain submissions remain pending. Only approved reviews and published projects are returned by public endpoints.
 
 ### Cloudinary
 

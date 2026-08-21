@@ -51,6 +51,37 @@ export function createEmailService(config) {
       };
     },
 
+    async sendCustom({ to, subject, html, replyTo }) {
+      if (!configured) {
+        throw new Error("Email delivery is not configured in this environment.");
+      }
+      const result = await resend.emails.send({
+        from: config.emailFrom,
+        to,
+        subject,
+        html,
+        ...(replyTo ? { replyTo } : {})
+      });
+      if (result?.error) throw new Error(result.error.message || "Email delivery failed.");
+      return result;
+    },
+
+    async sendCvAdminInvite({ email, fullName, temporaryPassword }) {
+      if (!configured) {
+        return { status: "not_configured" };
+      }
+      const safeName = escapeHtml(fullName || email);
+      const result = await resend.emails.send({
+        from: config.emailFrom,
+        to: email,
+        subject: "Your Rapido CV Admin invitation",
+        html: `<p>Hello ${safeName},</p><p>You have been invited to the Rapido CV Admin panel.</p><p>Sign in with this email and temporary password:</p><p><strong>${escapeHtml(temporaryPassword)}</strong></p><p>Change your password and enable 2FA after first login.</p><p>Rapido Solutions Co.</p>`
+      });
+      return result?.error
+        ? { status: "failed", error: result.error.message }
+        : { status: "sent" };
+    },
+
     async sendReviewNotification(review) {
       if (!configured) {
         return {

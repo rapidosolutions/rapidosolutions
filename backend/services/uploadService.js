@@ -57,6 +57,38 @@ export function createUploadService(config) {
       };
     },
 
+    async uploadRaw(file, { folder = "rapido/cvs", resourceType = "raw" } = {}) {
+      if (cloudinaryConfigured) {
+        const result = await new Promise((resolve, reject) => {
+          const stream = cloudinary.uploader.upload_stream(
+            {
+              folder,
+              resource_type: resourceType,
+              use_filename: true,
+              unique_filename: true
+            },
+            (error, uploadResult) => (error ? reject(error) : resolve(uploadResult))
+          );
+          stream.end(file.buffer);
+        });
+        return {
+          url: result.secure_url,
+          publicId: result.public_id,
+          storageType: "cloudinary"
+        };
+      }
+
+      await fs.mkdir(config.uploadDir, { recursive: true });
+      const extension = file.mimetype === "application/pdf" ? ".pdf" : path.extname(file.originalname || "") || ".bin";
+      const fileName = `${crypto.randomUUID()}${extension}`;
+      await fs.writeFile(path.join(config.uploadDir, fileName), file.buffer);
+      return {
+        url: `${config.apiPublicUrl}/uploads/${fileName}`,
+        publicId: `local:${fileName}`,
+        storageType: "local"
+      };
+    },
+
     async remove(asset) {
       if (!asset?.publicId) return;
       if (asset.storageType === "cloudinary" && cloudinaryConfigured) {

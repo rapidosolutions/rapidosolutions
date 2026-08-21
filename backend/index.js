@@ -10,6 +10,10 @@ import { createUploadService } from "./services/uploadService.js";
 import { createReviewService } from "./services/reviewService.js";
 import { createResumeService } from "./services/resumeService.js";
 import { createProjectService } from "./services/projectService.js";
+import { createCvAdminAuthService } from "./services/cvAdminAuthService.js";
+import { createCvService } from "./services/cvService.js";
+import { createCvDocumentService } from "./services/cvDocumentService.js";
+import { createWhatsAppService } from "./services/whatsappService.js";
 
 async function start() {
   const supabase = await connectDatabase(config);
@@ -22,13 +26,34 @@ async function start() {
   const reviewService = createReviewService({ supabase, emailService });
   const resumeService = createResumeService(config);
   const projectService = createProjectService({ supabase, uploadService });
+  const cvAdminAuthService = createCvAdminAuthService({ supabase, config, emailService });
+  const cvService = createCvService({ supabase, uploadService });
+  const cvDocumentService = createCvDocumentService({ supabase, uploadService, emailService });
+  const whatsappService = createWhatsAppService({ config, cvDocumentService });
 
   if (supabase && databaseStatus()) {
     await authService.bootstrapAdmin().catch((err) => console.warn("[Admin Bootstrap Warning]", err.message));
     await blogService.seed().catch((err) => console.warn("[Blog Seed Warning]", err.message));
+    await cvAdminAuthService
+      .bootstrapSuperAdmin()
+      .catch((err) => console.warn("[CV Admin Bootstrap Warning]", err.message));
   }
 
-  const app = createApp({ config, authService, blogService, contactService, reviewService, resumeService, projectService, uploadService, databaseStatus });
+  const app = createApp({
+    config,
+    authService,
+    blogService,
+    contactService,
+    reviewService,
+    resumeService,
+    projectService,
+    uploadService,
+    databaseStatus,
+    cvAdminAuthService,
+    cvService,
+    cvDocumentService,
+    whatsappService
+  });
   const server = http.createServer(app);
   const host = process.env.HOST || "0.0.0.0";
   server.listen(config.port, host, () => console.log(`Rapido API listening on http://${host}:${config.port}`));
@@ -36,6 +61,7 @@ async function start() {
   const shutdown = (signal) => {
     console.log(`${signal} received. Closing Rapido API.`);
     server.close(async () => {
+      await whatsappService.disconnect({ logout: false }).catch(() => undefined);
       await disconnectDatabase();
       process.exit(0);
     });

@@ -60,12 +60,15 @@ export function loadConfig(env = process.env) {
     jwtSecret,
     jwtExpiresIn: env.JWT_EXPIRES_IN || "8h",
     cookieName: env.COOKIE_NAME || "rapido_admin_session",
+    cvAdminCookieName: env.CV_ADMIN_COOKIE_NAME || "rapido_cv_admin_session",
     cookieSecure: boolean(env.COOKIE_SECURE, isProduction),
     cookieSameSite,
     frontendOrigins,
     trustProxy: boolean(env.TRUST_PROXY, isProduction),
     adminEmail: String(env.ADMIN_EMAIL || "rapidosolutionsco@outlook.com").toLowerCase(),
     adminPassword: env.ADMIN_PASSWORD || "",
+    cvAdminEmail: String(env.CV_ADMIN_EMAIL || env.ADMIN_EMAIL || "rapidosolutionsco@outlook.com").toLowerCase(),
+    cvAdminPassword: env.CV_ADMIN_PASSWORD || "",
     contactRecipientEmail: String(env.CONTACT_RECIPIENT_EMAIL || "rapidosolutionsco@outlook.com").toLowerCase(),
     resendApiKey: cleanOrigin(env.RESEND_API_KEY || ""),
     emailFrom: cleanOrigin(env.EMAIL_FROM || ""),
@@ -77,7 +80,8 @@ export function loadConfig(env = process.env) {
     apiPublicUrl: cleanOrigin(env.API_PUBLIC_URL || `http://localhost:${Number(env.PORT || 4174)}`),
     uploadDir: path.join(__dirname, "uploads"),
     maxUploadBytes: 5 * 1024 * 1024,
-    maxResumeBytes: 5 * 1024 * 1024
+    maxResumeBytes: 5 * 1024 * 1024,
+    whatsappAuthDir: cleanOrigin(env.WHATSAPP_AUTH_DIR || "") || path.join(__dirname, "data/whatsapp-auth")
   };
 
   if (!["lax", "strict", "none"].includes(config.cookieSameSite)) {

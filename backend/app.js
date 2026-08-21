@@ -28,6 +28,7 @@ import {
 } from "./middleware/validation.js";
 import { AppError, asyncHandler } from "./utils/http.js";
 import { sampleResumeText } from "./services/resumeService.js";
+import { registerCvAdminRoutes } from "./routes/cvAdminRoutes.js";
 
 const imageTypes = new Set(["image/jpeg", "image/png", "image/webp"]);
 
@@ -48,16 +49,19 @@ export function isAllowedOrigin(origin, allowedOrigins = []) {
   return allowedOrigins.some((pattern) => {
     const cleanPattern = pattern.trim().toLowerCase().replace(/\/$/, "");
     if (cleanPattern === "*" || cleanPattern === cleanOrigin) return true;
-    
+
     if (cleanOrigin.endsWith(`://${cleanPattern}`)) return true;
-    
+
     if (cleanPattern.includes("*")) {
-      const regexPattern = "^" + cleanPattern
-        .replace(/[-\/\\^$+?.()|[\]{}]/g, "\\$&")
-        .replace(/\*/g, ".*") + "$";
+      const regexPattern =
+        "^" +
+        cleanPattern
+          .replace(/[-\/\\^$+?.()|[\]{}]/g, "\\$&")
+          .replace(/\*/g, ".*") +
+        "$";
       return new RegExp(regexPattern, "i").test(cleanOrigin);
     }
-    
+
     return false;
   });
 }
@@ -71,7 +75,11 @@ export function createApp({
   projectService,
   resumeService,
   uploadService,
-  databaseStatus
+  databaseStatus,
+  cvAdminAuthService,
+  cvService,
+  cvDocumentService,
+  whatsappService
 }) {
   const app = express();
   const session = createSessionManager(config);
@@ -83,7 +91,12 @@ export function createApp({
     storage: multer.memoryStorage(),
     limits: { fileSize: config.maxUploadBytes, files: 1 },
     fileFilter: (req, file, callback) => {
-      callback(imageTypes.has(file.mimetype) ? null : new AppError(400, "Use a JPG, PNG, or WebP image.", "INVALID_FILE_TYPE"), imageTypes.has(file.mimetype));
+      callback(
+        imageTypes.has(file.mimetype)
+          ? null
+          : new AppError(400, "Use a JPG, PNG, or WebP image.", "INVALID_FILE_TYPE"),
+        imageTypes.has(file.mimetype)
+      );
     }
   });
   const resumeUpload = multer({
@@ -104,21 +117,23 @@ export function createApp({
   });
   app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" } }));
   app.use(compression());
-  app.use(cors({
-    credentials: true,
-    origin(origin, callback) {
-      if (!origin || isAllowedOrigin(origin, config.frontendOrigins)) {
-        return callback(null, true);
-      }
-      console.warn(`[CORS Warning] Rejected request from origin: "${origin}". Allowed origins:`, config.frontendOrigins);
-      return callback(null, false);
-    },
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization", "X-Request-Id", "X-CSRF-Token", "Accept"],
-    optionsSuccessStatus: 200
-  }));
-  app.use(express.json({ limit: "256kb" }));
-  app.use(express.urlencoded({ extended: false, limit: "64kb" }));
+  app.use(
+    cors({
+      credentials: true,
+      origin(origin, callback) {
+        if (!origin || isAllowedOrigin(origin, config.frontendOrigins)) {
+          return callback(null, true);
+        }
+        console.warn(`[CORS Warning] Rejected request from origin: "${origin}". Allowed origins:`, config.frontendOrigins);
+        return callback(null, false);
+      },
+      methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+      allowedHeaders: ["Content-Type", "Authorization", "X-Request-Id", "X-CSRF-Token", "Accept"],
+      optionsSuccessStatus: 200
+    })
+  );
+  app.use(express.json({ limit: "1mb" }));
+  app.use(express.urlencoded({ extended: false, limit: "1mb" }));
   app.use(cookieParser());
   app.use(limiter(15 * 60 * 1000, 300, "Too many requests. Please try again shortly."));
 
@@ -126,19 +141,25 @@ export function createApp({
 
   app.get("/api/health", (req, res) => {
     const dbReady = databaseStatus();
-    res.status(dbReady ? 200 : 503).json({
+    res.status(200).json({
       status: dbReady ? "ok" : "degraded",
       database: dbReady ? "connected" : "disconnected",
       timestamp: new Date().toISOString()
     });
   });
 
-  app.get("/api/blogs", asyncHandler(async (req, res) => {
-    res.json({ blogs: await blogService.listPublic() });
-  }));
-  app.get("/api/blogs/:slug", asyncHandler(async (req, res) => {
-    res.json({ blog: await blogService.getPublic(req.params.slug) });
-  }));
+  app.get(
+    "/api/blogs",
+    asyncHandler(async (req, res) => {
+      res.json({ blogs: await blogService.listPublic() });
+    })
+  );
+  app.get(
+    "/api/blogs/:slug",
+    asyncHandler(async (req, res) => {
+      res.json({ blog: await blogService.getPublic(req.params.slug) });
+    })
+  );
 
   app.get("/api/projects", asyncHandler(async (req, res) => {
     res.json({ projects: await projectService.listPublic() });
@@ -186,7 +207,19 @@ export function createApp({
     resumeUpload.single("resume"),
     validateBody(sampleResumeSchema),
     asyncHandler(async (req, res) => {
-      res.json(await resumeService.analyzePdf(req.file, req.validatedBody));
+      const result = await resumeService.analyzePdf(req.file, req.validatedBody);
+      if (cvService?.persistAnalyzedResume && result?.analysis?.isResume) {
+        cvService
+          .persistAnalyzedResume({
+            file: req.file,
+            resumeText: result.resumeText,
+            analysis: result.analysis,
+            targetRole: req.validatedBody?.targetRole || "",
+            source: "public_upload"
+          })
+          .catch((err) => console.warn("[CV Persist]", err.message));
+      }
+      res.json(result);
     })
   );
   app.post(
@@ -194,7 +227,19 @@ export function createApp({
     limiter(60 * 60 * 1000, 10, "Resume analysis limit reached. Please try again later."),
     validateBody(sampleResumeSchema),
     asyncHandler(async (req, res) => {
-      res.json(await resumeService.analyzeText(sampleResumeText, req.validatedBody));
+      const result = await resumeService.analyzeText(sampleResumeText, req.validatedBody);
+      if (cvService?.persistAnalyzedResume && result?.analysis?.isResume) {
+        cvService
+          .persistAnalyzedResume({
+            file: null,
+            resumeText: result.resumeText,
+            analysis: result.analysis,
+            targetRole: req.validatedBody?.targetRole || "",
+            source: "sample"
+          })
+          .catch((err) => console.warn("[CV Persist]", err.message));
+      }
+      res.json(result);
     })
   );
   app.post(
@@ -218,7 +263,9 @@ export function createApp({
     limiter(60 * 60 * 1000, 30, "Resume export limit reached. Please try again later."),
     validateBody(exportResumeSchema),
     asyncHandler(async (req, res) => {
-      const safeName = (req.validatedBody.fileName || "ats-resume").replace(/[^a-z0-9_-]+/gi, "-").replace(/^-+|-+$/g, "") || "ats-resume";
+      const safeName =
+        (req.validatedBody.fileName || "ats-resume").replace(/[^a-z0-9_-]+/gi, "-").replace(/^-+|-+$/g, "") ||
+        "ats-resume";
       const pdf = await resumeService.exportPdf(req.validatedBody.markdown);
       res.set({
         "Content-Type": "application/pdf",
@@ -246,26 +293,49 @@ export function createApp({
     session.clear(res);
     res.status(204).end();
   });
-  app.patch("/api/auth/password", session.requireAuth, session.requireCsrf, validateBody(passwordChangeSchema), asyncHandler(async (req, res) => {
-    await authService.changePassword(req.admin.sub, req.validatedBody.currentPassword, req.validatedBody.newPassword);
-    session.clear(res);
-    res.status(204).end();
-  }));
+  app.patch(
+    "/api/auth/password",
+    session.requireAuth,
+    session.requireCsrf,
+    validateBody(passwordChangeSchema),
+    asyncHandler(async (req, res) => {
+      await authService.changePassword(req.admin.sub, req.validatedBody.currentPassword, req.validatedBody.newPassword);
+      session.clear(res);
+      res.status(204).end();
+    })
+  );
 
   app.use("/api/admin", session.requireAuth);
-  app.get("/api/admin/blogs", asyncHandler(async (req, res) => {
-    res.json({ blogs: await blogService.listAdmin() });
-  }));
-  app.post("/api/admin/blogs", session.requireCsrf, validateBody(blogSchema), asyncHandler(async (req, res) => {
-    res.status(201).json({ blog: await blogService.create(req.validatedBody) });
-  }));
-  app.put("/api/admin/blogs/:id", session.requireCsrf, validateBody(blogSchema), asyncHandler(async (req, res) => {
-    res.json({ blog: await blogService.update(req.params.id, req.validatedBody) });
-  }));
-  app.delete("/api/admin/blogs/:id", session.requireCsrf, asyncHandler(async (req, res) => {
-    await blogService.remove(req.params.id);
-    res.status(204).end();
-  }));
+  app.get(
+    "/api/admin/blogs",
+    asyncHandler(async (req, res) => {
+      res.json({ blogs: await blogService.listAdmin() });
+    })
+  );
+  app.post(
+    "/api/admin/blogs",
+    session.requireCsrf,
+    validateBody(blogSchema),
+    asyncHandler(async (req, res) => {
+      res.status(201).json({ blog: await blogService.create(req.validatedBody) });
+    })
+  );
+  app.put(
+    "/api/admin/blogs/:id",
+    session.requireCsrf,
+    validateBody(blogSchema),
+    asyncHandler(async (req, res) => {
+      res.json({ blog: await blogService.update(req.params.id, req.validatedBody) });
+    })
+  );
+  app.delete(
+    "/api/admin/blogs/:id",
+    session.requireCsrf,
+    asyncHandler(async (req, res) => {
+      await blogService.remove(req.params.id);
+      res.status(204).end();
+    })
+  );
   app.post(
     "/api/admin/uploads/blog-cover",
     limiter(60 * 60 * 1000, 30, "Upload limit reached. Please try again later."),
@@ -347,6 +417,20 @@ export function createApp({
       res.status(201).json({ asset: await uploadService.upload(req.file, { folder: "rapido/projects" }) });
     })
   );
+
+  if (cvAdminAuthService && cvService && cvDocumentService) {
+    registerCvAdminRoutes(app, {
+      config,
+      cvAdminAuthService,
+      cvService,
+      cvDocumentService,
+      uploadService,
+      limiter,
+      imageUpload: upload,
+      pdfUpload: resumeUpload,
+      whatsappService
+    });
+  }
 
   app.use((req, res, next) => next(new AppError(404, "Endpoint not found.", "NOT_FOUND")));
   app.use((error, req, res, next) => {

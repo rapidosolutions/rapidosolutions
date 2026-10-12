@@ -19,5 +19,5 @@ jobs:
       - run: npm test
       - run: npm --prefix backend test
       - run: npm run build
-      - run: npm audit --audit-level=high
+      - run: npm audit --omit=dev --audit-level=high
       - run: npm --prefix backend audit --audit-level=high

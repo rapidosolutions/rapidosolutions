@@ -4,6 +4,7 @@
   "framework": "vite",
   "cleanUrls": true,
   "rewrites": [
+    { "source": "/api/(.*)", "destination": "https://rapido-api-e4c0.onbelmo.uk/api/$1" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }

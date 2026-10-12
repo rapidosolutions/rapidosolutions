@@ -6,6 +6,7 @@ import Footer from "./components/layout/Footer";
 import BackToTopButton from "./components/common/BackToTopButton";
 import Button from "./components/common/Button";
 import Home from "./pages/Home";
+import { PortalProvider } from "./portal/PortalContext";
 
 const About = lazy(() => import("./pages/About"));
 const Services = lazy(() => import("./pages/Services"));
@@ -15,12 +16,13 @@ const HumanResourceServices = lazy(() => import("./pages/HumanResourceServices")
 const Blogs = lazy(() => import("./pages/Blogs"));
 const BlogDetail = lazy(() => import("./pages/BlogDetail"));
 const BlogAdmin = lazy(() => import("./pages/BlogAdmin"));
-const ProjectAdmin = lazy(() => import("./pages/ProjectAdmin"));
 const Reviews = lazy(() => import("./pages/Reviews"));
 const ResumeAnalyzer = lazy(() => import("./pages/ResumeAnalyzer"));
 const Contact = lazy(() => import("./pages/Contact"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const AdminRoutes = lazy(() => import("./admin/routes/AdminRoutes"));
+const PortalAdmin = lazy(() => import("./portal/PortalAdmin"));
+const PortalLogin = lazy(() => import("./portal/PortalLogin"));
 
 function ScrollToTop() {
   const { hash, pathname } = useLocation();
@@ -70,14 +72,19 @@ function StickyReviewCTA() {
 export default function App() {
   const location = useLocation();
   const isCvAdmin = location.pathname.startsWith("/system-x7k2");
+  const isPortalAdmin =
+    location.pathname.startsWith("/admin") ||
+    location.pathname.startsWith("/portal") ||
+    location.pathname.startsWith("/project-admin");
+  const isStandalone = isCvAdmin || isPortalAdmin;
 
   return (
-    <>
+    <PortalProvider>
       <ScrollToTop />
-      {!isCvAdmin ? <Navbar /> : null}
+      {!isStandalone ? <Navbar /> : null}
       <AnimatePresence mode="wait">
         <Suspense fallback={<div className="min-h-[45vh] bg-white" aria-label="Loading page" />}>
-          <Routes location={location} key={isCvAdmin ? "cv-admin" : location.pathname}>
+          <Routes location={location} key={isCvAdmin ? "cv-admin" : isPortalAdmin ? "portal-admin" : location.pathname}>
             <Route path="/" element={<Home />} />
             <Route path="/about" element={<About />} />
             <Route path="/web-services" element={<Services />} />
@@ -92,20 +99,23 @@ export default function App() {
             <Route path="/blogs" element={<Blogs />} />
             <Route path="/blogs/:slug" element={<BlogDetail />} />
             <Route path="/blog-admin" element={<BlogAdmin />} />
-            <Route path="/project-admin" element={<ProjectAdmin />} />
+            <Route path="/admin" element={<PortalAdmin />} />
+            <Route path="/admin/login" element={<PortalLogin />} />
+            <Route path="/portal/*" element={<PortalAdmin />} />
+            <Route path="/project-admin" element={<PortalAdmin />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/system-x7k2/*" element={<AdminRoutes />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
       </AnimatePresence>
-      {!isCvAdmin ? (
+      {!isStandalone ? (
         <>
           <StickyReviewCTA />
           <BackToTopButton />
           <Footer />
         </>
       ) : null}
-    </>
+    </PortalProvider>
   );
 }

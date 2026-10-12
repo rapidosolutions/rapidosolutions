@@ -10,6 +10,9 @@ const adminColumns = "id,email,password_hash,failed_login_attempts,lock_until,la
 export function createAuthService({ supabase, config }) {
   return {
     async bootstrapAdmin() {
+      if (!supabase) {
+        return { id: "local-dev-admin", email: config.adminEmail, canManageProjects: true };
+      }
       const { data: existing, error: findError } = await supabase
         .from("admins")
         .select(adminColumns)
@@ -38,6 +41,16 @@ export function createAuthService({ supabase, config }) {
     },
 
     async authenticate(email, password) {
+      if (!supabase) {
+        const normalizedInput = String(email || "").trim().toLowerCase();
+        const expectedEmail = String(config.adminEmail || "").trim().toLowerCase();
+        if (normalizedInput === expectedEmail && password === config.adminPassword) {
+          return { id: "local-dev-admin", email: config.adminEmail, canManageProjects: true };
+        }
+        await bcrypt.compare(password, DUMMY_HASH);
+        throw new AppError(401, "Invalid email or password.", "INVALID_CREDENTIALS");
+      }
+
       const { data: admin, error } = await supabase
         .from("admins")
         .select(adminColumns)
@@ -78,6 +91,7 @@ export function createAuthService({ supabase, config }) {
     },
 
     async assertProjectAccess(adminId) {
+      if (!supabase) return;
       const { data, error } = await supabase.from("admins").select("can_manage_projects").eq("id", adminId).maybeSingle();
       assertDatabaseResult(error, "Administrator authorization could not be verified.");
       if (!data?.can_manage_projects) {
@@ -86,6 +100,17 @@ export function createAuthService({ supabase, config }) {
     },
 
     async changePassword(adminId, currentPassword, newPassword) {
+      if (!supabase) {
+        if (currentPassword !== config.adminPassword) {
+          throw new AppError(401, "The current password is incorrect.", "INVALID_CURRENT_PASSWORD");
+        }
+        if (newPassword.length < 12) {
+          throw new AppError(400, "The new password must contain at least 12 characters.", "WEAK_PASSWORD");
+        }
+        config.adminPassword = newPassword;
+        return;
+      }
+
       const { data: admin, error } = await supabase
         .from("admins")
         .select("id,password_hash")

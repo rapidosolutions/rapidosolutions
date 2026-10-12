@@ -62,6 +62,11 @@ const routeMetadata = {
     description: "Securely manage Rapido blog posts and customer enquiries.",
     robots: "noindex, nofollow"
   },
+  "/admin": {
+    title: "Admin Portal | Rapido Solutions Co.",
+    description: "Secure administrator portal for project and proposal management.",
+    robots: "noindex, nofollow"
+  },
   "/project-admin": {
     title: "Project Admin | Rapido Solutions Co.",
     description: "Securely manage Rapido project content.",

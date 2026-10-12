@@ -8,6 +8,9 @@ import saasCover from "../assets/projects/saas-growth-landing-page.jpg";
 import shopifyCover from "../assets/projects/shopify-skincare-store.jpg";
 import seoCover from "../assets/projects/technical-seo-cleanup.jpg";
 import wordpressCover from "../assets/projects/wordpress-business-website.jpg";
+import talentAcquisitionCover from "../assets/projects/talent-acquisition-workflow.jpg";
+import hrPolicyCover from "../assets/projects/hr-policy-and-sop-setup.jpg";
+import trainingCover from "../assets/projects/training-and-development-plan.jpg";
 
 export const projectCategories = [
   "All",
@@ -152,7 +155,8 @@ export const projects = [
       "A hiring process structure for screening, shortlisting, interview stages, and clearer candidate communication.",
     services: ["Talent Acquisition", "Hiring Flow", "Screening"],
     metric: "Clearer hiring pipeline",
-    coverAlt: "Human resource hiring workflow concept",
+    coverImage: talentAcquisitionCover,
+    coverAlt: "Human resource hiring workflow concept with candidate profiles and interview schedule",
     accent: "from-blue-100 to-indigo-300"
   },
   {
@@ -163,7 +167,8 @@ export const projects = [
       "A documentation project for core workplace policies, role responsibilities, approvals, and repeatable operating procedures.",
     services: ["Policies", "SOPs", "Documentation"],
     metric: "Consistent team process",
-    coverAlt: "Human resource policy documentation concept",
+    coverImage: hrPolicyCover,
+    coverAlt: "Human resource policy documentation and corporate SOP handbook concept",
     accent: "from-slate-100 to-sky-300"
   },
   {
@@ -174,7 +179,20 @@ export const projects = [
       "An employee development direction for onboarding, skills training, manager check-ins, and team learning routines.",
     services: ["Training", "Onboarding", "Development"],
     metric: "Stronger team readiness",
-    coverAlt: "Employee training and development planning concept",
+    coverImage: trainingCover,
+    coverAlt: "Employee training and development workshop session in progress",
     accent: "from-emerald-100 to-blue-300"
+  },
+  {
+    title: "Luxury Real Estate Showcase Portal",
+    type: "web",
+    category: "Real Estate Websites",
+    description:
+      "A premium property presentation and broker lead-generation concept with high-resolution visual showcases, interactive neighborhood guides, and private viewing booking flow.",
+    services: ["Web Development", "Lead Flow", "Brand", "UI/UX"],
+    metric: "65% more verified lead tours",
+    coverImage: realEstateCover,
+    coverAlt: "Luxury modern home suitable for a real estate showcase website",
+    accent: "from-blue-100 to-emerald-300"
   }
 ];

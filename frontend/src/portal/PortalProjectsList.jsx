@@ -17,6 +17,7 @@ import {
   FiGlobe
 } from "react-icons/fi";
 import { Link } from "react-router-dom";
+import { usePortal } from "./PortalContext";
 import { listAdminProjects, updateProjectStatus, archiveProject, deleteProjectPermanently } from "../utils/projectApi";
 import { projectCategories, projects as staticProjects } from "../data/portfolioData";
 
@@ -33,6 +34,7 @@ const TYPE_COLORS = {
 };
 
 export default function PortalProjectsList({ onAddNew, onEditProject }) {
+  const { isDark } = usePortal();
   const [projectsList, setProjectsList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -156,14 +158,14 @@ export default function PortalProjectsList({ onAddNew, onEditProject }) {
       {/* Top Header */}
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white font-display flex items-center gap-3">
+          <h1 className={`text-2xl sm:text-3xl font-extrabold tracking-tight font-display flex items-center gap-3 ${isDark ? "text-white" : "text-slate-900"}`}>
             <span>Portfolio Projects</span>
-            <span className="rounded-full bg-emerald-500/15 border border-emerald-500/30 px-3 py-0.5 text-xs font-bold text-emerald-400 flex items-center gap-1.5">
-              <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="rounded-full bg-emerald-500/15 border border-emerald-500/30 px-3 py-0.5 text-xs font-bold text-emerald-500 flex items-center gap-1.5">
+              <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
               Synced Live ({stats.total})
             </span>
           </h1>
-          <p className="mt-1 text-xs sm:text-sm text-slate-400">
+          <p className={`mt-1 text-xs sm:text-sm ${isDark ? "text-slate-400" : "text-slate-600"}`}>
             All projects listed across Web, Financial, and HR services. Any changes made here sync immediately to the live site.
           </p>
         </div>
@@ -173,7 +175,11 @@ export default function PortalProjectsList({ onAddNew, onEditProject }) {
             type="button"
             onClick={() => fetchProjects(true)}
             disabled={refreshing}
-            className="inline-flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.04] px-3.5 py-2.5 text-xs font-semibold text-slate-300 hover:border-white/20 hover:text-white transition disabled:opacity-50"
+            className={`inline-flex items-center gap-1.5 rounded-xl border px-3.5 py-2.5 text-xs font-semibold transition disabled:opacity-50 ${
+              isDark
+                ? "border-white/10 bg-white/[0.04] text-slate-300 hover:border-white/20 hover:text-white"
+                : "border-slate-300 bg-white text-slate-700 hover:border-slate-400 hover:text-slate-900 shadow-sm"
+            }`}
             title="Refresh from server"
           >
             <FiRefreshCw className={`text-xs ${refreshing ? "animate-spin" : ""}`} />
@@ -184,7 +190,11 @@ export default function PortalProjectsList({ onAddNew, onEditProject }) {
             to="/projects"
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.04] px-4 py-2.5 text-xs font-semibold text-slate-300 hover:border-white/20 hover:text-white transition"
+            className={`inline-flex items-center gap-1.5 rounded-xl border px-4 py-2.5 text-xs font-semibold transition ${
+              isDark
+                ? "border-white/10 bg-white/[0.04] text-slate-300 hover:border-white/20 hover:text-white"
+                : "border-slate-300 bg-white text-slate-700 hover:border-slate-400 hover:text-slate-900 shadow-sm"
+            }`}
           >
             <FiGlobe className="text-xs text-rapido-sky" />
             <span>Open /projects</span>
@@ -215,7 +225,7 @@ export default function PortalProjectsList({ onAddNew, onEditProject }) {
               <FiCheckCircle className="text-sm shrink-0" />
               <span>{notice}</span>
             </div>
-            <button onClick={() => setNotice("")} className="text-slate-400 hover:text-white">
+            <button onClick={() => setNotice("")} className="text-slate-400 hover:text-slate-600 dark:hover:text-white">
               ✕
             </button>
           </motion.div>
@@ -224,41 +234,41 @@ export default function PortalProjectsList({ onAddNew, onEditProject }) {
 
       {/* Stats Cards */}
       <div className="mb-6 grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-        <div className="rounded-2xl border border-white/10 bg-[#0d1b2e]/80 p-4 backdrop-blur-xl">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Total Projects</span>
+        <div className={`rounded-2xl border p-4 backdrop-blur-xl transition ${isDark ? "border-white/10 bg-[#0d1b2e]/80" : "border-slate-200 bg-white shadow-sm"}`}>
+          <span className={`text-[11px] font-bold uppercase tracking-wider ${isDark ? "text-slate-400" : "text-slate-500"}`}>Total Projects</span>
           <div className="mt-1 flex items-baseline gap-2">
-            <span className="text-2xl sm:text-3xl font-extrabold text-white font-display">{stats.total}</span>
-            <span className="text-xs text-slate-400">all types</span>
+            <span className={`text-2xl sm:text-3xl font-extrabold font-display ${isDark ? "text-white" : "text-slate-900"}`}>{stats.total}</span>
+            <span className={`text-xs ${isDark ? "text-slate-400" : "text-slate-500"}`}>all types</span>
           </div>
         </div>
 
-        <div className="rounded-2xl border border-emerald-500/20 bg-emerald-950/20 p-4 backdrop-blur-xl">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-400">Published Live</span>
+        <div className={`rounded-2xl border p-4 backdrop-blur-xl transition ${isDark ? "border-emerald-500/20 bg-emerald-950/20" : "border-emerald-200 bg-emerald-50/80 shadow-sm"}`}>
+          <span className={`text-[11px] font-bold uppercase tracking-wider ${isDark ? "text-emerald-400" : "text-emerald-700"}`}>Published Live</span>
           <div className="mt-1 flex items-baseline gap-2">
-            <span className="text-2xl sm:text-3xl font-extrabold text-emerald-300 font-display">{stats.published}</span>
-            <span className="text-xs text-emerald-400/80">on /projects</span>
+            <span className={`text-2xl sm:text-3xl font-extrabold font-display ${isDark ? "text-emerald-300" : "text-emerald-700"}`}>{stats.published}</span>
+            <span className={`text-xs ${isDark ? "text-emerald-400/80" : "text-emerald-600"}`}>on /projects</span>
           </div>
         </div>
 
-        <div className="rounded-2xl border border-amber-500/20 bg-amber-950/20 p-4 backdrop-blur-xl">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-amber-400">Drafts</span>
+        <div className={`rounded-2xl border p-4 backdrop-blur-xl transition ${isDark ? "border-amber-500/20 bg-amber-950/20" : "border-amber-200 bg-amber-50/80 shadow-sm"}`}>
+          <span className={`text-[11px] font-bold uppercase tracking-wider ${isDark ? "text-amber-400" : "text-amber-700"}`}>Drafts</span>
           <div className="mt-1 flex items-baseline gap-2">
-            <span className="text-2xl sm:text-3xl font-extrabold text-amber-300 font-display">{stats.drafts}</span>
-            <span className="text-xs text-amber-400/80">hidden</span>
+            <span className={`text-2xl sm:text-3xl font-extrabold font-display ${isDark ? "text-amber-300" : "text-amber-700"}`}>{stats.drafts}</span>
+            <span className={`text-xs ${isDark ? "text-amber-400/80" : "text-amber-600"}`}>hidden</span>
           </div>
         </div>
 
-        <div className="rounded-2xl border border-blue-500/20 bg-blue-950/20 p-4 backdrop-blur-xl">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-blue-400">Featured</span>
+        <div className={`rounded-2xl border p-4 backdrop-blur-xl transition ${isDark ? "border-blue-500/20 bg-blue-950/20" : "border-blue-200 bg-blue-50/80 shadow-sm"}`}>
+          <span className={`text-[11px] font-bold uppercase tracking-wider ${isDark ? "text-blue-400" : "text-blue-700"}`}>Featured</span>
           <div className="mt-1 flex items-baseline gap-2">
-            <span className="text-2xl sm:text-3xl font-extrabold text-blue-300 font-display">{stats.featured}</span>
-            <span className="text-xs text-blue-400/80">top pins</span>
+            <span className={`text-2xl sm:text-3xl font-extrabold font-display ${isDark ? "text-blue-300" : "text-blue-700"}`}>{stats.featured}</span>
+            <span className={`text-xs ${isDark ? "text-blue-400/80" : "text-blue-600"}`}>top pins</span>
           </div>
         </div>
       </div>
 
       {/* Filter & Search Bar */}
-      <div className="mb-6 rounded-2xl border border-white/10 bg-[#0d1b2e]/90 p-4 backdrop-blur-xl shadow-lg">
+      <div className={`mb-6 rounded-2xl border p-4 backdrop-blur-xl shadow-lg transition ${isDark ? "border-white/10 bg-[#0d1b2e]/90" : "border-slate-200 bg-white shadow-sm"}`}>
         <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3">
           {/* Search Input */}
           <div className="relative flex-1">
@@ -270,7 +280,11 @@ export default function PortalProjectsList({ onAddNew, onEditProject }) {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search by project title, service tag, or keyword..."
-              className="w-full rounded-xl border border-white/10 bg-white/[0.04] py-2.5 pl-10 pr-4 text-xs font-medium text-white placeholder-slate-500 outline-none transition focus:border-rapido-sky focus:bg-white/[0.07]"
+              className={`w-full rounded-xl border py-2.5 pl-10 pr-4 text-xs font-medium outline-none transition ${
+                isDark
+                  ? "border-white/10 bg-white/[0.04] text-white placeholder-slate-500 focus:border-rapido-sky focus:bg-white/[0.07]"
+                  : "border-slate-300 bg-slate-50 text-slate-900 placeholder-slate-400 focus:border-blue-500 focus:bg-white"
+              }`}
             />
           </div>
 
@@ -289,7 +303,9 @@ export default function PortalProjectsList({ onAddNew, onEditProject }) {
                 className={`rounded-lg px-3 py-2 text-xs font-bold transition whitespace-nowrap ${
                   selectedType === t.id
                     ? "bg-rapido-blue text-white shadow-sm"
-                    : "bg-white/[0.04] text-slate-400 hover:bg-white/[0.08] hover:text-white"
+                    : isDark
+                    ? "bg-white/[0.04] text-slate-400 hover:bg-white/[0.08] hover:text-white"
+                    : "bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900"
                 }`}
               >
                 {t.label}
@@ -302,7 +318,11 @@ export default function PortalProjectsList({ onAddNew, onEditProject }) {
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="w-full rounded-xl border border-white/10 bg-[#091526] px-3 py-2.5 text-xs font-semibold text-white outline-none focus:border-rapido-sky"
+              className={`w-full rounded-xl border px-3 py-2.5 text-xs font-semibold outline-none transition ${
+                isDark
+                  ? "border-white/10 bg-[#091526] text-white focus:border-rapido-sky"
+                  : "border-slate-300 bg-slate-50 text-slate-900 focus:border-blue-500 focus:bg-white"
+              }`}
             >
               <option value="All">All Categories</option>
               {projectCategories
@@ -320,7 +340,11 @@ export default function PortalProjectsList({ onAddNew, onEditProject }) {
             <select
               value={selectedStatus}
               onChange={(e) => setSelectedStatus(e.target.value)}
-              className="w-full rounded-xl border border-white/10 bg-[#091526] px-3 py-2.5 text-xs font-semibold text-white outline-none focus:border-rapido-sky"
+              className={`w-full rounded-xl border px-3 py-2.5 text-xs font-semibold outline-none transition ${
+                isDark
+                  ? "border-white/10 bg-[#091526] text-white focus:border-rapido-sky"
+                  : "border-slate-300 bg-slate-50 text-slate-900 focus:border-blue-500 focus:bg-white"
+              }`}
             >
               <option value="all">All Statuses</option>
               <option value="published">Published</option>
@@ -372,7 +396,11 @@ export default function PortalProjectsList({ onAddNew, onEditProject }) {
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: idx * 0.02 }}
-                className="group relative overflow-hidden rounded-2xl border border-white/10 bg-[#0c182c]/85 backdrop-blur-xl flex flex-col justify-between hover:border-white/20 hover:shadow-2xl transition duration-300"
+                className={`group relative overflow-hidden rounded-2xl border backdrop-blur-xl flex flex-col justify-between transition duration-300 ${
+                  isDark
+                    ? "border-white/10 bg-[#0c182c]/85 hover:border-white/20 hover:shadow-2xl text-white"
+                    : "border-slate-200 bg-white hover:border-blue-300 shadow-sm hover:shadow-lg text-slate-900"
+                }`}
               >
                 <div>
                   {/* Card Media Preview */}
@@ -387,7 +415,7 @@ export default function PortalProjectsList({ onAddNew, onEditProject }) {
                       <div className={`h-full w-full bg-gradient-to-br ${project.accent || "from-slate-200 to-blue-400"}`} />
                     )}
 
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#0c182c] via-[#0c182c]/40 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/30 to-transparent" />
 
                     {/* Top Badges */}
                     <div className="absolute top-3 inset-x-3 flex items-center justify-between">
@@ -426,10 +454,10 @@ export default function PortalProjectsList({ onAddNew, onEditProject }) {
 
                   {/* Card Content */}
                   <div className="p-5">
-                    <h3 className="text-base font-bold text-white group-hover:text-rapido-sky transition">
+                    <h3 className={`text-base font-bold transition ${isDark ? "text-white group-hover:text-rapido-sky" : "text-slate-900 group-hover:text-blue-600"}`}>
                       {project.title}
                     </h3>
-                    <p className="mt-2 text-xs text-slate-400 line-clamp-2 leading-relaxed">
+                    <p className={`mt-2 text-xs line-clamp-2 leading-relaxed ${isDark ? "text-slate-400" : "text-slate-600"}`}>
                       {project.description}
                     </p>
 
@@ -438,13 +466,17 @@ export default function PortalProjectsList({ onAddNew, onEditProject }) {
                       {(project.services || []).slice(0, 4).map((service) => (
                         <span
                           key={service}
-                          className="rounded-md bg-white/[0.04] border border-white/10 px-2 py-0.5 text-[10px] font-medium text-slate-300"
+                          className={`rounded-md border px-2 py-0.5 text-[10px] font-medium ${
+                            isDark
+                              ? "bg-white/[0.04] border-white/10 text-slate-300"
+                              : "bg-slate-100 border-slate-200 text-slate-700"
+                          }`}
                         >
                           {service}
                         </span>
                       ))}
                       {(project.services || []).length > 4 && (
-                        <span className="rounded-md bg-white/[0.04] px-1.5 py-0.5 text-[10px] font-medium text-slate-400">
+                        <span className={`rounded-md px-1.5 py-0.5 text-[10px] font-medium ${isDark ? "bg-white/[0.04] text-slate-400" : "bg-slate-100 text-slate-500"}`}>
                           +{(project.services || []).length - 4}
                         </span>
                       )}
@@ -452,8 +484,12 @@ export default function PortalProjectsList({ onAddNew, onEditProject }) {
 
                     {/* Metric pill */}
                     {project.metric && (
-                      <div className="mt-3.5 flex items-center gap-1.5 rounded-lg bg-emerald-950/30 border border-emerald-500/20 px-2.5 py-1.5 text-xs text-emerald-300">
-                        <FiTrendingUp className="text-emerald-400 shrink-0 text-xs" />
+                      <div className={`mt-3.5 flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs ${
+                        isDark
+                          ? "bg-emerald-950/30 border-emerald-500/20 text-emerald-300"
+                          : "bg-emerald-50 border-emerald-200 text-emerald-800"
+                      }`}>
+                        <FiTrendingUp className="text-emerald-500 shrink-0 text-xs" />
                         <span className="font-semibold truncate text-[11px]">{project.metric}</span>
                       </div>
                     )}
@@ -461,13 +497,13 @@ export default function PortalProjectsList({ onAddNew, onEditProject }) {
                 </div>
 
                 {/* Card Actions Footer */}
-                <div className="border-t border-white/10 bg-white/[0.02] p-3 px-5 flex items-center justify-between gap-2">
+                <div className={`border-t p-3 px-5 flex items-center justify-between gap-2 transition ${isDark ? "border-white/10 bg-white/[0.02]" : "border-slate-100 bg-slate-50/80"}`}>
                   <div className="flex items-center gap-1">
                     <Link
                       to="/projects"
                       target="_blank"
                       rel="noreferrer"
-                      className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition"
+                      className={`p-1.5 rounded-lg transition ${isDark ? "text-slate-400 hover:text-white hover:bg-white/10" : "text-slate-500 hover:text-slate-900 hover:bg-slate-200"}`}
                       title="View on live website"
                     >
                       <FiExternalLink className="text-sm" />
@@ -478,8 +514,8 @@ export default function PortalProjectsList({ onAddNew, onEditProject }) {
                       onClick={() => handleToggleStatus(project)}
                       className={`text-[11px] font-semibold px-2 py-1 rounded-md transition ${
                         project.status === "published"
-                          ? "text-slate-400 hover:text-amber-400"
-                          : "text-emerald-400 hover:underline"
+                          ? isDark ? "text-slate-400 hover:text-amber-400" : "text-slate-600 hover:text-amber-600"
+                          : "text-emerald-500 hover:underline font-bold"
                       }`}
                       title={project.status === "published" ? "Switch to Draft" : "Publish Live"}
                     >
@@ -491,7 +527,11 @@ export default function PortalProjectsList({ onAddNew, onEditProject }) {
                     <button
                       type="button"
                       onClick={() => onEditProject(project)}
-                      className="inline-flex items-center gap-1 rounded-lg border border-white/10 bg-white/[0.05] px-2.5 py-1 text-xs font-semibold text-slate-200 hover:border-rapido-sky hover:text-white transition"
+                      className={`inline-flex items-center gap-1 rounded-lg border px-2.5 py-1 text-xs font-semibold transition ${
+                        isDark
+                          ? "border-white/10 bg-white/[0.05] text-slate-200 hover:border-rapido-sky hover:text-white"
+                          : "border-slate-300 bg-white text-slate-700 hover:border-blue-500 hover:text-blue-600 shadow-sm"
+                      }`}
                     >
                       <FiEdit2 className="text-xs" />
                       <span>Edit</span>
@@ -500,7 +540,7 @@ export default function PortalProjectsList({ onAddNew, onEditProject }) {
                     <button
                       type="button"
                       onClick={() => setDeleteConfirmProject(project)}
-                      className="p-1.5 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition"
+                      className="p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-500/10 transition"
                       title="Delete permanently"
                     >
                       <FiTrash2 className="text-xs" />
@@ -516,8 +556,8 @@ export default function PortalProjectsList({ onAddNew, onEditProject }) {
       {/* Delete Confirmation Modal */}
       {deleteConfirmProject && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-2xl border border-red-500/30 bg-[#0d1626] p-6 shadow-2xl">
-            <h3 className="text-lg font-bold text-white">Delete Project</h3>
+          <div className={`w-full max-w-md rounded-2xl border p-6 shadow-2xl transition ${isDark ? "border-red-500/30 bg-[#0d1626] text-white" : "border-red-200 bg-white text-slate-900"}`}>
+            <h3 className="text-lg font-bold">Delete Project</h3>
             <p className="mt-2 text-xs text-slate-300 leading-relaxed">
               Are you sure you want to permanently delete <strong className="text-white">&quot;{deleteConfirmProject.title}&quot;</strong>? This cannot be undone.
             </p>

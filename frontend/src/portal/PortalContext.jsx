@@ -49,8 +49,22 @@ export function PortalProvider({ children }) {
     }
   };
 
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem("rapido_portal_theme") || "dark";
+  });
+
+  const toggleTheme = () => {
+    setTheme((prev) => {
+      const next = prev === "dark" ? "light" : "dark";
+      localStorage.setItem("rapido_portal_theme", next);
+      return next;
+    });
+  };
+
+  const isDark = theme === "dark";
+
   return (
-    <PortalContext.Provider value={{ admin, loading, error, setError, login, logout }}>
+    <PortalContext.Provider value={{ admin, loading, error, setError, login, logout, theme, toggleTheme, isDark }}>
       {children}
     </PortalContext.Provider>
   );

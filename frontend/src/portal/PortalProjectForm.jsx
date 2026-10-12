@@ -18,6 +18,7 @@ import {
 import { createProject, updateProject, uploadProjectImage } from "../utils/projectApi";
 import { projectCategories, projects as staticProjects } from "../data/portfolioData";
 import Badge from "../components/common/Badge";
+import { usePortal } from "./PortalContext";
 
 const ACCENT_PRESETS = [
   { label: "Ocean Blue", value: "from-slate-200 to-blue-400" },
@@ -50,6 +51,7 @@ const SUGGESTED_SERVICES = {
 };
 
 export default function PortalProjectForm({ editingProject = null, onSaved, onCancel }) {
+  const { isDark } = usePortal();
   const [formData, setFormData] = useState({
     title: "",
     slug: "",
@@ -260,15 +262,15 @@ export default function PortalProjectForm({ editingProject = null, onSaved, onCa
           <button
             type="button"
             onClick={onCancel}
-            className="group mb-2 inline-flex items-center gap-2 text-xs font-semibold text-slate-400 hover:text-white transition"
+            className={`group mb-2 inline-flex items-center gap-2 text-xs font-semibold transition ${isDark ? "text-slate-400 hover:text-white" : "text-slate-500 hover:text-slate-900"}`}
           >
             <FiArrowLeft className="transition-transform group-hover:-translate-x-1" />
             <span>Back to All Projects</span>
           </button>
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white font-display">
+          <h1 className={`text-2xl sm:text-3xl font-extrabold tracking-tight font-display ${isDark ? "text-white" : "text-slate-900"}`}>
             {editingProject ? `Edit Project: ${editingProject.title}` : "Add New Project to Website"}
           </h1>
-          <p className="mt-1 text-xs sm:text-sm text-slate-400">
+          <p className={`mt-1 text-xs sm:text-sm ${isDark ? "text-slate-400" : "text-slate-600"}`}>
             Publish projects in any category. Submitted projects sync directly with the live portfolio on Rapido Solutions.
           </p>
         </div>
@@ -277,7 +279,11 @@ export default function PortalProjectForm({ editingProject = null, onSaved, onCa
           <button
             type="button"
             onClick={onCancel}
-            className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-2.5 text-xs font-semibold text-slate-300 hover:bg-white/[0.08] hover:text-white transition"
+            className={`rounded-xl border px-4 py-2.5 text-xs font-semibold transition ${
+              isDark
+                ? "border-white/10 bg-white/[0.04] text-slate-300 hover:bg-white/[0.08] hover:text-white"
+                : "border-slate-300 bg-white text-slate-700 hover:border-slate-400 hover:text-slate-900 shadow-sm"
+            }`}
           >
             Cancel
           </button>
@@ -309,7 +315,7 @@ export default function PortalProjectForm({ editingProject = null, onSaved, onCa
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
-            className="mb-6 flex items-center gap-3 rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-xs text-red-200"
+            className="mb-6 flex items-center gap-3 rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-xs text-red-500"
           >
             <FiAlertCircle className="shrink-0 text-base text-red-400" />
             <span>{errorNotice}</span>
@@ -320,7 +326,7 @@ export default function PortalProjectForm({ editingProject = null, onSaved, onCa
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
-            className="mb-6 flex items-center gap-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-xs text-emerald-200"
+            className="mb-6 flex items-center gap-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-xs text-emerald-500"
           >
             <FiCheckCircle className="shrink-0 text-base text-emerald-400" />
             <span>{successNotice}</span>
@@ -330,21 +336,21 @@ export default function PortalProjectForm({ editingProject = null, onSaved, onCa
 
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* Section 1: Category & Type Selection */}
-        <div className="rounded-2xl border border-white/10 bg-[#0d1b2e]/90 p-6 backdrop-blur-xl shadow-xl">
-          <div className="flex items-center gap-2.5 pb-4 border-b border-white/10">
+        <div className={`rounded-2xl border p-6 backdrop-blur-xl shadow-xl transition ${isDark ? "border-white/10 bg-[#0d1b2e]/90 text-white" : "border-slate-200 bg-white shadow-sm text-slate-900"}`}>
+          <div className={`flex items-center gap-2.5 pb-4 border-b ${isDark ? "border-white/10" : "border-slate-100"}`}>
             <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-rapido-blue/20 text-rapido-sky text-sm">
               <FiLayers />
             </span>
             <div>
-              <h2 className="text-sm font-bold text-white uppercase tracking-wider">1. Service Type & Category</h2>
-              <p className="text-xs text-slate-400">Choose where this project will appear in the main site filter</p>
+              <h2 className={`text-sm font-bold uppercase tracking-wider ${isDark ? "text-white" : "text-slate-900"}`}>1. Service Type & Category</h2>
+              <p className={`text-xs ${isDark ? "text-slate-400" : "text-slate-500"}`}>Choose where this project will appear in the main site filter</p>
             </div>
           </div>
 
           <div className="mt-5 grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Service Type Selection */}
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2">
+              <label className={`block text-xs font-bold uppercase tracking-wider mb-2 ${isDark ? "text-slate-300" : "text-slate-700"}`}>
                 Service Domain
               </label>
               <div className="grid grid-cols-3 gap-2">
@@ -360,11 +366,13 @@ export default function PortalProjectForm({ editingProject = null, onSaved, onCa
                     className={`flex flex-col items-center justify-center rounded-xl border p-3 text-center transition ${
                       formData.type === item.id
                         ? "border-rapido-sky bg-rapido-blue/20 text-white shadow-sm ring-1 ring-rapido-sky/40"
-                        : "border-white/10 bg-white/[0.03] text-slate-400 hover:border-white/20 hover:text-slate-200"
+                        : isDark
+                        ? "border-white/10 bg-white/[0.03] text-slate-400 hover:border-white/20 hover:text-slate-200"
+                        : "border-slate-200 bg-slate-50 text-slate-600 hover:border-slate-300 hover:text-slate-900"
                     }`}
                   >
-                    <span className="text-xs font-bold">{item.label}</span>
-                    <span className="text-[10px] text-slate-400 mt-0.5 line-clamp-1">{item.desc}</span>
+                    <span className={`text-xs font-bold ${formData.type === item.id ? "text-rapido-sky font-extrabold" : ""}`}>{item.label}</span>
+                    <span className={`text-[10px] mt-0.5 line-clamp-1 ${isDark ? "text-slate-400" : "text-slate-500"}`}>{item.desc}</span>
                   </button>
                 ))}
               </div>
@@ -372,14 +380,18 @@ export default function PortalProjectForm({ editingProject = null, onSaved, onCa
 
             {/* Category Dropdown */}
             <div>
-              <label htmlFor="project-category" className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2">
+              <label htmlFor="project-category" className={`block text-xs font-bold uppercase tracking-wider mb-2 ${isDark ? "text-slate-300" : "text-slate-700"}`}>
                 Project Category
               </label>
               <select
                 id="project-category"
                 value={formData.category}
                 onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                className="w-full rounded-xl border border-white/10 bg-[#091526] px-4 py-3 text-sm font-semibold text-white outline-none transition focus:border-rapido-sky focus:ring-2 focus:ring-rapido-sky/20"
+                className={`w-full rounded-xl border px-4 py-3 text-sm font-semibold outline-none transition ${
+                  isDark
+                    ? "border-white/10 bg-[#091526] text-white focus:border-rapido-sky focus:ring-2 focus:ring-rapido-sky/20"
+                    : "border-slate-300 bg-slate-50 text-slate-900 focus:border-blue-500 focus:bg-white"
+                }`}
               >
                 {(CATEGORY_MAP[formData.type] || []).map((cat) => (
                   <option key={cat} value={cat}>
@@ -395,22 +407,22 @@ export default function PortalProjectForm({ editingProject = null, onSaved, onCa
                     </option>
                   ))}
               </select>
-              <p className="mt-1.5 text-[11px] text-slate-400">
-                Matches the filter buttons on the live <span className="text-rapido-sky">/projects</span> page.
+              <p className={`mt-1.5 text-[11px] ${isDark ? "text-slate-400" : "text-slate-500"}`}>
+                Matches the filter buttons on the live <span className="text-rapido-sky font-semibold">/projects</span> page.
               </p>
             </div>
           </div>
         </div>
 
         {/* Section 2: Project Details & Content */}
-        <div className="rounded-2xl border border-white/10 bg-[#0d1b2e]/90 p-6 backdrop-blur-xl shadow-xl">
-          <div className="flex items-center gap-2.5 pb-4 border-b border-white/10">
+        <div className={`rounded-2xl border p-6 backdrop-blur-xl shadow-xl transition ${isDark ? "border-white/10 bg-[#0d1b2e]/90 text-white" : "border-slate-200 bg-white shadow-sm text-slate-900"}`}>
+          <div className={`flex items-center gap-2.5 pb-4 border-b ${isDark ? "border-white/10" : "border-slate-100"}`}>
             <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-500/20 text-emerald-400 text-sm">
               <FiTag />
             </span>
             <div>
-              <h2 className="text-sm font-bold text-white uppercase tracking-wider">2. Project Information</h2>
-              <p className="text-xs text-slate-400">Title, description, services tags, and outcome metric</p>
+              <h2 className={`text-sm font-bold uppercase tracking-wider ${isDark ? "text-white" : "text-slate-900"}`}>2. Project Information</h2>
+              <p className={`text-xs ${isDark ? "text-slate-400" : "text-slate-500"}`}>Title, description, services tags, and outcome metric</p>
             </div>
           </div>
 
@@ -418,7 +430,7 @@ export default function PortalProjectForm({ editingProject = null, onSaved, onCa
             {/* Title & Slug */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label htmlFor="project-title" className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">
+                <label htmlFor="project-title" className={`block text-xs font-bold uppercase tracking-wider mb-1.5 ${isDark ? "text-slate-300" : "text-slate-700"}`}>
                   Project Title *
                 </label>
                 <input
@@ -428,12 +440,16 @@ export default function PortalProjectForm({ editingProject = null, onSaved, onCa
                   onChange={(e) => handleTitleChange(e.target.value)}
                   placeholder="e.g. Modern Shopify Skincare Boutique"
                   required
-                  className="w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm font-medium text-white placeholder-slate-500 outline-none transition focus:border-rapido-sky focus:bg-white/[0.07] focus:ring-2 focus:ring-rapido-sky/20"
+                  className={`w-full rounded-xl border px-4 py-3 text-sm font-medium outline-none transition ${
+                    isDark
+                      ? "border-white/10 bg-white/[0.04] text-white placeholder-slate-500 focus:border-rapido-sky focus:bg-white/[0.07] focus:ring-2 focus:ring-rapido-sky/20"
+                      : "border-slate-300 bg-slate-50 text-slate-900 placeholder-slate-400 focus:border-blue-500 focus:bg-white"
+                  }`}
                 />
               </div>
 
               <div>
-                <label htmlFor="project-slug" className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">
+                <label htmlFor="project-slug" className={`block text-xs font-bold uppercase tracking-wider mb-1.5 ${isDark ? "text-slate-300" : "text-slate-700"}`}>
                   URL Slug
                 </label>
                 <input
@@ -442,14 +458,18 @@ export default function PortalProjectForm({ editingProject = null, onSaved, onCa
                   value={formData.slug}
                   onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
                   placeholder="modern-shopify-skincare-boutique"
-                  className="w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm font-medium text-white placeholder-slate-500 outline-none transition focus:border-rapido-sky focus:bg-white/[0.07] focus:ring-2 focus:ring-rapido-sky/20"
+                  className={`w-full rounded-xl border px-4 py-3 text-sm font-medium outline-none transition ${
+                    isDark
+                      ? "border-white/10 bg-white/[0.04] text-white placeholder-slate-500 focus:border-rapido-sky focus:bg-white/[0.07] focus:ring-2 focus:ring-rapido-sky/20"
+                      : "border-slate-300 bg-slate-50 text-slate-900 placeholder-slate-400 focus:border-blue-500 focus:bg-white"
+                  }`}
                 />
               </div>
             </div>
 
             {/* Description */}
             <div>
-              <label htmlFor="project-desc" className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">
+              <label htmlFor="project-desc" className={`block text-xs font-bold uppercase tracking-wider mb-1.5 ${isDark ? "text-slate-300" : "text-slate-700"}`}>
                 Project Description *
               </label>
               <textarea
@@ -459,18 +479,22 @@ export default function PortalProjectForm({ editingProject = null, onSaved, onCa
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 placeholder="Describe the client context, challenge, solution implemented, and measurable business improvements..."
                 required
-                className="w-full rounded-xl border border-white/10 bg-white/[0.04] p-4 text-sm font-medium text-white placeholder-slate-500 outline-none transition focus:border-rapido-sky focus:bg-white/[0.07] focus:ring-2 focus:ring-rapido-sky/20 leading-relaxed"
+                className={`w-full rounded-xl border p-4 text-sm font-medium outline-none transition leading-relaxed ${
+                  isDark
+                    ? "border-white/10 bg-white/[0.04] text-white placeholder-slate-500 focus:border-rapido-sky focus:bg-white/[0.07] focus:ring-2 focus:ring-rapido-sky/20"
+                    : "border-slate-300 bg-slate-50 text-slate-900 placeholder-slate-400 focus:border-blue-500 focus:bg-white"
+                }`}
               />
             </div>
 
             {/* Metric & Live URL */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label htmlFor="project-metric" className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">
+                <label htmlFor="project-metric" className={`block text-xs font-bold uppercase tracking-wider mb-1.5 ${isDark ? "text-slate-300" : "text-slate-700"}`}>
                   Result Focus / Key Metric *
                 </label>
                 <div className="relative">
-                  <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-emerald-400">
+                  <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-emerald-500">
                     <FiTrendingUp />
                   </span>
                   <input
@@ -480,13 +504,17 @@ export default function PortalProjectForm({ editingProject = null, onSaved, onCa
                     onChange={(e) => setFormData({ ...formData, metric: e.target.value })}
                     placeholder="e.g. Cleaner purchase journey or 40% faster month-end"
                     required
-                    className="w-full rounded-xl border border-white/10 bg-white/[0.04] py-3 pl-10 pr-4 text-sm font-medium text-white placeholder-slate-500 outline-none transition focus:border-rapido-sky focus:bg-white/[0.07] focus:ring-2 focus:ring-rapido-sky/20"
+                    className={`w-full rounded-xl border py-3 pl-10 pr-4 text-sm font-medium outline-none transition ${
+                      isDark
+                        ? "border-white/10 bg-white/[0.04] text-white placeholder-slate-500 focus:border-rapido-sky focus:bg-white/[0.07] focus:ring-2 focus:ring-rapido-sky/20"
+                        : "border-slate-300 bg-slate-50 text-slate-900 placeholder-slate-400 focus:border-blue-500 focus:bg-white"
+                    }`}
                   />
                 </div>
               </div>
 
               <div>
-                <label htmlFor="project-url" className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">
+                <label htmlFor="project-url" className={`block text-xs font-bold uppercase tracking-wider mb-1.5 ${isDark ? "text-slate-300" : "text-slate-700"}`}>
                   Live Project URL (Optional)
                 </label>
                 <div className="relative">
@@ -499,7 +527,11 @@ export default function PortalProjectForm({ editingProject = null, onSaved, onCa
                     value={formData.projectUrl}
                     onChange={(e) => setFormData({ ...formData, projectUrl: e.target.value })}
                     placeholder="https://example.com"
-                    className="w-full rounded-xl border border-white/10 bg-white/[0.04] py-3 pl-10 pr-4 text-sm font-medium text-white placeholder-slate-500 outline-none transition focus:border-rapido-sky focus:bg-white/[0.07] focus:ring-2 focus:ring-rapido-sky/20"
+                    className={`w-full rounded-xl border py-3 pl-10 pr-4 text-sm font-medium outline-none transition ${
+                      isDark
+                        ? "border-white/10 bg-white/[0.04] text-white placeholder-slate-500 focus:border-rapido-sky focus:bg-white/[0.07] focus:ring-2 focus:ring-rapido-sky/20"
+                        : "border-slate-300 bg-slate-50 text-slate-900 placeholder-slate-400 focus:border-blue-500 focus:bg-white"
+                    }`}
                   />
                 </div>
               </div>
@@ -507,12 +539,12 @@ export default function PortalProjectForm({ editingProject = null, onSaved, onCa
 
             {/* Services / Tags */}
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">
+              <label className={`block text-xs font-bold uppercase tracking-wider mb-1.5 ${isDark ? "text-slate-300" : "text-slate-700"}`}>
                 Services & Technology Tags *
               </label>
 
               {/* Tag input and active list */}
-              <div className="flex flex-wrap gap-2 mb-3 min-h-[38px] p-2 rounded-xl border border-white/10 bg-white/[0.03]">
+              <div className={`flex flex-wrap gap-2 mb-3 min-h-[38px] p-2 rounded-xl border ${isDark ? "border-white/10 bg-white/[0.03]" : "border-slate-300 bg-slate-50"}`}>
                 {formData.services.map((tag, idx) => (
                   <span
                     key={tag}
@@ -539,20 +571,24 @@ export default function PortalProjectForm({ editingProject = null, onSaved, onCa
                     }
                   }}
                   placeholder={formData.services.length === 0 ? "Type service (e.g. Shopify, SEO) and press Enter..." : "Add another..."}
-                  className="flex-1 min-w-[140px] bg-transparent text-sm text-white placeholder-slate-500 outline-none px-2 py-1"
+                  className={`flex-1 min-w-[140px] bg-transparent text-sm outline-none px-2 py-1 ${isDark ? "text-white placeholder-slate-500" : "text-slate-900 placeholder-slate-400"}`}
                 />
               </div>
 
               {/* Suggested tags chips */}
               <div className="flex flex-wrap items-center gap-1.5 text-xs">
-                <span className="text-slate-400 text-[11px] font-semibold">Quick add:</span>
+                <span className={`text-[11px] font-semibold ${isDark ? "text-slate-400" : "text-slate-500"}`}>Quick add:</span>
                 {(SUGGESTED_SERVICES[formData.type] || []).map((suggestion) => (
                   <button
                     key={suggestion}
                     type="button"
                     onClick={() => handleAddTag(suggestion)}
                     disabled={formData.services.includes(suggestion)}
-                    className="rounded-md border border-white/10 bg-white/[0.03] px-2 py-0.5 text-[11px] font-medium text-slate-300 hover:border-rapido-sky/50 hover:text-white disabled:opacity-40 transition"
+                    className={`rounded-md border px-2 py-0.5 text-[11px] font-medium transition disabled:opacity-40 ${
+                      isDark
+                        ? "border-white/10 bg-white/[0.03] text-slate-300 hover:border-rapido-sky/50 hover:text-white"
+                        : "border-slate-200 bg-slate-100 text-slate-700 hover:border-blue-400 hover:text-blue-700"
+                    }`}
                   >
                     + {suggestion}
                   </button>
@@ -563,14 +599,14 @@ export default function PortalProjectForm({ editingProject = null, onSaved, onCa
         </div>
 
         {/* Section 3: Project Media & Image Upload */}
-        <div className="rounded-2xl border border-white/10 bg-[#0d1b2e]/90 p-6 backdrop-blur-xl shadow-xl">
-          <div className="flex items-center gap-2.5 pb-4 border-b border-white/10">
+        <div className={`rounded-2xl border p-6 backdrop-blur-xl shadow-xl transition ${isDark ? "border-white/10 bg-[#0d1b2e]/90 text-white" : "border-slate-200 bg-white shadow-sm text-slate-900"}`}>
+          <div className={`flex items-center gap-2.5 pb-4 border-b ${isDark ? "border-white/10" : "border-slate-100"}`}>
             <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-purple-500/20 text-purple-400 text-sm">
               <FiImage />
             </span>
             <div>
-              <h2 className="text-sm font-bold text-white uppercase tracking-wider">3. Project Cover Media</h2>
-              <p className="text-xs text-slate-400">Upload high-resolution project cover mockup or screenshot</p>
+              <h2 className={`text-sm font-bold uppercase tracking-wider ${isDark ? "text-white" : "text-slate-900"}`}>3. Project Cover Media</h2>
+              <p className={`text-xs ${isDark ? "text-slate-400" : "text-slate-500"}`}>Upload high-resolution project cover mockup or screenshot</p>
             </div>
           </div>
 
@@ -588,14 +624,20 @@ export default function PortalProjectForm({ editingProject = null, onSaved, onCa
               {!imagePreview ? (
                 <div
                   onClick={() => fileInputRef.current?.click()}
-                  className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-white/15 bg-white/[0.02] p-8 text-center cursor-pointer transition hover:border-rapido-sky/50 hover:bg-white/[0.04]"
+                  className={`flex flex-col items-center justify-center rounded-2xl border-2 border-dashed p-8 text-center cursor-pointer transition ${
+                    isDark
+                      ? "border-white/15 bg-white/[0.02] hover:border-rapido-sky/50 hover:bg-white/[0.04]"
+                      : "border-slate-300 bg-slate-50 hover:border-blue-400 hover:bg-slate-100"
+                  }`}
                 >
                   <div className="flex h-12 w-12 items-center justify-center rounded-full bg-rapido-blue/20 text-rapido-sky mb-3 text-xl">
                     <FiUploadCloud />
                   </div>
-                  <p className="text-sm font-bold text-white">Click or drag image to upload</p>
-                  <p className="mt-1 text-xs text-slate-400">Supports JPG, PNG, WebP up to 5MB</p>
-                  <span className="mt-4 inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.05] px-3 py-1.5 text-xs font-semibold text-slate-300">
+                  <p className={`text-sm font-bold ${isDark ? "text-white" : "text-slate-800"}`}>Click or drag image to upload</p>
+                  <p className={`mt-1 text-xs ${isDark ? "text-slate-400" : "text-slate-500"}`}>Supports JPG, PNG, WebP up to 5MB</p>
+                  <span className={`mt-4 inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold ${
+                    isDark ? "border-white/10 bg-white/[0.05] text-slate-300" : "border-slate-300 bg-white text-slate-700 shadow-sm"
+                  }`}>
                     Browse File
                   </span>
                 </div>
@@ -629,7 +671,7 @@ export default function PortalProjectForm({ editingProject = null, onSaved, onCa
 
               {/* Alt text field */}
               <div className="mt-4">
-                <label htmlFor="cover-alt" className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">
+                <label htmlFor="cover-alt" className={`block text-xs font-bold uppercase tracking-wider mb-1.5 ${isDark ? "text-slate-300" : "text-slate-700"}`}>
                   Image Alt Text (SEO & Accessibility)
                 </label>
                 <input
@@ -638,17 +680,21 @@ export default function PortalProjectForm({ editingProject = null, onSaved, onCa
                   value={formData.coverAlt}
                   onChange={(e) => setFormData({ ...formData, coverAlt: e.target.value })}
                   placeholder="e.g. Laptop screen showcasing the new e-commerce store layout"
-                  className="w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-2.5 text-xs font-medium text-white placeholder-slate-500 outline-none focus:border-rapido-sky"
+                  className={`w-full rounded-xl border px-4 py-2.5 text-xs font-medium outline-none transition ${
+                    isDark
+                      ? "border-white/10 bg-white/[0.04] text-white placeholder-slate-500 focus:border-rapido-sky"
+                      : "border-slate-300 bg-slate-50 text-slate-900 placeholder-slate-400 focus:border-blue-500 focus:bg-white"
+                  }`}
                 />
               </div>
             </div>
 
             {/* Accent Gradient Color Presets */}
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2">
+              <label className={`block text-xs font-bold uppercase tracking-wider mb-2 ${isDark ? "text-slate-300" : "text-slate-700"}`}>
                 Card Gradient Theme
               </label>
-              <p className="text-xs text-slate-400 mb-3">
+              <p className={`text-xs mb-3 ${isDark ? "text-slate-400" : "text-slate-500"}`}>
                 Used as card backdrop accent and fallback when image is loading.
               </p>
               <div className="grid grid-cols-2 gap-2.5">
@@ -660,11 +706,13 @@ export default function PortalProjectForm({ editingProject = null, onSaved, onCa
                     className={`flex items-center gap-3 rounded-xl border p-2.5 text-left transition ${
                       formData.accent === preset.value
                         ? "border-rapido-sky bg-rapido-blue/20 ring-1 ring-rapido-sky/40"
-                        : "border-white/10 bg-white/[0.03] hover:border-white/20"
+                        : isDark
+                        ? "border-white/10 bg-white/[0.03] hover:border-white/20"
+                        : "border-slate-200 bg-slate-50 hover:border-slate-300"
                     }`}
                   >
                     <div className={`h-7 w-7 rounded-lg bg-gradient-to-br ${preset.value} shadow-inner shrink-0`} />
-                    <span className="text-xs font-bold text-white truncate">{preset.label}</span>
+                    <span className={`text-xs font-bold truncate ${isDark ? "text-white" : "text-slate-800"}`}>{preset.label}</span>
                   </button>
                 ))}
               </div>
@@ -673,35 +721,35 @@ export default function PortalProjectForm({ editingProject = null, onSaved, onCa
         </div>
 
         {/* Section 4: Publishing Status & Settings */}
-        <div className="rounded-2xl border border-white/10 bg-[#0d1b2e]/90 p-6 backdrop-blur-xl shadow-xl">
-          <div className="flex items-center gap-2.5 pb-4 border-b border-white/10">
+        <div className={`rounded-2xl border p-6 backdrop-blur-xl shadow-xl transition ${isDark ? "border-white/10 bg-[#0d1b2e]/90 text-white" : "border-slate-200 bg-white shadow-sm text-slate-900"}`}>
+          <div className={`flex items-center gap-2.5 pb-4 border-b ${isDark ? "border-white/10" : "border-slate-100"}`}>
             <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-500/20 text-amber-400 text-sm">
               <FiStar />
             </span>
             <div>
-              <h2 className="text-sm font-bold text-white uppercase tracking-wider">4. Visibility & Settings</h2>
-              <p className="text-xs text-slate-400">Publish immediately to live site or save as draft</p>
+              <h2 className={`text-sm font-bold uppercase tracking-wider ${isDark ? "text-white" : "text-slate-900"}`}>4. Visibility & Settings</h2>
+              <p className={`text-xs ${isDark ? "text-slate-400" : "text-slate-500"}`}>Publish immediately to live site or save as draft</p>
             </div>
           </div>
 
           <div className="mt-5 grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Status Radio */}
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2">
+              <label className={`block text-xs font-bold uppercase tracking-wider mb-2 ${isDark ? "text-slate-300" : "text-slate-700"}`}>
                 Publication Status
               </label>
               <div className="space-y-2">
                 {[
-                  { id: "published", label: "Published (Live on Site)", desc: "Visible immediately to visitors", color: "text-emerald-400" },
-                  { id: "draft", label: "Draft (Hidden)", desc: "Saved in admin only", color: "text-amber-400" },
-                  { id: "archived", label: "Archived", desc: "Retired from live portfolio", color: "text-slate-400" }
+                  { id: "published", label: "Published (Live on Site)", desc: "Visible immediately to visitors", color: "text-emerald-500" },
+                  { id: "draft", label: "Draft (Hidden)", desc: "Saved in admin only", color: "text-amber-500" },
+                  { id: "archived", label: "Archived", desc: "Retired from live portfolio", color: "text-slate-500" }
                 ].map((s) => (
                   <label
                     key={s.id}
                     className={`flex items-start gap-3 rounded-xl border p-3 cursor-pointer transition ${
                       formData.status === s.id
-                        ? "border-rapido-sky bg-rapido-blue/20"
-                        : "border-white/10 bg-white/[0.02] hover:bg-white/[0.04]"
+                        ? isDark ? "border-rapido-sky bg-rapido-blue/20" : "border-blue-500 bg-blue-50/70"
+                        : isDark ? "border-white/10 bg-white/[0.02] hover:bg-white/[0.04]" : "border-slate-200 bg-slate-50 hover:bg-slate-100/60"
                     }`}
                   >
                     <input
@@ -714,7 +762,7 @@ export default function PortalProjectForm({ editingProject = null, onSaved, onCa
                     />
                     <div>
                       <span className={`block text-xs font-bold ${s.color}`}>{s.label}</span>
-                      <span className="block text-[11px] text-slate-400">{s.desc}</span>
+                      <span className={`block text-[11px] ${isDark ? "text-slate-400" : "text-slate-500"}`}>{s.desc}</span>
                     </div>
                   </label>
                 ))}
@@ -723,25 +771,25 @@ export default function PortalProjectForm({ editingProject = null, onSaved, onCa
 
             {/* Featured toggle */}
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2">
+              <label className={`block text-xs font-bold uppercase tracking-wider mb-2 ${isDark ? "text-slate-300" : "text-slate-700"}`}>
                 Featured Showcase
               </label>
               <div
                 onClick={() => setFormData({ ...formData, featured: !formData.featured })}
                 className={`flex items-start gap-3 rounded-xl border p-4 cursor-pointer transition ${
                   formData.featured
-                    ? "border-amber-400/50 bg-amber-400/10"
-                    : "border-white/10 bg-white/[0.02] hover:bg-white/[0.04]"
+                    ? isDark ? "border-amber-400/50 bg-amber-400/10" : "border-amber-400 bg-amber-50"
+                    : isDark ? "border-white/10 bg-white/[0.02] hover:bg-white/[0.04]" : "border-slate-200 bg-slate-50 hover:bg-slate-100/60"
                 }`}
               >
                 <div className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border ${
-                  formData.featured ? "border-amber-400 bg-amber-400 text-slate-900" : "border-white/20 bg-white/10"
+                  formData.featured ? "border-amber-400 bg-amber-400 text-slate-900" : isDark ? "border-white/20 bg-white/10" : "border-slate-300 bg-white"
                 }`}>
                   {formData.featured && <FiCheck className="text-xs" />}
                 </div>
                 <div>
-                  <span className="block text-xs font-bold text-white">Feature in Hero & Top of Portfolio</span>
-                  <span className="block text-[11px] text-slate-400 mt-1">
+                  <span className={`block text-xs font-bold ${isDark ? "text-white" : "text-slate-900"}`}>Feature in Hero & Top of Portfolio</span>
+                  <span className={`block text-[11px] mt-1 ${isDark ? "text-slate-400" : "text-slate-500"}`}>
                     Featured projects are pinned at the top and highlighted across service landing pages.
                   </span>
                 </div>
@@ -749,7 +797,7 @@ export default function PortalProjectForm({ editingProject = null, onSaved, onCa
 
               {/* Display Order */}
               <div className="mt-4">
-                <label htmlFor="display-order" className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">
+                <label htmlFor="display-order" className={`block text-xs font-bold uppercase tracking-wider mb-1.5 ${isDark ? "text-slate-300" : "text-slate-700"}`}>
                   Display Order Ranking (Lower = First)
                 </label>
                 <input
@@ -759,35 +807,47 @@ export default function PortalProjectForm({ editingProject = null, onSaved, onCa
                   max="999"
                   value={formData.displayOrder}
                   onChange={(e) => setFormData({ ...formData, displayOrder: e.target.value })}
-                  className="w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-2.5 text-xs font-semibold text-white outline-none focus:border-rapido-sky"
+                  className={`w-full rounded-xl border px-4 py-2.5 text-xs font-semibold outline-none transition ${
+                    isDark
+                      ? "border-white/10 bg-white/[0.04] text-white focus:border-rapido-sky"
+                      : "border-slate-300 bg-slate-50 text-slate-900 focus:border-blue-500 focus:bg-white"
+                  }`}
                 />
               </div>
             </div>
 
             {/* SEO Metadata */}
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2">
+              <label className={`block text-xs font-bold uppercase tracking-wider mb-2 ${isDark ? "text-slate-300" : "text-slate-700"}`}>
                 SEO Metadata (Optional)
               </label>
               <div className="space-y-3">
                 <div>
-                  <span className="block text-[11px] text-slate-400 mb-1">SEO Title</span>
+                  <span className={`block text-[11px] mb-1 ${isDark ? "text-slate-400" : "text-slate-500"}`}>SEO Title</span>
                   <input
                     type="text"
                     value={formData.seoTitle}
                     onChange={(e) => setFormData({ ...formData, seoTitle: e.target.value })}
                     placeholder="Custom page title for search engines"
-                    className="w-full rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-xs text-white placeholder-slate-500 outline-none focus:border-rapido-sky"
+                    className={`w-full rounded-xl border px-3 py-2 text-xs outline-none transition ${
+                      isDark
+                        ? "border-white/10 bg-white/[0.04] text-white placeholder-slate-500 focus:border-rapido-sky"
+                        : "border-slate-300 bg-slate-50 text-slate-900 placeholder-slate-400 focus:border-blue-500 focus:bg-white"
+                    }`}
                   />
                 </div>
                 <div>
-                  <span className="block text-[11px] text-slate-400 mb-1">Meta Description</span>
+                  <span className={`block text-[11px] mb-1 ${isDark ? "text-slate-400" : "text-slate-500"}`}>Meta Description</span>
                   <textarea
                     rows={2}
                     value={formData.seoDescription}
                     onChange={(e) => setFormData({ ...formData, seoDescription: e.target.value })}
                     placeholder="Brief summary for Google search results"
-                    className="w-full rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-xs text-white placeholder-slate-500 outline-none focus:border-rapido-sky"
+                    className={`w-full rounded-xl border px-3 py-2 text-xs outline-none transition ${
+                      isDark
+                        ? "border-white/10 bg-white/[0.04] text-white placeholder-slate-500 focus:border-rapido-sky"
+                        : "border-slate-300 bg-slate-50 text-slate-900 placeholder-slate-400 focus:border-blue-500 focus:bg-white"
+                    }`}
                   />
                 </div>
               </div>
@@ -796,15 +856,17 @@ export default function PortalProjectForm({ editingProject = null, onSaved, onCa
         </div>
 
         {/* Submit Bar */}
-        <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-white/10 bg-[#0c182c]/90 p-5 backdrop-blur-xl">
-          <div className="text-xs text-slate-400">
+        <div className={`flex flex-wrap items-center justify-between gap-4 rounded-2xl border p-5 backdrop-blur-xl transition ${
+          isDark ? "border-white/10 bg-[#0c182c]/90 text-white" : "border-slate-200 bg-white shadow-sm text-slate-900"
+        }`}>
+          <div className="text-xs">
             {formData.status === "published" ? (
-              <span className="text-emerald-400 flex items-center gap-1.5 font-semibold">
-                <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="text-emerald-500 flex items-center gap-1.5 font-semibold">
+                <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
                 Will immediately go live under &quot;{formData.category}&quot; on /projects
               </span>
             ) : (
-              <span className="text-amber-400 font-semibold">
+              <span className="text-amber-500 font-semibold">
                 Will be saved as {formData.status} (not visible to public)
               </span>
             )}
@@ -814,7 +876,11 @@ export default function PortalProjectForm({ editingProject = null, onSaved, onCa
             <button
               type="button"
               onClick={onCancel}
-              className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-2.5 text-xs font-semibold text-slate-300 hover:bg-white/[0.08] hover:text-white transition"
+              className={`rounded-xl border px-4 py-2.5 text-xs font-semibold transition ${
+                isDark
+                  ? "border-white/10 bg-white/[0.04] text-slate-300 hover:bg-white/[0.08] hover:text-white"
+                  : "border-slate-300 bg-white text-slate-700 hover:border-slate-400 hover:text-slate-900 shadow-sm"
+              }`}
             >
               Cancel
             </button>

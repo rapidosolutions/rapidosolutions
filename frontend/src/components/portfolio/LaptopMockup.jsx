@@ -47,10 +47,25 @@ export default function LaptopMockup({
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-500/80 sm:h-2 sm:w-2" />
             </div>
 
-            <div className="flex max-w-[65%] items-center gap-1.5 overflow-hidden rounded-md bg-white/[0.08] px-2 py-0.5 text-[9px] sm:text-[10px] font-medium text-slate-300">
-              <Icon name="FiLock" className="h-2.5 w-2.5 shrink-0 text-emerald-400" />
-              <span className="truncate">{cleanUrl}</span>
-            </div>
+            {projectUrl ? (
+              <a
+                href={projectUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                title={`Open ${projectUrl} in new window`}
+                className="group/url flex max-w-[65%] items-center gap-1.5 overflow-hidden rounded-md bg-white/[0.08] px-2 py-0.5 text-[9px] sm:text-[10px] font-medium text-slate-300 hover:bg-white/[0.2] hover:text-white transition cursor-pointer"
+              >
+                <Icon name="FiLock" className="h-2.5 w-2.5 shrink-0 text-emerald-400" />
+                <span className="truncate">{cleanUrl}</span>
+                <Icon name="FiExternalLink" className="h-2.5 w-2.5 shrink-0 text-slate-400 group-hover/url:text-white" />
+              </a>
+            ) : (
+              <div className="flex max-w-[65%] items-center gap-1.5 overflow-hidden rounded-md bg-white/[0.08] px-2 py-0.5 text-[9px] sm:text-[10px] font-medium text-slate-300">
+                <Icon name="FiLock" className="h-2.5 w-2.5 shrink-0 text-emerald-400" />
+                <span className="truncate">{cleanUrl}</span>
+              </div>
+            )}
 
             <div className="flex items-center gap-1 text-[10px] text-slate-400">
               <span className="hidden sm:inline text-[9px] text-slate-500 font-mono">100%</span>

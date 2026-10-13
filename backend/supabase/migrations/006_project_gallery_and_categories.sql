@@ -7,3 +7,9 @@ alter table public.projects
 -- Update reviews table to support specific project/group association
 alter table public.reviews
   add column if not exists project_name text not null default '' check (char_length(project_name) <= 160);
+
+-- Backfill project_url for any existing projects without a URL
+update public.projects
+  set project_url = concat('https://', slug, '.rapidosolutions.com')
+  where project_url is null or project_url = '';
+

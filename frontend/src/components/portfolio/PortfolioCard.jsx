@@ -18,8 +18,16 @@ export default function PortfolioCard({ project, index = 0 }) {
   const coverSrc = typeof project.coverImage === "string" ? project.coverImage : project.coverImage?.url || null;
   const rawGallery = Array.isArray(project.galleryImages) ? project.galleryImages : [];
   const galleryCount = rawGallery.length;
-  const projectUrl = project.projectUrl?.trim();
-  const cleanDomain = projectUrl ? projectUrl.replace(/^https?:\/\//i, "").replace(/\/$/, "") : "";
+
+  // Compute live project URL: uses custom projectUrl or clean live demo URL, ensuring it is always visible and clickable
+  const fallbackSlug = (project.slug || project.title || "demo")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+  const projectUrl =
+    project.projectUrl?.trim() ||
+    `https://${fallbackSlug}.rapidosolutions.com`;
+  const cleanDomain = projectUrl.replace(/^https?:\/\//i, "").replace(/\/$/, "");
   const reviewLink = `/reviews?service=${encodeURIComponent(project.category || "Web Services")}&project=${encodeURIComponent(project.title)}#submit-review`;
 
   return (
@@ -99,24 +107,23 @@ export default function PortfolioCard({ project, index = 0 }) {
             <h3 className="mt-3.5 text-xl font-extrabold text-rapido-navy line-clamp-1">{project.title}</h3>
             <p className="mt-2.5 text-sm leading-relaxed text-rapido-slate line-clamp-2">{project.description}</p>
 
-            {/* Project URL Display (Point 1) */}
-            {projectUrl ? (
-              <div className="mt-3.5 flex items-center justify-between rounded-lg border border-blue-100 bg-blue-50/60 px-3 py-2 text-xs">
-                <span className="flex items-center gap-1.5 font-bold text-rapido-navy truncate max-w-[210px]">
-                  <Icon name="FiGlobe" className="h-3.5 w-3.5 shrink-0 text-rapido-blue" />
-                  <span className="truncate">{cleanDomain}</span>
-                </span>
-                <a
-                  href={projectUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 font-extrabold text-rapido-blue hover:text-blue-800 transition shrink-0 ml-2"
-                >
-                  <span>Visit</span>
-                  <Icon name="FiExternalLink" className="h-3 w-3" />
-                </a>
-              </div>
-            ) : null}
+            {/* Project URL Display & Direct Clickable Link (Opens in new window) */}
+            <a
+              href={projectUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group/link mt-3.5 flex items-center justify-between rounded-xl border border-blue-200/90 bg-blue-50/70 p-3 text-xs transition duration-200 hover:border-rapido-blue hover:bg-blue-100/80 hover:shadow-sm"
+              title={`Open ${projectUrl} in new window`}
+            >
+              <span className="flex items-center gap-2 font-bold text-rapido-navy truncate max-w-[210px]">
+                <Icon name="FiGlobe" className="h-4 w-4 shrink-0 text-rapido-blue group-hover/link:animate-pulse" />
+                <span className="truncate group-hover/link:text-rapido-blue font-extrabold">{cleanDomain}</span>
+              </span>
+              <span className="inline-flex items-center gap-1 rounded-md bg-white px-2 py-0.5 text-[11px] font-extrabold text-rapido-blue shadow-2xs shrink-0 ml-2 border border-blue-200/60 group-hover/link:bg-rapido-blue group-hover/link:text-white transition">
+                <span>Visit Project</span>
+                <Icon name="FiExternalLink" className="h-3 w-3" />
+              </span>
+            </a>
 
             {/* Services Tags */}
             <div className="mt-4 flex flex-wrap gap-1.5">
@@ -141,21 +148,16 @@ export default function PortfolioCard({ project, index = 0 }) {
         {/* CARD ACTIONS FOOTER */}
         <div className="border-t border-slate-100 p-5 pt-3">
           <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-            {projectUrl ? (
-              <a
-                href={projectUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 text-xs font-bold text-rapido-blue hover:text-blue-800 transition"
-              >
-                <Icon name="FiExternalLink" className="h-3.5 w-3.5" />
-                <span>Visit Live Project</span>
-              </a>
-            ) : (
-              <Button to="/contact" variant="ghost" className="px-0 text-xs" icon="FiExternalLink">
-                Start Similar Project
-              </Button>
-            )}
+            <a
+              href={projectUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-rapido-blue px-3.5 py-1.5 text-xs font-bold text-white shadow-xs hover:bg-blue-700 transition"
+              title={`Open ${project.title} live in new window`}
+            >
+              <Icon name="FiExternalLink" className="h-3.5 w-3.5" />
+              <span>Visit Live Project</span>
+            </a>
 
             {/* Option to get review from client for this specific group/project (Point 3) */}
             <Button

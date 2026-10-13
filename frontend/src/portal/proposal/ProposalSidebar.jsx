@@ -5,10 +5,11 @@ import {
   FiEdit3,
   FiCopy,
   FiTrash2,
-  FiEye,
   FiFileText,
   FiCheck,
-  FiX
+  FiX,
+  FiChevronLeft,
+  FiChevronRight
 } from "react-icons/fi";
 
 export default function ProposalSidebar({
@@ -18,7 +19,9 @@ export default function ProposalSidebar({
   onCreateNew,
   onDuplicateProposal,
   onDeleteProposal,
-  isDark = false
+  isDark = false,
+  isCollapsed = false,
+  onToggleCollapse
 }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
@@ -30,33 +33,97 @@ export default function ProposalSidebar({
     return titleMatch || clientMatch;
   });
 
+  if (isCollapsed) {
+    return (
+      <div
+        className={`flex flex-col items-center gap-3 p-2.5 rounded-2xl border transition-colors shrink-0 ${
+          isDark
+            ? "bg-[#0c182c]/90 border-white/10 text-white"
+            : "bg-white border-slate-200 text-slate-900 shadow-xs"
+        }`}
+      >
+        <button
+          type="button"
+          onClick={onToggleCollapse}
+          className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-700/50 transition"
+          title="Expand Proposals Sidebar"
+        >
+          <FiChevronRight className="text-base" />
+        </button>
+
+        <button
+          type="button"
+          onClick={onCreateNew}
+          className="p-2 rounded-xl bg-[#1D63ED] text-white hover:bg-blue-700 shadow-sm transition"
+          title="Create New Proposal"
+        >
+          <FiPlus className="text-base" />
+        </button>
+
+        <div className="flex flex-col items-center gap-2 pt-2 border-t border-slate-200/50 w-full">
+          {proposals.map((prop) => {
+            const isSelected = prop.id === selectedId;
+            return (
+              <button
+                key={prop.id}
+                type="button"
+                onClick={() => onSelectProposal(prop.id)}
+                className={`flex h-9 w-9 items-center justify-center rounded-xl text-xs font-bold transition ${
+                  isSelected
+                    ? "bg-[#1D63ED] text-white shadow-sm"
+                    : "text-slate-400 hover:bg-slate-100 dark:hover:bg-white/10"
+                }`}
+                title={prop.title || "Proposal"}
+              >
+                <FiFileText className="text-sm" />
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <aside
-      className={`w-full lg:w-80 flex flex-col shrink-0 rounded-2xl border p-4 transition-colors ${
+      className={`w-full lg:w-72 xl:w-80 flex flex-col shrink-0 rounded-2xl border p-4 transition-colors ${
         isDark
           ? "bg-[#0c182c]/90 border-white/10 text-white"
-          : "bg-white border-slate-200 text-slate-900 shadow-sm"
+          : "bg-white border-slate-200 text-slate-900 shadow-xs"
       }`}
     >
       {/* Sidebar Header */}
       <div className="flex items-center justify-between pb-3.5 mb-3.5 border-b border-slate-200/50">
         <div className="flex items-center gap-2">
-          <FiFileText className="text-rapido-blue text-lg" />
+          <FiFileText className="text-[#1D63ED] text-lg" />
           <h3 className="text-sm font-bold tracking-tight">Proposals</h3>
-          <span className="flex h-5 items-center justify-center rounded-full bg-rapido-blue/15 px-2 text-[11px] font-bold text-rapido-blue">
+          <span className="flex h-5 items-center justify-center rounded-full bg-[#1D63ED]/15 px-2 text-[11px] font-bold text-[#1D63ED]">
             {proposals.length}
           </span>
         </div>
 
-        <button
-          type="button"
-          onClick={onCreateNew}
-          className="inline-flex items-center gap-1 rounded-xl bg-[#1D63ED] px-3 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-blue-700 transition"
-          title="Create a new proposal"
-        >
-          <FiPlus />
-          <span>New</span>
-        </button>
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            onClick={onCreateNew}
+            className="inline-flex items-center gap-1 rounded-xl bg-[#1D63ED] px-2.5 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-blue-700 transition"
+            title="Create a new proposal"
+          >
+            <FiPlus />
+            <span>New</span>
+          </button>
+
+          {onToggleCollapse && (
+            <button
+              type="button"
+              onClick={onToggleCollapse}
+              className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-700/50 transition hidden lg:inline-flex"
+              title="Collapse Proposals Sidebar"
+            >
+              <FiChevronLeft className="text-base" />
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Search Input */}
@@ -67,7 +134,7 @@ export default function ProposalSidebar({
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           placeholder="Search proposals or clients…"
-          className={`w-full rounded-xl border pl-8 pr-3 py-1.5 text-xs transition focus:outline-none focus:ring-2 focus:ring-rapido-blue/30 ${
+          className={`w-full rounded-xl border pl-8 pr-3 py-1.5 text-xs transition focus:outline-none focus:ring-2 focus:ring-[#1D63ED]/30 ${
             isDark
               ? "bg-[#111f35] border-white/10 text-white placeholder-slate-500"
               : "bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400"
@@ -93,17 +160,17 @@ export default function ProposalSidebar({
                 onClick={() => onSelectProposal(prop.id)}
                 className={`group relative cursor-pointer rounded-xl border p-3 transition ${
                   isSelected
-                    ? "border-rapido-blue bg-blue-500/10 shadow-sm ring-1 ring-rapido-blue"
+                    ? "border-[#1D63ED] bg-blue-500/10 shadow-sm ring-1 ring-[#1D63ED]"
                     : isDark
                     ? "border-white/10 bg-white/[0.02] hover:bg-white/[0.06] hover:border-white/20"
-                    : "border-slate-200 bg-white hover:bg-slate-50 hover:border-slate-300 shadow-xs"
+                    : "border-slate-200 bg-white hover:bg-slate-50 hover:border-slate-300 shadow-2xs"
                 }`}
               >
                 {/* Proposal Title */}
                 <h4
                   className={`text-xs font-bold leading-snug line-clamp-2 ${
                     isSelected
-                      ? "text-rapido-blue"
+                      ? "text-[#1D63ED]"
                       : isDark
                       ? "text-white"
                       : "text-slate-900"

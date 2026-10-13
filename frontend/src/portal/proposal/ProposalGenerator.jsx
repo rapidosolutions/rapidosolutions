@@ -17,8 +17,10 @@ import {
   FiEye,
   FiEdit3,
   FiColumns,
-  FiRefreshCw,
-  FiRotateCcw
+  FiRotateCcw,
+  FiZoomIn,
+  FiZoomOut,
+  FiMaximize2
 } from "react-icons/fi";
 import html2pdf from "html2pdf.js";
 
@@ -31,6 +33,8 @@ export default function ProposalGenerator() {
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [viewMode, setViewMode] = useState("split"); // 'split' | 'editor' | 'preview'
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [previewZoom, setPreviewZoom] = useState(88); // percentage 75 | 88 | 100
   const printRef = useRef(null);
 
   // Load proposals on mount
@@ -62,7 +66,7 @@ export default function ProposalGenerator() {
     }
   };
 
-  // Create new blank/template proposal
+  // Create new blank proposal
   const handleCreateNew = () => {
     const newProp = {
       id: `prop-${Date.now()}`,
@@ -115,7 +119,7 @@ export default function ProposalGenerator() {
     setCurrentProposal(newProp);
   };
 
-  // Duplicate an existing proposal
+  // Duplicate proposal
   const handleDuplicateProposal = (id) => {
     const target = proposals.find((p) => p.id === id);
     if (!target) return;
@@ -133,7 +137,7 @@ export default function ProposalGenerator() {
     saveProposal(duplicated);
   };
 
-  // Delete a proposal
+  // Delete proposal
   const handleDeleteProposal = async (id) => {
     await deleteProposal(id);
     const nextList = proposals.filter((p) => p.id !== id);
@@ -174,14 +178,109 @@ export default function ProposalGenerator() {
     saveProposal(reset);
   };
 
-  // Print via window.print()
+  // 100% Pixel-Perfect Clean Print Window
   const handlePrint = () => {
-    window.print();
+    const printEl = document.getElementById("proposal-document-container");
+    if (!printEl) return;
+
+    // Collect all loaded stylesheets
+    const styleTags = Array.from(document.querySelectorAll("link[rel='stylesheet'], style"))
+      .map((tag) => tag.outerHTML)
+      .join("\n");
+
+    const iframe = document.createElement("iframe");
+    iframe.style.position = "fixed";
+    iframe.style.right = "0";
+    iframe.style.bottom = "0";
+    iframe.style.width = "0";
+    iframe.style.height = "0";
+    iframe.style.border = "none";
+    iframe.style.zIndex = "-9999";
+    document.body.appendChild(iframe);
+
+    const doc = iframe.contentWindow.document;
+    doc.open();
+    doc.write(`
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="utf-8" />
+          <title>${currentProposal?.title || "Rapido Proposal"}</title>
+          <link rel="preconnect" href="https://fonts.googleapis.com">
+          <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+          <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+          ${styleTags}
+          <style>
+            @page {
+              size: A4 portrait;
+              margin: 0;
+            }
+            * {
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
+              box-sizing: border-box;
+            }
+            html, body {
+              margin: 0 !important;
+              padding: 0 !important;
+              background: #ffffff !important;
+              color: #0f172a !important;
+              font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
+            }
+            .proposal-document-root {
+              display: block !important;
+              width: 100% !important;
+              margin: 0 !important;
+              padding: 0 !important;
+            }
+            .proposal-a4-page {
+              width: 210mm !important;
+              min-height: 297mm !important;
+              height: 297mm !important;
+              max-width: 210mm !important;
+              margin: 0 auto !important;
+              padding: 16mm 18mm !important;
+              page-break-after: always !important;
+              break-after: page !important;
+              page-break-inside: avoid !important;
+              box-shadow: none !important;
+              border: none !important;
+              border-radius: 0 !important;
+              background: #ffffff !important;
+              display: flex !important;
+              flex-direction: column !important;
+              justify-content: space-between !important;
+            }
+            .proposal-a4-page:last-child {
+              page-break-after: auto !important;
+              break-after: auto !important;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="proposal-document-root">
+            ${printEl.innerHTML}
+          </div>
+        </body>
+      </html>
+    `);
+    doc.close();
+
+    // Trigger print after rendering
+    setTimeout(() => {
+      iframe.contentWindow.focus();
+      iframe.contentWindow.print();
+      setTimeout(() => {
+        if (document.body.contains(iframe)) {
+          document.body.removeChild(iframe);
+        }
+      }, 1500);
+    }, 450);
   };
 
   // Download PDF via html2pdf.js
   const handleDownloadPdf = () => {
-    const el = document.querySelector(".proposal-document-root");
+    const el = document.getElementById("proposal-document-container");
     if (!el) return;
     const filename = `${(currentProposal?.title || "rapido-proposal")
       .toLowerCase()
@@ -210,35 +309,39 @@ export default function ProposalGenerator() {
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="w-full flex flex-col gap-4">
       {/* Top Action Header */}
       <div
-        className={`flex flex-wrap items-center justify-between gap-4 p-4 rounded-2xl border transition-colors ${
-          isDark ? "bg-[#0c182c]/90 border-white/10" : "bg-white border-slate-200 shadow-sm"
+        className={`flex flex-wrap items-center justify-between gap-3 p-3.5 sm:p-4 rounded-2xl border transition-colors ${
+          isDark ? "bg-[#0c182c]/90 border-white/10" : "bg-white border-slate-200 shadow-xs"
         }`}
       >
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-rapido-blue/15 text-rapido-blue">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#1D63ED]/15 text-[#1D63ED]">
             <FiEdit3 className="text-xl" />
           </div>
           <div>
-            <h2 className={`text-base font-black tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>
-              Proposal Generator Tool
+            <h2 className={`text-sm sm:text-base font-black tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>
+              {currentProposal?.title || "Proposal Generator"}
             </h2>
-            <p className="text-xs text-slate-400">
-              Create and export formatted corporate proposals matching the official Rapido identity.
+            <p className="text-[11px] text-slate-400">
+              {currentProposal?.companyDetails?.preparedFor
+                ? `Proposal prepared for ${currentProposal.companyDetails.preparedFor}`
+                : "Corporate proposal editor & live A4 preview"}
             </p>
           </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
           {/* View Mode Switcher */}
-          <div className="flex items-center gap-1 p-1 rounded-xl bg-slate-100 border border-slate-200">
+          <div className="flex items-center gap-1 p-1 rounded-xl bg-slate-100 border border-slate-200 dark:bg-white/5 dark:border-white/10">
             <button
               type="button"
               onClick={() => setViewMode("split")}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition ${
-                viewMode === "split" ? "bg-white text-slate-900 shadow-xs" : "text-slate-500 hover:text-slate-900"
+                viewMode === "split"
+                  ? "bg-white dark:bg-[#1D63ED] text-slate-900 dark:text-white shadow-xs"
+                  : "text-slate-500 hover:text-slate-900 dark:hover:text-white"
               }`}
               title="Split View (Editor + Live Preview)"
             >
@@ -249,7 +352,9 @@ export default function ProposalGenerator() {
               type="button"
               onClick={() => setViewMode("editor")}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition ${
-                viewMode === "editor" ? "bg-white text-slate-900 shadow-xs" : "text-slate-500 hover:text-slate-900"
+                viewMode === "editor"
+                  ? "bg-white dark:bg-[#1D63ED] text-slate-900 dark:text-white shadow-xs"
+                  : "text-slate-500 hover:text-slate-900 dark:hover:text-white"
               }`}
               title="Editor View Only"
             >
@@ -260,12 +365,14 @@ export default function ProposalGenerator() {
               type="button"
               onClick={() => setViewMode("preview")}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition ${
-                viewMode === "preview" ? "bg-white text-slate-900 shadow-xs" : "text-slate-500 hover:text-slate-900"
+                viewMode === "preview"
+                  ? "bg-white dark:bg-[#1D63ED] text-slate-900 dark:text-white shadow-xs"
+                  : "text-slate-500 hover:text-slate-900 dark:hover:text-white"
               }`}
               title="A4 Document Preview Only"
             >
               <FiEye />
-              <span className="hidden sm:inline">A4 Preview</span>
+              <span className="hidden sm:inline">Preview</span>
             </button>
           </div>
 
@@ -281,29 +388,29 @@ export default function ProposalGenerator() {
             title="Load the reference proposal from sample images"
           >
             <FiRotateCcw />
-            <span className="hidden sm:inline">Reset Sample</span>
+            <span className="hidden md:inline">Reset Sample</span>
           </button>
 
           {/* Download PDF */}
           <button
             type="button"
             onClick={handleDownloadPdf}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-800 text-white text-xs font-bold shadow-sm hover:bg-slate-900 transition"
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-800 text-white text-xs font-bold shadow-sm hover:bg-slate-900 transition"
             title="Download PDF document"
           >
             <FiDownload />
             <span>PDF</span>
           </button>
 
-          {/* Print / Save PDF (Native) */}
+          {/* Print Clean Window */}
           <button
             type="button"
             onClick={handlePrint}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-100 text-slate-800 border border-slate-300 text-xs font-bold shadow-xs hover:bg-slate-200 transition"
-            title="Print or Save via Browser (Ctrl+P)"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#1D63ED] text-white text-xs font-bold shadow-sm hover:bg-blue-700 transition"
+            title="Open Print Dialog (Exact A4 Preview Layout)"
           >
             <FiPrinter />
-            <span>Print</span>
+            <span>Print Layout</span>
           </button>
 
           {/* Save Button */}
@@ -312,18 +419,18 @@ export default function ProposalGenerator() {
             onClick={handleSave}
             disabled={saving}
             className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white shadow-sm transition ${
-              saveSuccess ? "bg-emerald-600" : "bg-[#1D63ED] hover:bg-blue-700"
+              saveSuccess ? "bg-emerald-600" : "bg-emerald-600 hover:bg-emerald-700"
             }`}
           >
             {saveSuccess ? <FiCheck /> : <FiSave />}
-            <span>{saveSuccess ? "Saved!" : saving ? "Saving…" : "Save Changes"}</span>
+            <span>{saveSuccess ? "Saved!" : saving ? "Saving…" : "Save"}</span>
           </button>
         </div>
       </div>
 
-      {/* Main Workspace: Sidebar + Editor/Preview */}
-      <div className="flex flex-col lg:flex-row items-start gap-6">
-        {/* Proposal Sidebar */}
+      {/* Main Full-Width Workspace */}
+      <div className="w-full flex items-start gap-4">
+        {/* Proposal Sidebar with Collapse state */}
         <ProposalSidebar
           proposals={proposals}
           selectedId={selectedId}
@@ -332,33 +439,78 @@ export default function ProposalGenerator() {
           onDuplicateProposal={handleDuplicateProposal}
           onDeleteProposal={handleDeleteProposal}
           isDark={isDark}
+          isCollapsed={sidebarCollapsed}
+          onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
         />
 
         {/* Content Area */}
         {currentProposal ? (
-          <div className="flex-1 w-full overflow-hidden">
+          <div className="flex-1 w-full min-w-0">
             {viewMode === "split" && (
-              <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start">
-                <div>
+              <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 items-start w-full">
+                {/* Editor Column */}
+                <div className="xl:col-span-6 w-full">
                   <ProposalEditor
                     proposal={currentProposal}
                     onChange={setCurrentProposal}
                     isDark={isDark}
                   />
                 </div>
-                <div className="overflow-x-auto pb-8">
-                  <div className="scale-[0.88] xl:scale-[0.92] origin-top">
-                    <ProposalDocumentPreview
-                      ref={printRef}
-                      proposal={currentProposal}
-                    />
+
+                {/* Live Preview Column with Zoom Controls */}
+                <div className="xl:col-span-6 w-full flex flex-col gap-2">
+                  {/* Zoom Controls */}
+                  <div className="flex items-center justify-between px-3 py-1.5 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 text-xs text-slate-500">
+                    <span className="font-bold flex items-center gap-1.5">
+                      <FiEye className="text-[#1D63ED]" />
+                      <span>Live A4 Preview</span>
+                    </span>
+                    <div className="flex items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={() => setPreviewZoom(75)}
+                        className={`px-2 py-0.5 rounded text-[11px] font-bold ${previewZoom === 75 ? "bg-[#1D63ED] text-white" : "hover:bg-slate-200 dark:hover:bg-white/10"}`}
+                      >
+                        75%
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setPreviewZoom(88)}
+                        className={`px-2 py-0.5 rounded text-[11px] font-bold ${previewZoom === 88 ? "bg-[#1D63ED] text-white" : "hover:bg-slate-200 dark:hover:bg-white/10"}`}
+                      >
+                        88%
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setPreviewZoom(100)}
+                        className={`px-2 py-0.5 rounded text-[11px] font-bold ${previewZoom === 100 ? "bg-[#1D63ED] text-white" : "hover:bg-slate-200 dark:hover:bg-white/10"}`}
+                      >
+                        100%
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="overflow-x-auto pb-10 w-full flex justify-center">
+                    <div
+                      style={{
+                        transform: `scale(${previewZoom / 100})`,
+                        transformOrigin: "top center",
+                        width: "100%",
+                        maxWidth: "794px"
+                      }}
+                    >
+                      <ProposalDocumentPreview
+                        ref={printRef}
+                        proposal={currentProposal}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
             )}
 
             {viewMode === "editor" && (
-              <div className="max-w-4xl mx-auto">
+              <div className="w-full max-w-5xl mx-auto">
                 <ProposalEditor
                   proposal={currentProposal}
                   onChange={setCurrentProposal}
@@ -368,11 +520,13 @@ export default function ProposalGenerator() {
             )}
 
             {viewMode === "preview" && (
-              <div className="flex justify-center overflow-x-auto pb-12">
-                <ProposalDocumentPreview
-                  ref={printRef}
-                  proposal={currentProposal}
-                />
+              <div className="w-full flex justify-center overflow-x-auto pb-12">
+                <div className="w-full max-w-[794px]">
+                  <ProposalDocumentPreview
+                    ref={printRef}
+                    proposal={currentProposal}
+                  />
+                </div>
               </div>
             )}
           </div>
@@ -382,47 +536,6 @@ export default function ProposalGenerator() {
           </div>
         )}
       </div>
-
-      {/* Embedded Print Stylesheet for exact A4 rendering */}
-      <style>{`
-        @media print {
-          @page {
-            size: A4 portrait;
-            margin: 0mm;
-          }
-          body {
-            background: #ffffff !important;
-            color: #0f172a !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
-          }
-          header, footer, nav, aside, button, input, .proposal-sidebar, header * {
-            display: none !important;
-          }
-          .proposal-document-root {
-            display: block !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            width: 100% !important;
-            background: #ffffff !important;
-          }
-          .proposal-a4-page {
-            page-break-after: always !important;
-            break-after: page !important;
-            min-height: 297mm !important;
-            max-width: 210mm !important;
-            width: 210mm !important;
-            margin: 0 auto !important;
-            padding: 18mm 18mm !important;
-            box-shadow: none !important;
-            border: none !important;
-            border-radius: 0 !important;
-            background: #ffffff !important;
-          }
-        }
-      `}</style>
     </div>
   );
 }

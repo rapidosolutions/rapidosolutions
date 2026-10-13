@@ -73,6 +73,7 @@ export function createApp({
   contactService,
   reviewService,
   projectService,
+  proposalService,
   resumeService,
   uploadService,
   databaseStatus,
@@ -418,6 +419,36 @@ export function createApp({
       res.status(201).json({ asset: await uploadService.upload(req.file, { folder: "rapido/projects" }) });
     })
   );
+
+  if (proposalService) {
+    app.get("/api/admin/proposals", session.requireProjectAdmin, requireProjectAuthorization, asyncHandler(async (req, res) => {
+      res.json({ proposals: await proposalService.list() });
+    }));
+    app.get("/api/admin/proposals/:id", session.requireProjectAdmin, requireProjectAuthorization, asyncHandler(async (req, res) => {
+      res.json({ proposal: await proposalService.get(req.params.id) });
+    }));
+    app.post("/api/admin/proposals", session.requireProjectAdmin, requireProjectAuthorization, session.requireCsrf, asyncHandler(async (req, res) => {
+      res.status(201).json({ proposal: await proposalService.create(req.body) });
+    }));
+    app.put("/api/admin/proposals/:id", session.requireProjectAdmin, requireProjectAuthorization, session.requireCsrf, asyncHandler(async (req, res) => {
+      res.json({ proposal: await proposalService.update(req.params.id, req.body) });
+    }));
+    app.delete("/api/admin/proposals/:id", session.requireProjectAdmin, requireProjectAuthorization, session.requireCsrf, asyncHandler(async (req, res) => {
+      res.json(await proposalService.delete(req.params.id));
+    }));
+    app.post(
+      "/api/admin/uploads/proposal-image",
+      limiter(60 * 60 * 1000, 30, "Upload limit reached. Please try again later."),
+      session.requireProjectAdmin,
+      requireProjectAuthorization,
+      session.requireCsrf,
+      upload.single("image"),
+      asyncHandler(async (req, res) => {
+        if (!req.file) throw new AppError(400, "Choose an image to upload.", "IMAGE_REQUIRED");
+        res.status(201).json({ asset: await uploadService.upload(req.file, { folder: "rapido/proposals" }) });
+      })
+    );
+  }
 
   if (cvAdminAuthService && cvService && cvDocumentService) {
     registerCvAdminRoutes(app, {

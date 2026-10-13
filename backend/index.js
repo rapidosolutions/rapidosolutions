@@ -10,6 +10,7 @@ import { createUploadService } from "./services/uploadService.js";
 import { createReviewService } from "./services/reviewService.js";
 import { createResumeService } from "./services/resumeService.js";
 import { createProjectService } from "./services/projectService.js";
+import { createProposalService } from "./services/proposalService.js";
 import { createCvAdminAuthService } from "./services/cvAdminAuthService.js";
 import { createCvService } from "./services/cvService.js";
 import { createCvDocumentService } from "./services/cvDocumentService.js";
@@ -26,6 +27,7 @@ async function start() {
   const reviewService = createReviewService({ supabase, emailService });
   const resumeService = createResumeService(config);
   const projectService = createProjectService({ supabase, uploadService });
+  const proposalService = createProposalService({ supabase, uploadService });
   const cvAdminAuthService = createCvAdminAuthService({ supabase, config, emailService });
   const cvService = createCvService({ supabase, uploadService });
   const cvDocumentService = createCvDocumentService({ supabase, uploadService, emailService });
@@ -47,6 +49,7 @@ async function start() {
     reviewService,
     resumeService,
     projectService,
+    proposalService,
     uploadService,
     databaseStatus,
     cvAdminAuthService,

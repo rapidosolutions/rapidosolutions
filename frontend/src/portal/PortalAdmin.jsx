@@ -8,6 +8,7 @@ import {
   FiLogOut,
   FiFolder,
   FiPlusCircle,
+  FiFileText,
   FiExternalLink,
   FiGlobe,
   FiCheckCircle,
@@ -15,7 +16,7 @@ import {
 } from "react-icons/fi";
 import { Link } from "react-router-dom";
 import rapidoWordmark from "../assets/logo/rapido-wordmark-cropped.png";
-import rapidoIcon from "../assets/logo/rapido-icon-new.png";
+import ProposalGenerator from "./proposal/ProposalGenerator";
 
 export default function PortalAdmin() {
   const { admin, loading, logout, isDark } = usePortal();
@@ -93,12 +94,11 @@ export default function PortalAdmin() {
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           {/* Brand Identity */}
           <div className="flex items-center gap-3">
-            <Link to="/" className="flex items-center gap-2.5">
-              <img src={rapidoIcon} alt="Rapido Icon" className="h-8 w-8 object-contain" />
+            <Link to="/" className="flex items-center" aria-label="Rapido Solutions home">
               <img
                 src={rapidoWordmark}
                 alt="Rapido Solutions"
-                className={`h-6 w-auto object-contain transition ${isDark ? "brightness-0 invert" : ""}`}
+                className={`h-7 sm:h-8 w-auto max-w-[160px] object-contain transition ${isDark ? "brightness-0 invert" : ""}`}
               />
             </Link>
             <span
@@ -146,6 +146,27 @@ export default function PortalAdmin() {
             >
               <FiPlusCircle className="text-sm" />
               <span>{editingProject ? "Edit Project" : "Add Project"}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setActiveTab("proposals");
+                setEditingProject(null);
+              }}
+              className={`inline-flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-bold transition ${
+                activeTab === "proposals"
+                  ? "bg-rapido-blue text-white shadow-sm"
+                  : isDark
+                  ? "text-slate-400 hover:bg-white/[0.05] hover:text-white"
+                  : "text-slate-600 hover:bg-slate-200 hover:text-slate-900"
+              }`}
+            >
+              <FiFileText className="text-sm" />
+              <span>Proposals</span>
+              <span className="rounded-md bg-white/20 px-1.5 py-0.2 text-[10px] font-black uppercase tracking-wider">
+                Generator
+              </span>
             </button>
           </nav>
 
@@ -195,7 +216,9 @@ export default function PortalAdmin() {
 
       {/* Main Content Body */}
       <main className="relative z-10 flex-1 px-4 py-6 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
-        {activeTab === "list" ? (
+        {activeTab === "proposals" ? (
+          <ProposalGenerator />
+        ) : activeTab === "list" ? (
           <PortalProjectsList
             onAddNew={handleAddNew}
             onEditProject={handleEditProject}

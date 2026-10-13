@@ -140,6 +140,13 @@ export default function PortalProjectsList({ onAddNew, onEditProject }) {
     return { total, published, drafts, featured };
   }, [projectsList]);
 
+  // Dynamic categories including custom categories
+  const dynamicCategories = useMemo(() => {
+    const fromProjects = projectsList.map((p) => p.category).filter(Boolean);
+    const set = new Set(["All", ...projectCategories.filter((c) => c !== "All"), ...fromProjects]);
+    return Array.from(set);
+  }, [projectsList]);
+
   // Static image fallback lookup map by slug or title
   const staticImageBySlug = useMemo(() => {
     const map = new Map();
@@ -325,7 +332,7 @@ export default function PortalProjectsList({ onAddNew, onEditProject }) {
               }`}
             >
               <option value="All">All Categories</option>
-              {projectCategories
+              {dynamicCategories
                 .filter((c) => c !== "All")
                 .map((category) => (
                   <option key={category} value={category}>
@@ -446,9 +453,21 @@ export default function PortalProjectsList({ onAddNew, onEditProject }) {
 
                     {/* Bottom overlay info */}
                     <div className="absolute bottom-2.5 inset-x-3 flex items-center justify-between text-xs">
-                      <span className="rounded-md bg-black/60 px-2 py-0.5 text-[10px] font-semibold text-slate-200 backdrop-blur">
-                        {project.category}
-                      </span>
+                      <div className="flex items-center gap-1.5 truncate max-w-[75%]">
+                        <span className="rounded-md bg-black/70 px-2 py-0.5 text-[10px] font-semibold text-slate-200 backdrop-blur truncate">
+                          {project.category}
+                        </span>
+                        {project.subCategory ? (
+                          <span className="rounded-md bg-blue-600/80 px-2 py-0.5 text-[9px] font-bold text-white backdrop-blur truncate">
+                            {project.subCategory}
+                          </span>
+                        ) : null}
+                      </div>
+                      {Array.isArray(project.galleryImages) && project.galleryImages.length > 0 ? (
+                        <span className="rounded-md bg-slate-900/80 px-2 py-0.5 text-[10px] font-bold text-rapido-sky backdrop-blur flex items-center gap-1 shrink-0">
+                          <FiImage className="text-[10px]" /> +{project.galleryImages.length}
+                        </span>
+                      ) : null}
                     </div>
                   </div>
 

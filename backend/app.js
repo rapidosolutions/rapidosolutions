@@ -196,7 +196,8 @@ export function createApp({
       const review = await reviewService.create(req.validatedBody, req.get("user-agent") || "");
       res.status(201).json({
         message: "Thank you. Your review was submitted successfully.",
-        reference: review.id
+        reference: review.id,
+        review
       });
     })
   );

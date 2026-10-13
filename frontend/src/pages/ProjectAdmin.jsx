@@ -10,8 +10,8 @@ import { pageTransition } from "../utils/animations";
 import { usePageMeta } from "../utils/usePageMeta";
 
 const emptyProject = {
-  title: "", slug: "", type: "web", category: "Business Websites", description: "", services: "",
-  metric: "", coverImage: null, coverAlt: "", accent: "from-slate-200 to-blue-400", projectUrl: "",
+  title: "", slug: "", type: "web", category: "Business Websites", subCategory: "", description: "", services: "",
+  metric: "", coverImage: null, galleryImages: [], coverAlt: "", accent: "from-slate-200 to-blue-400", projectUrl: "",
   featured: false, displayOrder: 0, status: "draft", seoTitle: "", seoDescription: ""
 };
 const inputClass = "w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-rapido-navy outline-none transition focus:border-rapido-blue focus:ring-2 focus:ring-blue-100";
@@ -244,6 +244,7 @@ export default function ProjectAdmin() {
           <label className="grid gap-2 text-sm font-bold text-rapido-navy">Slug<input className={inputClass} value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} placeholder="Generated when blank" /></label>
           <label className="grid gap-2 text-sm font-bold text-rapido-navy">Type<select className={inputClass} value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })}><option value="web">Web</option><option value="financial">Financial</option><option value="human">Human Resource</option></select></label>
           <label className="grid gap-2 text-sm font-bold text-rapido-navy">Category<input className={inputClass} value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} required /></label>
+          <label className="grid gap-2 text-sm font-bold text-rapido-navy">Sub-category<input className={inputClass} value={form.subCategory} onChange={(e) => setForm({ ...form, subCategory: e.target.value })} placeholder="e.g. E-Commerce" /></label>
           <label className="grid gap-2 text-sm font-bold text-rapido-navy">Status<select className={inputClass} value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}><option value="draft">Draft</option><option value="published">Published</option><option value="archived">Archived</option></select></label>
           <label className="grid gap-2 text-sm font-bold text-rapido-navy sm:col-span-2">Short Description<textarea className={inputClass} rows="4" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} required /></label>
           <label className="grid gap-2 text-sm font-bold text-rapido-navy sm:col-span-2">Services (comma separated)<input className={inputClass} value={form.services} onChange={(e) => setForm({ ...form, services: e.target.value })} required /></label>

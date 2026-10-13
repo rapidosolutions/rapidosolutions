@@ -34,7 +34,14 @@ export default function Projects() {
         if (!activeRequest || !managedProjects?.length) return;
         setAvailableProjects(managedProjects.map((project) => {
           const legacy = legacyBySlug.get(project.slug);
-          return { ...project, coverImage: project.coverImage?.url || legacy?.coverImage || null, coverAlt: project.coverImage?.alt || project.coverAlt || legacy?.coverAlt || "" };
+          return {
+            ...project,
+            coverImage: project.coverImage?.url || legacy?.coverImage || null,
+            coverAlt: project.coverImage?.alt || project.coverAlt || legacy?.coverAlt || "",
+            galleryImages: (project.galleryImages?.length ? project.galleryImages : legacy?.galleryImages) || [],
+            subCategory: project.subCategory || legacy?.subCategory || "",
+            projectUrl: project.projectUrl || legacy?.projectUrl || ""
+          };
         }));
       })
       .catch(() => undefined);

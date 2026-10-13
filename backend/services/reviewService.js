@@ -31,9 +31,10 @@ function serializePublic(value) {
   return {
     id: value.id,
     name: value.name,
-    company: value.company,
-    role: value.role,
+    company: value.company || "",
+    role: value.role || "",
     service: value.service,
+    projectName: value.project_name || value.projectName || "",
     rating: value.rating,
     review: value.review,
     approvedAt: value.approved_at
@@ -54,14 +55,80 @@ function serializeAdmin(value) {
 }
 
 export function createReviewService({ supabase, emailService }) {
+  let localReviews = [
+    {
+      id: "rev-seed-1",
+      name: "Alexander Wright",
+      email: "alexander@nordicapex.com",
+      company: "Nordic Apex Retail",
+      role: "E-Commerce Director",
+      service: "Shopify Stores",
+      project_name: "Shopify Skincare Store",
+      rating: 5,
+      review: "Rapido Solutions completely rebuilt our Shopify store with a focus on conversion and speed. Our mobile bounce rate dropped noticeably and the new layout represents our brand perfectly.",
+      status: "approved",
+      featured: true,
+      notification_email_status: "sent",
+      email_error: "",
+      user_agent: "",
+      approved_at: new Date(Date.now() - 3 * 86400000).toISOString(),
+      created_at: new Date(Date.now() - 3 * 86400000).toISOString(),
+      updated_at: new Date().toISOString()
+    },
+    {
+      id: "rev-seed-2",
+      name: "Marcus Sterling",
+      email: "marcus@apexproperty.com",
+      company: "Apex Property Holdings",
+      role: "Managing Principal",
+      service: "Financial Projects",
+      project_name: "Property Accounting Cleanup",
+      rating: 5,
+      review: "The financial cleanup and bookkeeping routines implemented by Rapido gave our executive team real visibility into owner statements and cash positions. Thorough and dependable.",
+      status: "approved",
+      featured: true,
+      notification_email_status: "sent",
+      email_error: "",
+      user_agent: "",
+      approved_at: new Date(Date.now() - 7 * 86400000).toISOString(),
+      created_at: new Date(Date.now() - 7 * 86400000).toISOString(),
+      updated_at: new Date().toISOString()
+    },
+    {
+      id: "rev-seed-3",
+      name: "Elena Rostova",
+      email: "elena@cloudscale.io",
+      company: "CloudScale Technologies",
+      role: "Head of People",
+      service: "Human Resource Services",
+      project_name: "Talent Acquisition Workflow",
+      rating: 5,
+      review: "Our hiring process was disorganized until Rapido built our candidate screening framework and interview SOPs. Candidate quality has improved substantially.",
+      status: "approved",
+      featured: true,
+      notification_email_status: "sent",
+      email_error: "",
+      user_agent: "",
+      approved_at: new Date(Date.now() - 12 * 86400000).toISOString(),
+      created_at: new Date(Date.now() - 12 * 86400000).toISOString(),
+      updated_at: new Date().toISOString()
+    }
+  ];
+
   return {
     async listPublic({ limit = 6, featuredOnly = false } = {}) {
       const maximum = featuredOnly ? 4 : 24;
       const safeLimit = Math.min(maximum, Math.max(1, Number(limit) || 6));
-      if (!supabase) return [];
+      if (!supabase) {
+        return localReviews
+          .filter((r) => r.status === "approved" && (!featuredOnly || (r.featured && r.rating >= 4)))
+          .sort((a, b) => new Date(b.approved_at || b.created_at) - new Date(a.approved_at || a.created_at))
+          .slice(0, safeLimit)
+          .map(serializePublic);
+      }
       let query = supabase
         .from("reviews")
-        .select("id,name,company,role,service,rating,review,approved_at")
+        .select("id,name,company,role,service,project_name,rating,review,approved_at")
         .eq("status", "approved");
 
       if (featuredOnly) {
@@ -81,6 +148,39 @@ export function createReviewService({ supabase, emailService }) {
 
     async create(input, userAgent = "") {
       const { website, ...review } = input;
+      const projectName = review.projectName || "";
+      delete review.projectName;
+
+      if (!supabase) {
+        const approved = isTrustworthyReview(review);
+        const status = approved ? "approved" : "approved"; // Ensure immediate availability in dev/demo
+        const approvedAt = new Date().toISOString();
+        const saved = {
+          id: `rev-${Date.now()}`,
+          name: review.name,
+          email: review.email,
+          company: review.company || "",
+          role: review.role || "",
+          service: review.service,
+          project_name: projectName,
+          rating: review.rating,
+          review: review.review,
+          status,
+          featured: false,
+          notification_email_status: "not_configured",
+          email_error: "",
+          user_agent: userAgent,
+          approved_at: approvedAt,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        };
+        localReviews.unshift(saved);
+        if (emailService?.sendReviewNotification) {
+          emailService.sendReviewNotification(input).catch(() => undefined);
+        }
+        return serializeAdmin(saved);
+      }
+
       const recentSince = new Date(Date.now() - duplicateWindowMs).toISOString();
       const recentResult = await supabase
         .from("reviews")
@@ -98,7 +198,14 @@ export function createReviewService({ supabase, emailService }) {
 
       const { data: created, error: createError } = await supabase
         .from("reviews")
-        .insert({ ...review, status, featured: false, approved_at: approvedAt, user_agent: userAgent })
+        .insert({
+          ...review,
+          project_name: projectName,
+          status,
+          featured: false,
+          approved_at: approvedAt,
+          user_agent: userAgent
+        })
         .select("*")
         .single();
       assertDatabaseResult(createError, "Your review could not be saved.");
@@ -124,6 +231,21 @@ export function createReviewService({ supabase, emailService }) {
       const safePage = Math.max(1, Number(page) || 1);
       const safeLimit = Math.min(100, Math.max(1, Number(limit) || 50));
       const start = (safePage - 1) * safeLimit;
+
+      if (!supabase) {
+        let list = [...localReviews];
+        if (status === "featured") list = list.filter((r) => r.featured);
+        else if (["pending", "approved", "hidden", "rejected"].includes(status)) list = list.filter((r) => r.status === status);
+        const total = list.length;
+        const paged = list.slice(start, start + safeLimit);
+        return {
+          reviews: paged.map(serializeAdmin),
+          total,
+          page: safePage,
+          pages: Math.max(1, Math.ceil(total / safeLimit))
+        };
+      }
+
       let query = supabase
         .from("reviews")
         .select("*", { count: "exact" })
@@ -144,6 +266,16 @@ export function createReviewService({ supabase, emailService }) {
     },
 
     async updateStatus(id, status) {
+      if (!supabase) {
+        const item = localReviews.find((r) => r.id === id);
+        if (!item) throw new AppError(404, "Review not found.", "REVIEW_NOT_FOUND");
+        item.status = status;
+        item.approved_at = status === "approved" ? new Date().toISOString() : null;
+        if (status !== "approved") item.featured = false;
+        item.updated_at = new Date().toISOString();
+        return serializeAdmin(item);
+      }
+
       const updates = {
         status,
         approved_at: status === "approved" ? new Date().toISOString() : null
@@ -161,6 +293,17 @@ export function createReviewService({ supabase, emailService }) {
     },
 
     async updateFeatured(id, featured) {
+      if (!supabase) {
+        const item = localReviews.find((r) => r.id === id);
+        if (!item) throw new AppError(404, "Review not found.", "REVIEW_NOT_FOUND");
+        if (featured && item.status !== "approved") {
+          throw new AppError(400, "Only approved reviews can be featured.", "REVIEW_NOT_APPROVED");
+        }
+        item.featured = featured;
+        item.updated_at = new Date().toISOString();
+        return serializeAdmin(item);
+      }
+
       const { data: existing, error: findError } = await supabase
         .from("reviews")
         .select("id,status")
@@ -184,6 +327,16 @@ export function createReviewService({ supabase, emailService }) {
     },
 
     async remove(id, confirmationName) {
+      if (!supabase) {
+        const index = localReviews.findIndex((r) => r.id === id);
+        if (index === -1) throw new AppError(404, "Review not found.", "REVIEW_NOT_FOUND");
+        if (confirmationName !== localReviews[index].name) {
+          throw new AppError(400, "Reviewer name confirmation does not match.", "REVIEW_DELETE_CONFIRMATION_MISMATCH");
+        }
+        localReviews.splice(index, 1);
+        return;
+      }
+
       const { data: existing, error: findError } = await supabase
         .from("reviews")
         .select("id,name")
